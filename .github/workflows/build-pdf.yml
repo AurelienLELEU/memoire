@@ -1,0 +1,73 @@
+name: Build PDF & Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Pandoc & LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-lang-french latexmk
+
+      - name: Convert Markdown to PDF via LaTeX
+        run: |
+          pandoc memoire_complet.md \
+            --template=template.tex \
+            --pdf-engine=pdflatex \
+            --variable title="Évaluation de la cohérence et de la fiabilité d'un système RAG" \
+            --variable author="Aurélien Leleu" \
+            --variable date="2025" \
+            --toc \
+            --number-sections \
+            -o memoire.pdf
+
+      - name: Also generate standalone .tex
+        run: |
+          pandoc memoire_complet.md \
+            --template=template.tex \
+            --standalone \
+            --variable title="Évaluation de la cohérence et de la fiabilité d'un système RAG" \
+            --variable author="Aurélien Leleu" \
+            --variable date="2025" \
+            --toc \
+            --number-sections \
+            -o memoire.tex
+
+      - name: Prepare Pages directory
+        run: |
+          mkdir -p _site
+          cp memoire.pdf _site/
+          cp memoire.tex _site/
+          cp index.html _site/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

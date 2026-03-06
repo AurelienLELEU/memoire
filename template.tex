@@ -1,0 +1,88 @@
+\documentclass[12pt, a4paper]{report}
+
+% --- Encodage et langue ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% --- Mise en page ---
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% --- Polices ---
+\usepackage{lmodern}
+
+% --- Maths ---
+\usepackage{amsmath, amssymb, amsfonts}
+
+% --- Tableaux et figures ---
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{float}
+
+% --- Liens ---
+\usepackage[colorlinks=true, linkcolor=blue!60!black, citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
+
+% --- Code ---
+\usepackage{listings}
+\usepackage{xcolor}
+
+% --- Notes de bas de page (footnotes Pandoc) ---
+\usepackage{footnote}
+
+% --- En-têtes / pieds de page ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% --- Titre ---
+\title{$title$}
+\author{$author$}
+\date{$date$}
+
+% --- Pandoc tight list fix ---
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% --- CSL refs (Pandoc) ---
+$if(csl-refs)$
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2]{}{}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+$endif$
+
+\begin{document}
+
+% --- Page de titre ---
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+{\Huge\bfseries $title$\par}
+\vspace{1.5cm}
+{\Large Mémoire\par}
+\vspace{1cm}
+{\large $author$\par}
+\vspace{0.5cm}
+{\large $date$\par}
+\vfill
+\end{titlepage}
+
+% --- Table des matières ---
+\tableofcontents
+\newpage
+
+% --- Corps ---
+$body$
+
+\end{document}
