@@ -1,4 +1,4 @@
-﻿# Mémoire — Évaluation de la cohérence et de la fiabilité d’un système RAG (cas d’usage : ScribBERT)
+# Mémoire — Évaluation de la cohérence et de la fiabilité d’un système RAG (cas d’usage : ScribBERT)
 
 > Document de travail (version brouillon). Les éléments marqués **[À compléter]** sont des placeholders (chiffres, exemples internes, schémas, références exactes).
 
@@ -36,7 +36,7 @@ Cette première partie vise à replacer les systèmes de **Retrieval-Augmented G
 
 Deux idées structurent l’ensemble :
 
-1. Un RAG n’est pas « un LLM + des documents », mais une **chaîne de décision** (indexation → retrieval → assemblage du contexte → génération) dont les erreurs s’additionnent et parfois se masquent.
+1. Un RAG n’est pas « un LLM + des documents », mais une **chaîne de décision** (indexation, retrieval, assemblage du contexte, génération) dont les erreurs s’additionnent et parfois se masquent.
 2. Les critères d’évaluation classiques de l’IR et ceux des LLMs ne se recouvrent pas entièrement : un système peut obtenir un bon score de retrieval et produire une réponse incorrecte, ou l’inverse (réponse plausible mais non sourcée).
 
 L’objectif de cette partie est donc (i) de clarifier les mécanismes techniques qui amènent à la recherche sémantique moderne, (ii) de situer les architectures RAG par rapport aux alternatives (moteurs de recherche, fine-tuning, QA extractive), et (iii) d’installer un vocabulaire rigoureux pour la suite.
@@ -193,7 +193,7 @@ Avant les RAG, la recherche a connu une transition majeure : passer de la recher
 
 Avec la montée en puissance des Transformers, le **dense retrieval** s’est structuré autour de bi-encodeurs entraînés sur des tâches de question-réponse, typiquement en utilisant des passages positifs/négatifs. DPR (Dense Passage Retrieval) est devenu une référence : il a montré qu’un encodage dense bien entraîné pouvait surpasser les approches classiques sur des benchmarks de QA ouverts.[^Karpukhin2020]
 
-Au-delà de DPR, une grande partie des gains récents provient de stratégies d’entraînement avec **hard negatives** (négatifs difficiles) et d’itérations retrieval↔training ; ANCE est un exemple influent de ce type d’approche pour améliorer la qualité du dense retrieval à grande échelle.[^Xiong2020ANCE]
+Au-delà de DPR, une grande partie des gains récents provient de stratégies d’entraînement avec **hard negatives** (négatifs difficiles) et d’itérations retrieval-training ; ANCE est un exemple influent de ce type d’approche pour améliorer la qualité du dense retrieval à grande échelle.[^Xiong2020ANCE]
 
 Une étape intermédiaire importante est **ORQA** (Open-Retrieval Question Answering), proposé par Lee et al. en 2019, qui a montré qu'un retriever pré-entraîné de manière non supervisée (via *Inverse Cloze Task*) pouvait déjà améliorer les systèmes de QA ouverts sans nécessiter de paires question-passage annotées manuellement.[^Lee2019ORQA] Ce travail a posé les bases méthodologiques qui ont conduit à DPR et aux architectures RAG.
 
@@ -285,7 +285,7 @@ On peut distinguer plusieurs logiques de segmentation :
 
 Le chunking influence directement :
 
-- le **rappel** (chunks trop gros → moins d’unités, risque de dilution ; chunks trop petits → manque de contexte),
+- le **rappel** (chunks trop gros : moins d'unités, risque de dilution ; chunks trop petits : manque de contexte),
 - la **citabilité** (capacité à relier une affirmation à un extrait précis),
 - la **gestion des contradictions** (contradictions détectables si les unités sont comparables).
 
@@ -361,7 +361,7 @@ Dans un RAG industriel, la présence de sources n’est utile que si :
 
 1. les passages cités sont réellement pertinents (sinon, *fausse* traçabilité),
 2. la réponse est fidèle aux passages (sinon, *citation décorative*),
-3. la granularité de citation permet une vérification (chunk trop grand → difficile à auditer).
+3. la granularité de citation permet une vérification (chunk trop grand, difficile à auditer).
 
 Cela amène à distinguer :
 
