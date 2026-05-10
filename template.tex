@@ -1,17 +1,51 @@
 \documentclass[12pt, a4paper]{report}
 
 % --- Encodage et langue ---
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
+% Compatible pdflatex / xelatex / lualatex.
+% Sous xelatex/lualatex, on charge fontspec (Unicode natif) ; sous pdflatex,
+% on garde inputenc/fontenc + lmodern.
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+  \usepackage{lmodern}
+  % Caractères Unicode rencontrés dans le mémoire mais non gérés par défaut.
+  \DeclareUnicodeCharacter{2248}{\ensuremath{\approx}}
+  \DeclareUnicodeCharacter{2265}{\ensuremath{\geq}}
+  \DeclareUnicodeCharacter{2264}{\ensuremath{\leq}}
+  \DeclareUnicodeCharacter{2212}{\ensuremath{-}}
+  \DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}}
+  \DeclareUnicodeCharacter{2190}{\ensuremath{\leftarrow}}
+  \DeclareUnicodeCharacter{2191}{\ensuremath{\uparrow}}
+  \DeclareUnicodeCharacter{2193}{\ensuremath{\downarrow}}
+  \DeclareUnicodeCharacter{2194}{\ensuremath{\leftrightarrow}}
+  \DeclareUnicodeCharacter{21D2}{\ensuremath{\Rightarrow}}
+  \DeclareUnicodeCharacter{2026}{\ldots}
+  \DeclareUnicodeCharacter{2075}{\ensuremath{^{5}}}
+  \DeclareUnicodeCharacter{2076}{\ensuremath{^{6}}}
+  \DeclareUnicodeCharacter{25BA}{\ensuremath{\blacktriangleright}}
+  \DeclareUnicodeCharacter{25C4}{\ensuremath{\blacktriangleleft}}
+  \DeclareUnicodeCharacter{2500}{-}
+  \DeclareUnicodeCharacter{2502}{|}
+  \DeclareUnicodeCharacter{250C}{+}
+  \DeclareUnicodeCharacter{2510}{+}
+  \DeclareUnicodeCharacter{2514}{+}
+  \DeclareUnicodeCharacter{2518}{+}
+\else
+  \usepackage{fontspec}
+  \defaultfontfeatures{Ligatures=TeX}
+  % Police principale Latin Modern (équivalent lmodern, gère les box-drawing
+  % via fallback systeme si dispo).
+  \setmainfont{Latin Modern Roman}
+  \setsansfont{Latin Modern Sans}
+  \setmonofont{Latin Modern Mono}
+\fi
 \usepackage[french]{babel}
 
 % --- Mise en page ---
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{setspace}
 \onehalfspacing
-
-% --- Polices ---
-\usepackage{lmodern}
 
 % --- Maths ---
 \usepackage{amsmath, amssymb, amsfonts}
