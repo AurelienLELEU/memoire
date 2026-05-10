@@ -1,121 +1,117 @@
+## Note de cadrage du plan (révisée — v2)
+
+**Définition opératoire de la « fiabilité »** (terme central du titre) :
+> *Fiabilité = pertinence du retrieval + fidélité aux sources (factualité) + stabilité/répétabilité de la réponse + traçabilité auditable.*
+Cette définition structure les critères d'évaluation des Ch. 5 et 6.
+
+**Principes anti-redondance** :
+- **Ch. 2** (architecture RAG type, générique) ≠ **Ch. 7** (architecture ScribBERT, choix concrets et justifications uniquement).
+- **Ch. 4** (catalogue théorique des leviers et compromis) ≠ **Ch. 7.3-7.4** (uniquement la configuration retenue + justification adossée à Ch. 4).
+- **Ch. 5** (métriques + protocole) ≠ **Ch. 6** (recentré sur stabilité / répétabilité, dimension peu traitée dans Ch. 5).
+
+---
+
+## Volet liminaire — Présentation du contexte
+- **Le groupe Bouygues, branche Construction**
+- **Bouygues Travaux Publics : périmètre, projets emblématiques, organisation**
+- **Le département P2S (Prévention Santé-Sécurité) : missions, enjeux documentaires**
+- **Le projet ScribBERT : objectifs, principes directeurs, périmètre d'alternance**
+- **Implications pour la problématique du mémoire**
+
 ## PARTIE I — Cadre conceptuel et état de l'art
 
 ### Chapitre 1 : De la recherche documentaire à la recherche sémantique
-1. **Historique de la recherche d'information (Origine, modele booleen, TF-IDF, BM25, limites du matching lexical, etc.)**
-2. **Passage à la recherche sémantique (embeddings avec cbow skip-gram, puis BERT, dense retrieval, sparse vs dense retreival, approche hybride, usage sur doc techniques et reglementaires)**
-3. **Problématiques de sémantisation : similarité, contextualisation, ambiguïté, multilingue, vocabulaire spécifique TP**
-4. **Limites des approches traditionnelles face aux LLMs : Requetes complexes, pas de compréhension contextuelle profonde, difficulte a extraire des informations implicites, manque dadaptation à des besoins spécifiques**
-   
-### Chapitre 2 : Les fondements du RAG (Retrieval-Augmented Generation)
-1. **Principe général d'une pipeline RAG : Définition et origine du concept (Lewis et al., 2020), rag vs fine-tuning llm, use cases, rag dans l'IA gen, justification du choix pour scribbert**
-2. **Architecture : ingestion, chunking, vectorisation, retrieval, génération**
-   - **Schéma détaillé de l'architecture mise en place pour Scribbert**
-3. **Les avantages du RAG : moins d'hallucinations, contextualisation avec sources traçables, connaissances privées sans exposition publique, actualisation facile sans réentrainement, contrôle des sources, auditabilité des réponses, cout réduit vs fine-tuning**
-4. **Les défis du RAG : bruit documentaire, biais, cohérence globale, explicabilité, gestion des contradictions, latence induite, qualité?**
+1. **Historique de la recherche d'information** (modèle booléen, TF-IDF, BM25, limites du matching lexical, évaluation Cranfield/TREC, learning-to-rank)
+2. **Passage à la recherche sémantique** (LSA, Word2Vec CBOW/Skip-gram, BERT, sentence embeddings, dense retrieval, sparse vs dense vs hybride, ANN/HNSW)
+3. **Problématiques de sémantisation** : similarité, contextualisation, ambiguïté, multilinguisme, vocabulaire technique HSE
+4. **Limites des approches traditionnelles face aux LLMs** : requêtes complexes, intentions, raisonnement implicite
 
-### Chapitre 3 : La question de la « pertinence » et de la « cohérence »
-1. **Définir la pertinence (topicalité, exhaustivité, utilité)**
-   - **Pertinence topique : adéquation thématique document-requête**
-   - **Pertinence situationnelle : utilité pour l'utilisateur et son contexte**
-   - **Exhaustivité : couverture complète de la question posée**
-   - **Granularité : niveau de détail approprié**
-   - **Actualité : fraîcheur de l'information**
-   - **Autorité : fiabilité et crédibilité de la source**
-   - **Spécificités du domaine HSE : criticité de la précision**
-2. **Définir la cohérence (logique interne, fidélité à la source, stabilité)**
-   - **Cohérence locale : fluidité entre phrases et paragraphes**
-   - **Cohérence globale : structure argumentative logique**
-   - **Fidélité factuelle : alignement avec les sources récupérées**
-   - **Absence de contradictions internes**
-   - **Stabilité : reproductibilité des réponses**
-   - **Cohérence terminologique : usage consistant du vocabulaire métier**
-   - **Cohérence réglementaire : respect des normes et procédures**
-3. **Pertinence perçue vs. mesurée : les deux dimensions de l'évaluation**
-   - **Retour d'expérience des utilisateurs de Scribbert**
-   - **Méthodes mixtes : triangulation des approches d'évaluation**
-4. **Revue des travaux académiques récents sur l'évaluation des RAG et des LLMs augmentés**
-   - **Benchmarks existants : BEIR, MTEB, RAGAs**
-   - **Métriques de factualité : FactScore, SAFE, TruthfulQA**
-   - **Travaux sur l'évaluation de la cohérence : BERTScore, BLEURT**
-   - **Évaluation LLM-as-judge : G-Eval, Prometheus**
-   - **Frameworks d'évaluation : RAGAS, TruLens, LangSmith**
-   - **Gaps identifiés dans la littérature**   
-   - **Positionnement de la contribution du mémoire**
+### Chapitre 2 : Les fondements du RAG (Retrieval-Augmented Generation)
+1. **Principe général** : DrQA → ORQA → REALM → RAG (Lewis 2020) → FiD ; RAG vs fine-tuning ; mémoire paramétrique vs non-paramétrique
+2. **Architecture type d'une pipeline RAG** (générique uniquement — l'instanciation ScribBERT est en Ch. 7)
+3. **Avantages du RAG** : moins d'hallucinations, traçabilité, connaissances privées, actualisation, auditabilité
+4. **Défis du RAG** : bruit, contradictions, dépendance au chunking, latence, cohérence ; multi-stage retrieval + reranking ; importance de la « source »
+
+### Chapitre 3 : Pertinence, cohérence, fiabilité
+1. **Définir la pertinence** (multi-dimensionnelle : topique, situationnelle, exhaustivité, granularité, actualité, autorité, interactive)
+2. **Définir la cohérence** (textuelle, factualité, fidélité aux sources, terminologique, réglementaire)
+3. **Définir la fiabilité** (synthèse opératoire pour ce mémoire — voir note de cadrage)
+4. **Pertinence perçue vs mesurée** : triangulation des approches
+5. **Travaux récents sur l'évaluation des RAG** : BEIR, MTEB, BERTScore/BLEURT, TruthfulQA, FactScore, RAGAS, TruLens, LLM-as-judge ; gaps en domaines critiques ; positionnement de la contribution
 
 ## PARTIE II — Méthodologie d'évaluation d'un système RAG
 
-### Chapitre 4 : Modèles et paramètres influençant la performance
-1. **Les modèles d'embedding : principes, diversité et évaluation intrinsèque**
-   - **Typologie des modèles : BERT, sentence-transformers, OpenAI, Cohere**
-   - **Modèles généralistes vs. spécialisés**
-   - **Dimension des embeddings, compromis performance/coût**
-   - **Multilinguisme : modèles français, multilingues**
-   - **Métriques d'évaluation intrinsèque : MTEB, retrieval@k**
-   - **Tests comparatifs réalisés pour Scribbert**   
-   - **Critères de sélection : performance, coût, latence, confidentialité (open sourcé vs api)**
-2. **Le rôle du chunking et du prétraitement textuel**
-   - **Stratégies de chunking : fixe, sémantique, récursif, basé sur la structure, custom avec regex...**
-   - **Impact taille des chunks, overlap, préservation de la structure documentaire, gestion des métadonnées, nettoyage et normalisation**
-   - **Expérimentations menées : comparaison de différentes approches**
-3. **Les stratégies de retrieval (cosine similarity, hybrid search, reranking, etc.)**
-   - **Similarité cosinus : principe et limitations**
-   - **Hybrid search : combinaison sparse + dense retrieval**
-   - **Reranking : modèles de cross-encoders**   
-   - **Filtrage par métadonnées et contraintes**
-   - **Nombre de documents récupérés (top-k) : impact sur qualité et coût**
-   - **Query expansion et reformulation**
-   - **Implémentation dans Scribbert et choix techniques**
-4. **La composante de génération : modèles, prompts, gestion du contexte, intégration des sources, paramètres de génération, guardrails et filtres de sécurité pour le contexte HSE**
+### Chapitre 4 : Catalogue des leviers techniques (vue théorique)
+> **NB** : ce chapitre décrit les options *disponibles* et leurs compromis. Les *choix retenus* pour ScribBERT figurent en Ch. 7.
 
-### Chapitre 5 : Construction d'un protocole d'évaluation
-1. **Les critères d'évaluation (précision, rappel, nDCG, MRR, factualité, cohérence)**
-2. **Les approches d'évaluation**
-   - **Automatique (métriques vectorielles, lexicales, LLM-based)** :
-     - **Métriques hybrides : combinaison de plusieurs approches**
-     - **Avantages : scalabilité, reproductibilité, coût réduit**
-     - **Inconvénients : corrélation imparfaite avec jugement humain**
-   - **Humaine (annotation, grille d'évaluation, perception de la cohérence)** :
-     - **Évaluation qualitative : erreurs, biais, cas limites**
-     - **Avantages : gold standard, nuances contextuelles**
-     - **Inconvénients : coût, subjectivité, non-scalabilité**
-3. **Protocole expérimental : jeux de données, corpus, tâches cibles**
-4. **Méthodes d'analyse : évaluation comparative, statistiques**
+1. **Modèles d'embedding** : typologie, dimensions, multilinguisme, MTEB/BEIR, intrinsèque vs extrinsèque, grille de critères industriels
+2. **Chunking et prétraitement** : stratégies (fixe, récursif, structurel, sémantique, custom), taille/overlap, métadonnées, nettoyage, cas des PDF techniques
+3. **Stratégies de retrieval** : cosinus, hybride sparse+dense (combinaison de scores, RRF), reranking cross-encoder, filtrage métadonnées, top-k, query expansion (HyDE, multi-query, step-back)
+4. **Composante de génération** : choix LLM (propriétaire vs open-weights), prompt engineering, fenêtre de contexte, paramètres de décodage, citations, guardrails HSE
+5. **Synthèse : matrice leviers × métriques affectées**
 
-### Chapitre 6 : Évaluation de la cohérence globale
-1. **Cohérence locale vs cohérence discursive**
-2. **Métriques cohérence** 
-3. **Approches hybrides** 
-4. **Mesure stabilité/répétabilité** 
+### Chapitre 5 : Protocole d'évaluation
+1. **Critères d'évaluation organisés par dimension de la fiabilité**
+   - Retrieval : Recall@k, Precision@k, MRR, nDCG, Hit@k
+   - Génération – fidélité : faithfulness, context support, attribution
+   - Génération – pertinence réponse : answer relevance, completeness
+   - End-to-end : utilité, refus contrôlé, citations correctes
+2. **Approches d'évaluation** : automatique (lexical, vectoriel, LLM-based), humaine (grille standardisée), comparaison
+3. **Construction du jeu de test** : sources, types de questions (factuelles, procédurales, comparatives, conditionnelles, hors-périmètre), niveaux de difficulté, annotation des passages-or, prévention de la contamination, versioning
+4. **Conditions expérimentales et reproductibilité** : isolation des facteurs (OFAT vs factoriel), seeding, gel des modèles/index, logging
+5. **Méthodes d'analyse** : tests statistiques de significativité, analyse d'erreurs typologique, études de cas
+
+### Chapitre 6 : Évaluation de la stabilité et de la répétabilité
+> **Recentrage** : ce chapitre traite spécifiquement de la *stabilité*, dimension de la fiabilité peu couverte par les métriques classiques de Ch. 5.
+
+1. **Pourquoi la stabilité est une dimension distincte de la fiabilité**
+2. **Sources de variance dans un RAG** : décodage stochastique, ANN approximatif, ordre des passages, sensibilité au prompt, dérive du corpus
+3. **Métriques de stabilité** : self-consistency, accord inter-runs (Jaccard sur citations, similarité BERTScore inter-réponses), variance des scores, taux de retournement (*flip rate*)
+4. **Sensibilité à la formulation** : robustesse aux paraphrases de requête, aux fautes, à l'ordre des chunks
+5. **Protocole de test de stabilité** : N runs, seeds variés, paraphrases automatiques, *adversarial probing*
 
 ## PARTIE III — Application pratique et étude de cas
 
-### Chapitre 7 : Mise en œuvre du système RAG étudié
-1. **Description de l'architecture mise en place (pipeline, technologies, choix de design)**
-   - **Vue d'ensemble de l'architecture Scribbert**
-   - **Stack technologique, choix d'hébergement, architecture de la base vectorielle, pipeline d'ingestion, UI, considérations de sécurité et conformité RGPD, coûts opérationnels et ROI**
-2. **Description du corpus (typologie, taille, structure, contraintes)**
-3. **Méthodes de chunking et de vectorisation employées**
-   - **Stratégies de chunking testées : comparaison détaillée, méthode retenue et justification, taille optimale des chunks identifiée, gestion de l'overlap et des métadonnées**
-   - **Prétraitement spécifique**
-   - **Modèle d'embedding sélectionné : comparaison et benchmark**
-   - **Configuration de l'indexation vectorielle**
-4. **Modèles de langage et d'embedding testés**
-   - **Critères de comparaison emb** : performance retrieval, latence, coût, langue
-   - **Critères de sélection llm** : qualité, coût, latence, confidentialité
-   - **Résultats des benchmarks et décision finale**
-     
-### Chapitre 8 : Expérimentations et résultats
-1. **Protocole d'expérimentation, Analyse des résultats selon différents paramètres, Mesures de pertinence, Mesures de cohérence, Analyse qualitative**
+### Chapitre 7 : Mise en œuvre du système RAG ScribBERT
+> **NB** : ne reprend pas les généralités de Ch. 2/4 ; documente uniquement les choix faits et leur justification (renvoi à Ch. 4 pour la théorie).
 
-### Chapitre 9 : Discussion et perspectives
-1. **Interprétation des résultats**
-2. **Identification des limites méthodologiques**
-3. **Apports du travail à la compréhension des RAG**
-4. **Recommandations pour les futures évaluations**
-5. **Ouverture vers d'autres applications (domaines réglementaires, techniques, etc.)**
+1. **Architecture déployée** : stack technique, hébergement, base vectorielle, pipeline d'ingestion, UI, sécurité/RGPD
+2. **Corpus** : typologie, taille, structure, contraintes (langue, formats, qualité)
+3. **Choix de chunking et prétraitement** : stratégie retenue + justification (renvoi Ch. 4.2)
+4. **Choix d'embedding et de LLM** : modèles testés, modèles retenus + justification (renvoi Ch. 4.1 et 4.4)
+5. **Configuration retrieval/reranking/prompt** : valeurs retenues + justification (renvoi Ch. 4.3 et 4.4)
+
+### Chapitre 8a : Résultats quantitatifs
+1. **Protocole expérimental instancié** (jeu de test interne, conditions)
+2. **Résultats retrieval** : Recall@k, MRR, nDCG selon embedding / chunking / hybridation / reranking
+3. **Résultats génération** : faithfulness, answer relevance, citations
+4. **Résultats stabilité** (Ch. 6 appliqué) : variance inter-runs, robustesse aux paraphrases
+5. **Résultats end-to-end** et analyse du couplage retrieval ↔ génération
+
+### Chapitre 8b : Analyse qualitative et étude d'erreurs
+1. **Typologie des erreurs observées** (retrieval miss, hallucination, omission d'exception, contradiction non détectée, refus à tort)
+2. **Études de cas commentées** (5–10 exemples représentatifs)
+3. **Cas limites et ambiguïtés** (acronymes, multi-versions, hors-périmètre)
+4. **Biais identifiés** dans le système et le corpus
+
+### Chapitre 9 : Enjeux éthiques, réglementaires et industriels
+> **Nouveau chapitre** : auparavant noyé dans la discussion ; mérite un traitement dédié.
+
+1. **AI Act européen** : classification du système, obligations applicables (transparence, supervision humaine, gestion des risques), implications pour ScribBERT
+2. **RGPD et données internes** : statut des documents, traces utilisateur, droit à l'explication
+3. **Responsabilité en contexte HSE** : qui est responsable d'une réponse erronée ? rôle du disclaimer, rôle de la supervision humaine
+4. **Gouvernance d'un RAG d'entreprise** : versioning des modèles et corpus, processus de validation des changements, audit trail
+5. **Acceptabilité et conduite du changement** : adoption par les utilisateurs terrain, formation, signal de confiance
+
+### Chapitre 10 : Discussion et perspectives
+1. **Interprétation des résultats** et synthèse des enseignements
+2. **Limites méthodologiques** (corpus, métriques, protocole)
+3. **Apports à la compréhension des RAG** (théoriques et méthodologiques)
+4. **Recommandations** pour évaluer les RAG en contexte critique
+5. **Perspectives** : multimodalité, agentic RAG, GraphRAG, fine-tuning d'embedding sur domaine HSE, généralisation à d'autres domaines réglementaires
 
 ### Conclusion générale
 - **Synthèse des résultats et des apports**
 - **Limites du travail**
 - **Perspectives de recherche**
-- **Implications pour l'industrialisation des RAG**
+- **Implications pour l'industrialisation des RAG en contexte critique**
