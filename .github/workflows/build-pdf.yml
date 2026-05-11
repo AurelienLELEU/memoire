@@ -25,11 +25,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pandoc texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-lang-french texlive-xetex latexmk fonts-lmodern
 
+      - name: Download CSL style (APA 7 — French locale)
+        run: |
+          curl -sL "https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl" -o apa-fr.csl
+
       - name: Convert Markdown to PDF via LaTeX
         run: |
           pandoc memoire_complet.md \
             --template=template.tex \
             --pdf-engine=xelatex \
+            --citeproc \
+            --bibliography=references.bib \
+            --csl=apa-fr.csl \
             --variable title="Évaluation de la cohérence et de la fiabilité d'un système RAG" \
             --variable author="Aurélien Leleu" \
             --variable date="2025" \
@@ -42,6 +49,9 @@ jobs:
           pandoc memoire_complet.md \
             --template=template.tex \
             --standalone \
+            --citeproc \
+            --bibliography=references.bib \
+            --csl=apa-fr.csl \
             --variable title="Évaluation de la cohérence et de la fiabilité d'un système RAG" \
             --variable author="Aurélien Leleu" \
             --variable date="2025" \
