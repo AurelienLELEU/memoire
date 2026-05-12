@@ -34,13 +34,35 @@
 \else
   \usepackage{fontspec}
   \defaultfontfeatures{Ligatures=TeX}
-  % Police principale Latin Modern (équivalent lmodern, gère les box-drawing
-  % via fallback systeme si dispo).
   \setmainfont{Latin Modern Roman}
   \setsansfont{Latin Modern Sans}
   \setmonofont{Latin Modern Mono}
 \fi
 \usepackage[french]{babel}
+
+% --- Caractères Unicode manquants (valable pdflatex ET xelatex/lualatex) ---
+\usepackage{newunicodechar}
+\newunicodechar{≈}{\ensuremath{\approx}}
+\newunicodechar{≥}{\ensuremath{\geq}}
+\newunicodechar{≤}{\ensuremath{\leq}}
+\newunicodechar{⇒}{\ensuremath{\Rightarrow}}
+\newunicodechar{→}{\ensuremath{\rightarrow}}
+\newunicodechar{←}{\ensuremath{\leftarrow}}
+\newunicodechar{↑}{\ensuremath{\uparrow}}
+\newunicodechar{↓}{\ensuremath{\downarrow}}
+\newunicodechar{↔}{\ensuremath{\leftrightarrow}}
+\newunicodechar{−}{\ensuremath{-}}
+\newunicodechar{…}{\ldots}
+\newunicodechar{⁵}{\ensuremath{^{5}}}
+\newunicodechar{⁶}{\ensuremath{^{6}}}
+\newunicodechar{►}{\ensuremath{\blacktriangleright}}
+\newunicodechar{◄}{\ensuremath{\blacktriangleleft}}
+\newunicodechar{─}{\texttt{-}}
+\newunicodechar{│}{\texttt{|}}
+\newunicodechar{┌}{\texttt{+}}
+\newunicodechar{┐}{\texttt{+}}
+\newunicodechar{└}{\texttt{+}}
+\newunicodechar{┘}{\texttt{+}}
 
 % --- Mise en page ---
 \usepackage[margin=2.5cm]{geometry}
@@ -72,9 +94,13 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\leftmark}
+\fancyhead[L]{\nouppercase{\leftmark}}
 \fancyhead[R]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
+% Pandoc avec report + ## crée des \section, pas des \chapter.
+% On redirige \leftmark vers section pour avoir le bon titre dans le header.
+\renewcommand{\chaptermark}[1]{}
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
 
 % --- Titre ---
 \title{$title$}
