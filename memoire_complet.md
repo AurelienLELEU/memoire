@@ -32,7 +32,7 @@ Avant d'entrer dans le vif du sujet technique, il est nécessaire de poser le d�
 
 ### Le groupe Bouygues et la branche Construction
 
-Le **groupe Bouygues** est un groupe industriel français diversifié, fondé en 1952 par Francis Bouygues. Il s'organise aujourd'hui autour de plusieurs métiers : la construction (Bouygues Construction, Bouygues Immobilier, Colas), les médias (TF1), les télécommunications (Bouygues Telecom) et les services à l'énergie et à l'industrie (Equans, intégré au groupe en 2022). En 2024, le groupe employait environ **200 000 collaborateurs** dans plus de 80 pays **[À compléter : chiffre exact d'effectifs et chiffre d'affaires de l'année de référence]**.
+Le **groupe Bouygues** est un groupe industriel français diversifié, fondé en 1952 par Francis Bouygues. Il s'organise aujourd'hui autour de plusieurs métiers : la construction (Bouygues Construction, Bouygues Immobilier, Colas), les médias (TF1), les télécommunications (Bouygues Telecom) et les services à l'énergie et à l'industrie (Equans, intégré au groupe en 2022). En 2024, le groupe employait environ **200 000 collaborateurs** dans plus de 80 pays.
 
 Au sein de ce groupe, **Bouygues Construction** rassemble les activités de bâtiment, de travaux publics et d'énergies/services. Elle se décompose elle-même en plusieurs entités opérationnelles, dont **Bouygues Travaux Publics** (Bouygues TP), qui constitue le pôle de référence pour les ouvrages de génie civil complexes.
 
@@ -42,53 +42,50 @@ Bouygues Travaux Publics est la filiale du groupe spécialisée dans la concepti
 
 - ouvrages souterrains (tunnels routiers, ferroviaires, métros, galeries hydrauliques) ;
 - ouvrages d'art (ponts, viaducs) ;
-- infrastructures de transport (autoroutes, lignes ferroviaires à grande vitesse) ;
 - ouvrages maritimes et fluviaux (ports, digues, écluses) ;
 - ouvrages industriels et énergétiques (centrales nucléaires, barrages, terminaux GNL).
 
-L'entreprise est notamment impliquée dans des projets emblématiques tels que le **Grand Paris Express** (plusieurs lots de tunnels et de gares pour les nouvelles lignes de métro), la centrale nucléaire **EPR de Hinkley Point C** au Royaume-Uni, ou encore divers projets internationaux en Asie, en Afrique et en Amérique du Nord. Elle compte environ **[À compléter : effectif Bouygues TP]** collaborateurs répartis sur des chantiers en France et à l'international, avec un siège social à **Guyancourt (Yvelines)**.
+L'entreprise est notamment impliquée dans des projets emblématiques tels que le **Grand Paris Express** (plusieurs lots de tunnels et de gares pour les nouvelles lignes de métro), la centrale nucléaire **EPR de Hinkley Point C** au Royaume-Uni, ou encore divers projets internationaux en Asie, en Afrique et en Amérique du Nord. Elle compte environ **10 000 collaborateurs** répartis sur des chantiers en France et à l'international, avec un siège social à **Guyancourt (Yvelines)**.
 
 Cette typologie d'ouvrages présente trois caractéristiques structurantes pour le sujet de ce mémoire :
 
 1. **Une exposition aux risques élevée** : travaux en hauteur, en souterrain, à proximité d'engins lourds, en milieu confiné, à proximité d'eau, en environnement nucléaire, etc. Chaque chantier mobilise un volume important de procédures de sécurité spécifiques.
-2. **Une production documentaire considérable et hétérogène** : standards groupe, procédures filiales, modes opératoires chantier, plans de prévention, retours d'expérience (REX), normes externes (NF, EN, ISO), réglementations nationales variables selon les pays d'intervention.
-3. **Une organisation projet décentralisée** : chaque chantier dispose d'une équipe dédiée et d'une certaine autonomie opérationnelle, ce qui complique la diffusion uniforme des bonnes pratiques et la consultation rapide des référentiels.
+2. **Une production documentaire considérable et hétérogène** : standards groupe, procédures filiales, modes opératoires chantier, système client/partenaire, plans de prévention, retours d'expérience (REX), normes externes (NF, EN, ISO), réglementations nationales variables selon les pays d'intervention.
+3. **Une organisation projet décentralisée** : chaque chantier dispose d'une équipe dédiée et d'une certaine autonomie opérationnelle.
 
 ### Le département P2S (Prévention Santé-Sécurité)
 
-Au sein de Bouygues TP, le département **P2S — Prévention Santé-Sécurité** est en charge de la définition, de la diffusion et du suivi de la politique santé-sécurité de l'entreprise. Ses missions couvrent notamment :
+Au sein de Bouygues TP, le département **P2S (Prévention Santé-Sécurité)** est entre autres en charge de la définition, de la diffusion et du suivi de la politique santé-sécurité de l'entreprise. Ses missions couvrent notamment :
 
-- la **rédaction et la maintenance des référentiels** (procédures, standards, instructions) ;
-- l'**accompagnement opérationnel** des équipes chantier (audits, visites, formations) ;
-- l'**analyse des accidents et presqu'accidents**, et la capitalisation des retours d'expérience ;
-- le **reporting** et le pilotage des indicateurs santé-sécurité (taux de fréquence, taux de gravité, **[À compléter : indicateurs internes BTP]**) ;
+- la **rédaction et la maintenance des référentiels** (procédures, standards, référentiels) ;
+- l'**accompagnement opérationnel** des équipes chantier (audits, visites) ;
+- l'**analyse des accidents et presqu'accidents** ;
+- le **reporting** et le pilotage des indicateurs santé-sécurité (taux de fréquence, taux de gravité, nombre d'heures travaillées, nombre d'accidents à haut potentiel (HiPo)) ;
 - la **veille réglementaire** française et internationale.
 
-L'enjeu opérationnel central est de **rendre l'information de sécurité accessible, exacte et applicable au bon moment**, c'est-à-dire dans le contexte de la situation de travail. Or les retours terrain montrent qu'une part significative des situations à risque ne provient pas d'une absence de référentiel, mais d'une **difficulté à retrouver rapidement la bonne information** dans un corpus volumineux et fragmenté. Les statistiques d'utilisation du SharePoint interne le confirment de façon assez parlante : le temps moyen passé par un utilisateur sur la plateforme documentaire est d'environ 2 minutes 30, ce qui signifie que beaucoup abandonnent avant d'avoir trouvé ce qu'ils cherchent. Ceux qui persistent y passent plutôt autour de 10 minutes. C'est ce genre de friction qui a motivé le projet ScribBERT.
+L'enjeu opérationnel central est de **rendre l'information de sécurité accessible, exacte et applicable au bon moment**, c'est-à-dire dans le contexte de la situation de travail. Or les retours terrain montrent qu'une part significative des situations à risque ne provient pas d'une absence de référentiel, mais d'une **difficulté à retrouver/respecter la bonne information**. Les statistiques d'utilisation du SharePoint interne le confirment de façon assez parlante : le temps moyen passé par un utilisateur sur la plateforme documentaire est d'environ 2 minutes 30, ce qui correspond au temps nécessaire pour localiser et télécharger le bon document. La recherche ne s'arrête pas là : l'utilisateur poursuit ensuite dans le document téléchargé, souvent en croisant plusieurs sources, ce qui allonge considérablement l'effort total. Ceux qui peinent à identifier le bon document y passent plutôt autour de 10 minutes. C'est ce genre de friction qui a motivé le projet ScribBERT.
 
 ### Le projet ScribBERT
 
-C'est de ce constat qu'est né **ScribBERT**. L'idée initiale vient d'Aurélie Janssens (mon ancienne tutrice) et de Flavien Martin, qui cherchaient des cas d'usage concrets de l'IA appliquée à la santé-sécurité chez Bouygues TP. La réflexion était assez directe : on a des dizaines de procédures, de standards, de référentiels, et les compagnons ne peuvent pas tout connaître, ni tout retrouver dans un système documentaire aussi complexe. L'idée d'une sorte de « ChatGPT qui connaîtrait tous nos documents » s'est imposée. Pas un gadget, mais un outil qui permette à un collaborateur de poser une question en langage naturel et d'obtenir une réponse synthétique, sourcée, fondée sur les référentiels validés du département P2S.
+C'est de ce constat qu'est né **ScribBERT**. L'idée initiale vient d'Aurélie Janssens (mon ancienne tutrice) et de Flavien Martin (mon tuteur actuel au moment de la rédaction), qui cherchaient des cas d'usage concrets de l'IA appliquée à la santé-sécurité chez Bouygues TP. Le besoin originel était très opérationnel : simplifier la réponse aux appels d'offre. Les clients soumettent des questionnaires Santé-Sécurité détaillés qu'il faut remplir en s'appuyant sur les référentiels internes, un exercice chronophage qui consiste essentiellement à retrouver la bonne information dans les bons documents. L'idée d'un assistant capable de répondre à ces questions en langage naturel, en citant les passages pertinents, s'est imposée assez naturellement. De là, le périmètre s'est élargi : si le système peut répondre aux questions des clients, il peut tout aussi bien répondre aux questions des collaborateurs au quotidien. L'ambition est alors devenue celle d'un outil qui permette à n'importe quel collaborateur de poser une question et d'obtenir une réponse synthétique, sourcée, fondée sur les référentiels validés du département P2S.
 
 Techniquement, ScribBERT repose sur une architecture **RAG** (Retrieval-Augmented Generation). Les principes directeurs, posés dès le début du projet, étaient les suivants :
 
 - **Ancrage strict** sur les documents internes validés (pas de réponse sans source) ;
 - **Traçabilité** systématique des passages cités, avec lien vers le document d'origine ;
-- **Confidentialité** : hébergement et traitement compatibles avec la sensibilité des documents internes **[À compléter : précisions sur l'architecture d'hébergement, on-prem vs cloud souverain]** ;
+- **Confidentialité** : hébergement et traitement compatibles avec la sensibilité des documents internes ;
 - **Évaluabilité** : conception du système pensée pour être mesurable, ce qui constitue précisément l'objet de ce mémoire.
 
-Le projet a été développé dans le cadre de mon **alternance de trois ans** au sein du département P2S, dont **un an et demi** consacré à ScribBERT à partir de la deuxième année. La supervision a été assurée conjointement par **Flavien Martin** (tuteur métier, santé-sécurité) et **Julien Larseneur** (tuteur technique, software). Cette complémentarité s'est révélée précieuse : Flavien formulait les besoins métier, Julien m'aidait à les théoriser et à les traduire en choix d'architecture. Le dialogue entre les deux était constructif et a beaucoup structuré ma réflexion. Le périmètre fonctionnel initial couvre l'ensemble des référentiels santé-sécurité du siège de Bouygues TP, soit environ une centaine de documents PDF (cf. Ch. 7).
+Le projet a été développé dans le cadre des deux dernières années de mon alternance qui s'est déroulée sur trois ans au sein du département P2S. La supervision a été assurée conjointement par **Flavien Martin** (tuteur métier, santé-sécurité) et **Julien Larseneur** (tuteur technique, équipe Data/IA Bouygues TP). Cette complémentarité s'est révélée précieuse : Flavien formulait les besoins métier, Julien m'aidait à les théoriser et à les traduire en choix d'architecture. Le périmètre fonctionnel initial couvre l'ensemble des référentiels santé-sécurité du siège de Bouygues TP, soit environ 130 documents PDF internes. Ce chiffre monte à 190–200 documents si l'on intègre les référentiels clients et réglementaires (ENBRIDGE, PAS 91, OSHA, etc.) (cf. Ch. 7).
 
 ### Implications pour ce mémoire
 
 La nature de l'entreprise et du département a directement influencé la problématique d'évaluation traitée ici. Quelques points méritent d'être soulignés car ils reviennent constamment dans la suite :
 
-- La **criticité métier** impose des exigences de fiabilité sans commune mesure avec un chatbot généraliste. Un assistant marketing qui se trompe, c'est gênant ; un assistant santé-sécurité qui se trompe, c'est potentiellement dangereux.
+- La **criticité métier** impose des exigences de fiabilité importantes. Un assistant marketing/communication qui se trompe, c'est gênant ; un assistant santé-sécurité qui se trompe, c'est potentiellement dangereux.
 - L'**hétérogénéité documentaire** rend les benchmarks publics insuffisants. On ne peut pas évaluer ScribBERT avec les jeux de données académiques classiques, il a fallu construire un corpus de test interne.
-- Les **contraintes de confidentialité** orientent les choix techniques (préférence pour des modèles hébergeables en interne) et limitent ce que je peux publier dans ce mémoire en termes de résultats bruts.
-- Le caractère **opérationnel** du déploiement (avec des utilisateurs réels, dont certains enthousiastes et d'autres méfiants vis-à-vis de l'IA) impose de considérer non seulement la performance moyenne mais aussi la stabilité et la gestion des cas limites. Les premiers retours utilisateurs ont d'ailleurs confirmé ce point : tout le monde reconnaît l'intérêt de la solution, mais la peur de l'erreur reste présente, et légitime.
-
-Ces éléments justifient la nécessité d'un protocole d'évaluation rigoureux, qui constitue la contribution centrale de ce travail.
+- Les **contraintes de confidentialité** orientent les choix techniques (préférence pour des modèles hébergeables en interne, ou disponible en espace sécurisé).
+- Le caractère **opérationnel** du déploiement (avec des utilisateurs réels, dont certains enthousiastes et d'autres méfiants vis-à-vis de l'IA) impose de considérer non seulement la performance moyenne mais aussi la stabilité et la gestion des cas limites. Les premiers retours utilisateurs ont d'ailleurs confirmé ce point : tout le monde reconnaît l'intérêt de la solution, mais la peur de l'erreur reste présente, et légitime : en phase de POC, certaines réponses se sont avérées incorrectes ou incomplètes, ce qui a renforcé la nécessité d'un cadre d'évaluation solide avant tout déploiement élargi.
 
 ---
 
