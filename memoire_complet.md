@@ -10,7 +10,7 @@ Mais cette puissance a un revers. Les **LLMs** (Large Language Models) souffrent
 
 C'est pour contourner ces limites qu'une approche hybride s'est imposée : le **Retrieval-Augmented Generation** (RAG), qui couple un mécanisme de **recherche documentaire** à un modèle génératif.[@Lewis2020] L'idée est simple sur le papier : plutôt que de laisser le modèle « inventer » à partir de sa mémoire interne, on lui fournit des extraits de documents pertinents, et on lui demande de s'y appuyer pour formuler sa réponse. En pratique, c'est nettement plus complexe qu'il n'y paraît, et c'est l'objet de ce mémoire.
 
-ScribBERT est né de cette idée. C'est un chatbot que j'ai développé pendant mon alternance au département P2S (Prévention santé-sécurité) de Bouygues Travaux Publics. Le constat de départ était simple : le département dispose de dizaines de procédures, standards et référentiels, mais les collaborateurs passent un temps considérable à chercher la bonne information, quand ils ne renoncent pas. L'idée d'un assistant capable de répondre en langage naturel, en citant les bons documents, s'est imposée assez naturellement. Je connaissais les LLMs grâce à ma formation en intelligence artificielle, mais le principe du RAG, je l'ai découvert et appris sur le tas en cherchant comment ancrer les réponses du modèle dans nos documents internes. Les premiers résultats ont eu un vrai effet « ouahou » : le système répondait de façon pertinente à des questions sur lesquelles un moteur de recherche classique aurait été inutile.
+ScribBERT est né de cette idée. C'est un chatbot RAG que j'ai développé pendant mon alternance au département P2S de Bouygues Travaux Publics, pour permettre aux collaborateurs d'interroger en langage naturel les référentiels santé-sécurité internes. Les premiers résultats ont eu un vrai effet « ouahou » : le système répondait de façon pertinente à des questions sur lesquelles un moteur de recherche classique aurait été inutile.
 
 Seulement voilà : dans le domaine de la santé-sécurité, un effet « ouahou » ne suffit pas. La qualité de l'information transmise engage directement la sécurité des compagnons sur les chantiers. Une réponse plausible mais fausse, une procédure mal citée, une obligation transformée en simple recommandation. Les conséquences potentielles dépassent l'enjeu technique. Chaque réponse doit être exacte, fondée sur les bonnes sources, et vérifiable. Cette exigence m'a rapidement confronté à une question que j'ai trouvée à la fois passionnante et frustrante : **comment évaluer la cohérence et la fiabilité d'un système RAG ?**
 
@@ -95,22 +95,22 @@ Cette première partie replace les systèmes de **Retrieval-Augmented Generation
 
 Deux constats structurent cette partie :
 
-1. Un RAG n'est pas « un LLM + des documents ». C'est une **chaîne de décision** (indexation, recherche, assemblage du contexte, génération) dont les erreurs s'additionnent et se compensent parfois. Une réponse peut avoir l'air correcte alors que le retrieval a ramené un passage hors-sujet que le modèle a contourné.
-2. Les critères d'évaluation de l'IR classique et ceux des LLMs ne se recouvrent pas. On peut avoir un excellent score de retrieval et une réponse finale fausse.
+1. Un RAG n'est pas « un LLM + des documents ». C'est une **chaîne de décision** (découpage, indexation, recherche, assemblage du contexte, génération) dont les erreurs/imprécisions s'additionnent parfois.
+2. Les critères d'évaluation de l'IR (recherche d'information) classique et ceux des LLMs ne se recouvrent pas. On peut avoir un excellent score de retrieval et une réponse finale fausse.
 
 ## Chapitre 1 — De la recherche documentaire à la recherche sémantique
 
 ### 1.1. Brève histoire de la recherche d'information : du lexical au probabiliste
 
-Avant de parler de RAG, il faut comprendre d'où vient la recherche d'information, parce que les systèmes RAG en héritent bien plus qu'on ne le pense, y compris dans leurs limites.
+Avant de parler de RAG, il faut comprendre d'où vient la recherche d'information, parce que les systèmes RAG en héritent grandement, y compris dans leurs limites.
 
 La recherche d'information (IR) s'est construite autour d'un problème en apparence simple : étant donné un besoin (une requête) et une collection de documents, comment ordonner ces documents par pertinence ?[@Manning2008] L'idée d'un accès mécanisé à l'information remonte à l'après-guerre, avec le concept de *Memex* imaginé par Vannevar Bush.[@Bush1945]
 
-Les premières approches opérationnelles étaient **lexicales** : un document est un sac de mots, une requête une contrainte sur ces mots. Le modèle booléen (AND/OR/NOT) est le plus élémentaire : explicable, contrôlable, mais il ne classe pas les résultats et ne gère pas bien les besoins « graduels ».
+Les premières approches opérationnelles étaient **lexicales** : un document est un sac de mots, une requête est une contrainte sur ces mots. Le modèle booléen (AND/OR/NOT) est le plus élémentaire : explicable, contrôlable, mais il ne classe pas les résultats et ne gère pas bien les besoins « graduels ».
 
-L'IR moderne s'est ensuite structurée autour de la notion de **ranking** et d'évaluation systématique. Le *Cranfield paradigm* a joué un rôle déterminant : constituer un corpus, un ensemble de requêtes, et des jugements de pertinence pour comparer des systèmes.[@Cleverdon1967] Plus tard, les campagnes TREC ont industrialisé cette logique d'évaluation à grande échelle.[@VoorheesHarman2005]
+L'IR moderne s'est ensuite structurée autour de la notion de **ranking** et d'évaluation systématique. Le paradigm de Cranfield a joué un rôle déterminant : constituer un corpus, un ensemble de requêtes, et des jugements de pertinence pour comparer des systèmes.[@Cleverdon1967] Plus tard, les campagnes TREC ont industrialisé cette logique d'évaluation à grande échelle.[@VoorheesHarman2005]
 
-Les modèles vectoriels ont ensuite introduit une représentation plus graduelle : documents et requêtes sont représentés comme des vecteurs de poids, et la similarité est souvent mesurée par le cosinus. Une pondération emblématique est le TF-IDF, qui combine une mesure de fréquence locale (*term frequency*) et une mesure de rareté globale (*inverse document frequency*). Formellement :
+Les modèles vectoriels ont ensuite introduit une représentation plus graduelle : documents et requêtes sont représentés comme des vecteurs, et la similarité est souvent mesurée via un calcul de similarité cosinus. Une pondération bien connue est le TF-IDF, qui combine une mesure de fréquence locale (*term frequency*) et une mesure de rareté globale (*inverse document frequency*). Formellement :
 
 $$\mathrm{tfidf}(t, d) = \mathrm{tf}(t,d) \times \log\left(\frac{N}{\mathrm{df}(t)}\right)$$
 
@@ -118,7 +118,7 @@ où $N$ est le nombre total de documents et $\mathrm{df}(t)$ le nombre de docume
 
 L'idée d'IDF comme signal de discrimination d'un terme remonte à des travaux fondateurs sur le *term specificity*.[@SparckJones1972] Le **vector space model** (VSM) popularisé par Salton et al. a ensuite fourni un cadre pratique et encore omniprésent pour pondérer et comparer requêtes et documents.[@Salton1975]
 
-À partir des années 1990-2000, les approches probabilistes (notamment **BM25**) se sont imposées comme standard industriel : elles offrent un excellent compromis performance/simplicité et une robustesse sur des corpus variés.[@RobertsonZaragoza2009] BM25 peut être vu comme une amélioration de TF-IDF qui normalise explicitement par la longueur du document et introduit des hyperparamètres de saturation.
+À partir des années 1990-2000, les approches probabilistes (notamment **BM25**) se sont imposées comme standard industriel : elles offrent un excellent compromis performance/simplicité et une robustesse sur des corpus variés.[@RobertsonZaragoza2009] BM25 peut être vu comme une amélioration de TF-IDF qui normalise explicitement par la longueur du document et introduit des hyperparamètres supplémentaires.
 
 $$\mathrm{BM25}(q, d) = \sum_{t \in q} \mathrm{idf}(t) \cdot \frac{\mathrm{tf}(t,d) \cdot (k_1+1)}{\mathrm{tf}(t,d) + k_1 \cdot \left(1-b + b\cdot \frac{|d|}{\mathrm{avgdl}}\right)}$$
 
@@ -130,7 +130,7 @@ Ces modèles « classiques » (BM25, query likelihood, variantes) restent extrê
 
 #### 1.1.1. Évaluer un système de recherche : pourquoi les métriques comptent
 
-Les pipelines RAG héritent directement de l'IR un point crucial : **l'évaluation dépend du protocole**. La performance d'un moteur ne peut pas être « résumée » par un seul score sans préciser (i) la tâche, (ii) la définition de pertinence, (iii) le nombre de résultats considérés ($k$), et (iv) la nature binaire ou graduée des jugements.[@Manning2008; @BaezaYates2011; @Croft2010; @VoorheesHarman2005]
+Les pipelines RAG héritent directement de l'IR un point crucial : **l'évaluation dépend du protocole**. La performance d'un moteur ne peut pas être « résumée » par un seul score sans préciser la tâche, la définition de pertinence, le nombre de résultats considérés ($k$), et la nature binaire ou graduée des jugements.[@Manning2008; @BaezaYates2011; @Croft2010; @VoorheesHarman2005]
 
 Dans sa forme la plus simple, on distingue :
 
@@ -143,7 +143,7 @@ Ce point est central pour le mémoire : si l'on change la définition de pertine
 
 #### 1.1.2. Feedback, reformulation et learning-to-rank
 
-Les systèmes IR peuvent aussi reformuler la requête pour améliorer les résultats. Le *relevance feedback* et ses variantes (pseudo-relevance feedback, expansion de requête) augmentent le rappel mais peuvent introduire du bruit.[@Rocchio1971] Dans un RAG, ce compromis est amplifié : une expansion mal calibrée risque de récupérer des passages thématiquement proches mais non applicables.
+Les systèmes IR peuvent aussi reformuler la requête pour améliorer les résultats. Le *relevance feedback* et ses variantes (pseudo-relevance feedback, expansion de requête) augmentent le rappel (*recall*) mais peuvent introduire du bruit.[@Rocchio1971] Dans un RAG, ce compromis est amplifié : une expansion mal calibrée risque de récupérer des passages thématiquement proches mais non applicables.
 
 En parallèle, le **learning-to-rank** a permis d'apprendre des fonctions de classement à partir de données (clics, jugements), avec des approches *pointwise*, *pairwise* et *listwise*.[@Liu2009LTR] Les systèmes industriels combinent aujourd'hui un retrieval rapide, un reranking plus coûteux (souvent cross-encoder) et des signaux métier (popularité, fraîcheur). Le RAG s'insère dans cette logique multi-étage.
 
@@ -153,23 +153,23 @@ Les méthodes lexicales (booléen, TF-IDF, BM25) reposent sur une hypothèse for
 
 - **Synonymie** : deux textes peuvent décrire la même notion avec des termes différents. Dans notre corpus, « harnais antichute » et « EPI antichute » désignent la même chose, mais un matching lexical pur les traite comme des requêtes distinctes.
 - **Polysémie** : un même terme peut renvoyer à des concepts différents selon le contexte (ex. « levage » en planification vs levage en opération terrain).
-- **Morphologie et variations** : flexions, abréviations, variantes métier. Le jargon des chantiers est particulièrement riche en acronymes et en raccourcis que les référentiels n'utilisent pas toujours.
+- **Morphologie et variations** : abréviations, variantes métier. Le jargon des chantiers est particulièrement riche en acronymes et en raccourcis que les référentiels n'utilisent pas toujours.
 - **Requêtes complexes** : les utilisateurs posent rarement des mots-clés isolés. Ils expriment des intentions, des contraintes, des justifications (« que faire si… », « dans quel cas… », « quelles exceptions… »). Les signaux purement lexicaux sont mal équipés pour traiter ces formulations.
 
-Dans un contexte technique et réglementaire, ces limites sont accentuées : le vocabulaire est spécialisé, la formulation est parfois normative, et l'utilisateur peut utiliser un vocabulaire terrain différent de celui du référentiel.
+Dans un contexte technique et réglementaire, ces limites sont accentuées : le vocabulaire est spécialisé, la formulation est parfois normative, très théorique, et l'utilisateur peut utiliser un vocabulaire terrain différent de celui du référentiel.
 
 Deux compléments sont importants pour comprendre pourquoi ces limites deviennent critiques dans un RAG :
 
-- **Rappel vs précision** : un moteur lexical peut être très précis (peu de bruit) mais rater des passages formulés différemment ; inversement, il peut être rappelé mais ramener trop de textes « proches » sans être applicables. Le RAG transforme ce compromis en risque de génération : *un passage légèrement hors-sujet peut suffire à entraîner une réponse erronée*.
+- **Rappel vs précision** : un moteur lexical peut être très précis (peu de bruit) mais rater des passages formulés différemment ; inversement, il peut être rappelé mais ramener trop de textes « proches » sans être applicables. Le RAG transforme ce compromis en risque de génération : un passage légèrement hors-sujet peut suffire à entraîner une réponse erronée.
 - **Correspondance d'intention** : la requête utilisateur exprime souvent une tâche (ex. « quels EPI obligatoires ? », « quelle procédure avant intervention ? »), et pas seulement un thème. Or les signaux lexicaux capturent mal la structure de tâche (conditions, exceptions, étapes).
 
 ### 1.3. Vers la recherche sémantique : représentations distribuées et embeddings
 
-L'idée de dépasser le matching lexical n'est pas nouvelle. Dès les années 1990, l'**indexation sémantique latente** (LSI/LSA) projetait termes et documents dans un espace de dimension réduite via factorisation matricielle (SVD), dans l'espoir de capturer des corrélations entre termes et de réduire les problèmes de synonymie.[@Deerwester1990] Les résultats étaient encourageants mais le passage à l'échelle restait difficile.
+L'idée de dépasser le matching lexical n'est pas nouvelle. Dès les années 1990, l'**indexation sémantique latente** (LSI/LSA) projetait termes et documents dans un espace de dimension réduite via factorisation matricielle (SVD), dans l'espoir de capturer des corrélations entre termes et de réduire les problèmes de synonymie.[@Deerwester1990]
 
 Le vrai tournant est venu avec les embeddings neuronaux. **Word2Vec** (Mikolov et al., 2013) a montré qu'on pouvait apprendre des représentations de mots denses, de faible dimension, où les mots apparaissant dans des contextes similaires se retrouvent proches dans l'espace vectoriel.[@Mikolov2013] GloVe a proposé une approche alternative combinant statistiques globales et optimisation locale.[@Pennington2014] Ces modèles avaient cependant une limite importante : un mot n'avait qu'un seul vecteur, indépendamment de la phrase. Le mot « levage » avait la même représentation qu'il désigne une opération de chantier ou une phase de planification.
 
-Les modèles de type Transformers, et BERT en particulier, ont résolu ce problème en introduisant des **représentations contextualisées** : la représentation d'un token dépend désormais de la phrase entière.[@Vaswani2017; @Devlin2019] C'est ce qui a ouvert la voie à la recherche sémantique moderne.
+Les modèles de type Transformers, et BERT en particulier, ont "résolu" ce problème en introduisant des **représentations contextualisées** : la représentation d'un token dépend désormais de la phrase entière.[@Vaswani2017; @Devlin2019] C'est ce qui a ouvert la voie à la recherche sémantique moderne.
 
 Dans la pratique, l'usage IR/RAG requiert surtout des **embeddings de phrases/passages** (*sentence or passage embeddings*). Les approches de type **bi-encodeur** (ou dual-encoder) encodent requête et passage séparément, puis comparent leurs vecteurs (souvent cosinus ou produit scalaire). Sentence-BERT (SBERT) a été une contribution clé pour obtenir des embeddings de phrases efficaces via apprentissage contrastif et siamese networks.[@ReimersGurevych2019] Des travaux plus récents (ex. SimCSE) montrent que des schémas contrastifs simples peuvent déjà produire de très bons espaces d'embedding.[@Gao2021]
 
@@ -179,9 +179,9 @@ Enfin, des architectures intermédiaires (late interaction) comme **ColBERT** ch
 
 ### 1.4. Sparse, dense et hybride : familles de retrieval
 
-En pratique, les systèmes de retrieval se rangent en trois grandes familles. Le *sparse retrieval* (BM25, TF-IDF) représente les documents dans un espace de très grande dimension, creux. C'est rapide, interprétable, et ça marche remarquablement bien sur des requêtes contenant des identifiants précis (numéros de procédure, références normatives). Le *dense retrieval* projette tout dans un espace compact d'embeddings, plus apte à capturer synonymie et paraphrase mais plus opaque. Et l'*hybride* combine les deux, ce qui est souvent la meilleure option quand le corpus mélange des requêtes techniques et des questions en langage naturel.
+En pratique, les systèmes de retrieval se rangent en trois grandes familles. Le *sparse retrieval* (BM25, TF-IDF), qui représente les documents dans un espace de très grande dimension. C'est rapide, et ça marche remarquablement bien sur des requêtes contenant des identifiants précis (numéros de procédure, références normatives). Le *dense retrieval* projette tout dans un espace compact d'embeddings, plus apte à capturer synonymie et paraphrase, mais plus "opaque". Et l'*hybride* combine les deux, ce qui est souvent la meilleure option quand le corpus mélange des requêtes techniques et des questions en langage naturel.
 
-L'étape de retrieval peut également être suivie d'un *reranking* : on récupère d'abord un ensemble large de candidats (rapide), puis un modèle plus précis (souvent un cross-encoder) reclasse finement les passages. J'y reviendrai au Chapitre 4.
+L'étape de retrieval peut également être suivie d'un *reranking* : on récupère d'abord un ensemble large de candidats (rapide), puis un modèle plus précis (souvent un cross-encoder) reclasse finement les passages. (J'y reviendrai au Chapitre 4)
 
 Au-delà de cette typologie, un point technique essentiel pour les systèmes denses est l'indexation par recherche du **plus proche voisin approximatif** (Approximate Nearest Neighbor, ANN). À grande échelle, il est impossible de comparer une requête à tous les vecteurs. On utilise donc des structures (HNSW, IVF, PQ…) qui accélèrent la recherche au prix d'une approximation contrôlée.[@MalkovYashunin2018; @Johnson2019]
 
@@ -191,27 +191,27 @@ Cette approximation a une conséquence méthodologique : la performance de retri
 - **erreur d'indexation** (approximation ANN),
 - **erreur de formulation de requête** (query rewriting absent ou mal calibré).
 
-### 1.5. Problématiques spécifiques à la sémantisation en contexte technique / HSE
+### 1.5. Problématiques spécifiques à la sémantisation en contexte technique
 
-Tout ce qui précède s'applique à la recherche sémantique en général. Mais un corpus HSE pose des problèmes supplémentaires qui méritent d'être explicités.
+Tout ce qui précède s'applique à la recherche sémantique en général. Mais un corpus santé-sécurité pose des problèmes supplémentaires qui méritent d'être explicités.
 
-D'abord, la **criticité de l'erreur** est d'un autre ordre : une réponse plausible mais fausse n'est pas juste inutile, elle est potentiellement dangereuse. Ensuite, le **vocabulaire métier** varie considérablement d'une équipe à l'autre (acronymes, jargon chantier, appellations locales) et ne coïncide pas toujours avec celui des référentiels. La **granularité** des sources est aussi un défi : un même thème peut être traité dans une règle générale groupe, une procédure filiale, et un mode opératoire chantier, avec des niveaux de détail et d'autorité différents.
+La **criticité de l'erreur** est d'un autre ordre : une réponse plausible mais fausse n'est pas juste inutile, elle est potentiellement dangereuse. La **granularité** des sources est aussi un défi : un même thème peut être traité dans une règle générale groupe, une procédure filiale, et un mode opératoire chantier, avec des niveaux de détail et d'autorité différents (sans parler des documents clients et réglementaires).
 
-Il faut ajouter des phénomènes fréquents dans les corpus internes et que les benchmarks académiques ne capturent pas : des procédures longues et composites où un chunk peut contenir les bons mots-clés mais être la mauvaise section ; des **niveaux de normativité** subtils (la différence entre « recommandé » et « obligatoire », entre « interdit » et « déconseillé », peut avoir des conséquences très concrètes) ; et des conflits de version quand des documents périmés coexistent avec leurs mises à jour.
+Il faut ajouter des phénomènes fréquents dans les corpus internes et que les benchmarks académiques ne capturent pas : des procédures longues et composites où un chunk peut contenir les bons mots-clés mais être la mauvaise section ; des **niveaux d'obligation** subtils (la différence entre « recommandé » et « obligatoire », entre « interdit » et « déconseillé », peut avoir des conséquences très concrètes).
 
-Tout cela fait que l'évaluation d'un RAG en contexte HSE ne peut pas se limiter à la proximité sémantique. Elle doit intégrer des notions d'autorité et d'actualité des sources.
+Tout cela fait que l'évaluation d'un RAG en contexte HSE ne peut pas se limiter à la proximité sémantique.
 
 ### 1.6. Limites des approches traditionnelles face aux LLMs
 
 L'émergence des LLMs change la donne, et pas seulement du côté de la génération. Elle change aussi la nature des requêtes. L'utilisateur qui interroge un assistant comme ScribBERT n'écrit plus des mots-clés : il pose une question complète, souvent complexe et implicitement située dans un contexte (« que dois-je vérifier avant de commencer un travail en hauteur sur un échafaudage roulant ? »). Le système doit donc gérer des **intentions** (besoin d'explication, de comparaison, de décision) et pas seulement une adéquation thématique.
 
-L'autre problème, plus insidieux, est celui de l'**hallucination**. Les LLMs peuvent produire des textes *cohérents sur la forme* tout en étant incorrects sur le fond.[@Maynez2020; @Ji2023] En contexte HSE, ce phénomène devient un risque opérationnel à part entière. C'est cette tension entre qualité apparente et fiabilité réelle qui justifie l'existence du RAG, et la nécessité de l'évaluer.
+L'autre problème, plus piègeux, est celui de l'**hallucination**. Les LLMs peuvent produire des textes *cohérents sur la forme* tout en étant incorrects sur le fond.[@Maynez2020; @Ji2023] En contexte santé-sécurité, ce phénomène devient un risque opérationnel à part entière. C'est cette tension entre qualité apparente et fiabilité réelle qui justifie l'existence du RAG, et la nécessité de l'évaluer.
 
 ### 1.7. Neural IR et dense retrieval
 
-Avec les Transformers, le **dense retrieval** a pris son essor. L'idée est d'encoder requêtes et passages avec un bi-encodeur (deux BERT indépendants) et de les comparer par similarité vectorielle. DPR (Karpukhin et al., 2020) a montré que cette approche pouvait surpasser BM25 sur des benchmarks de QA ouverts.[@Karpukhin2020] Les gains suivants ont surtout été obtenus via des stratégies d'entraînement avec *hard negatives* et des travaux comme ORQA[@Lee2019ORQA] et ANCE[@Xiong2020ANCE], que je ne détaille pas ici.
+Avec les modèles Transformers, le **dense retrieval** a pris son essor. L'idée est d'encoder requêtes et passages avec un bi-encodeur (deux BERT indépendants) et de les comparer par similarité vectorielle. DPR (Karpukhin et al., 2020) a montré que cette approche pouvait surpasser BM25 sur des benchmarks de QA ouverts.[@Karpukhin2020] Les gains suivants ont surtout été obtenus via des stratégies d'entraînement avec *hard negatives* et des travaux comme ORQA[@Lee2019ORQA] et ANCE[@Xiong2020ANCE], que je ne détaille pas ici.
 
-La question pratique pour un cas comme ScribBERT est directe : **un modèle entraîné sur des données web est-il adapté à un vocabulaire métier ?** Le benchmark BEIR a montré une dégradation significative des performances hors domaine d'entraînement.[@Thakur2021BEIR] Cette question sera traitée en Partie II.
+La question pratique pour un cas comme ScribBERT est directe : **un modèle entraîné sur des données web généraliste est-il adapté à un vocabulaire métier ?** Le benchmark BEIR a montré une dégradation significative des performances hors domaine d'entraînement.[@Thakur2021BEIR] Cette question sera traitée en Partie II.
 
 ### 1.8. Du dense retrieval au RAG : la convergence historique
 
@@ -221,7 +221,7 @@ Le paradigme *retriever-reader* a d'abord été popularisé par **DrQA** (Chen e
 
 **RAG** (Lewis et al., 2020) couplait un générateur BART à un retriever DPR, avec deux variantes (RAG-Sequence et RAG-Token).[@Lewis2020] **Fusion-in-Decoder** (Izacard & Grave, 2021) a ensuite montré qu'en injectant davantage de passages dans le décodeur, on pouvait encore améliorer les résultats.[@IzacardGrave2021]
 
-Cette progression montre que le RAG n'est pas une invention isolée mais l'aboutissement d'une lignée de recherche en IR.
+Le RAG n'est pas une invention isolée mais l'aboutissement d'une lignée de recherche en IR.
 
 ## Chapitre 2 — Les fondements du RAG (Retrieval-Augmented Generation)
 
