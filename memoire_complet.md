@@ -4,15 +4,15 @@
 
 ## Introduction
 
-Les modèles de langage ont profondément changé notre rapport à l'information. En l'espace de quelques années, on est passé de systèmes incapables de produire une phrase cohérente à des modèles qui rédigent avec une aisance parfois troublante (assistants conversationnels, génération de contenu, recherche d'information intelligente). Le « boom de l'IA » n'est pas qu'un effet de mode : il transforme concrètement la manière dont on produit, partage et exploite la connaissance dans les organisations.
+Les modèles de langage ont profondément changé notre rapport à l'information. En l'espace de quelques années, on est passé de systèmes incapables de produire une phrase cohérente à des modèles qui rédigent avec une aisance parfois troublante (assistants conversationnels, génération de contenu, recherche d'information intelligente). Le "boom de l'IA" n'est pas qu'un effet de mode : il transforme concrètement la manière dont on produit, partage et exploite la connaissance dans les organisations.
 
 Mais cette puissance a un revers. Les **LLMs** (Large Language Models) souffrent de limites bien connues : ils **hallucinent** (c'est-à-dire qu'ils inventent des informations sans que rien ne le signale), ils ne citent pas leurs sources de façon fiable, et ils peinent à intégrer des connaissances récentes ou spécifiques à un domaine. Dans un contexte où la précision compte, et a fortiori quand elle engage la sécurité des personnes, ces défauts deviennent rédhibitoires.
 
-C'est pour contourner ces limites qu'une approche hybride s'est imposée : le **Retrieval-Augmented Generation** (RAG), qui couple un mécanisme de **recherche documentaire** à un modèle génératif.[@Lewis2020] L'idée est simple sur le papier : plutôt que de laisser le modèle « inventer » à partir de sa mémoire interne, on lui fournit des extraits de documents pertinents, et on lui demande de s'y appuyer pour formuler sa réponse. En pratique, c'est nettement plus complexe qu'il n'y paraît, et c'est l'objet de ce mémoire.
+C'est pour contourner ces limites qu'une approche hybride s'est imposée : le **Retrieval-Augmented Generation** (RAG), qui couple un mécanisme de **recherche documentaire** à un modèle génératif.[@Lewis2020] L'idée est simple sur le papier : plutôt que de laisser le modèle "inventer" à partir de sa mémoire interne, on lui fournit des extraits de documents pertinents, et on lui demande de s'y appuyer pour formuler sa réponse. En pratique, c'est nettement plus complexe qu'il n'y paraît, et c'est l'objet de ce mémoire.
 
-ScribBERT est né de cette idée. C'est un chatbot RAG que j'ai développé pendant mon alternance au département P2S de Bouygues Travaux Publics, pour permettre aux collaborateurs d'interroger en langage naturel les référentiels santé-sécurité internes. Les premiers résultats ont eu un vrai effet « ouahou » : le système répondait de façon pertinente à des questions sur lesquelles un moteur de recherche classique aurait été inutile.
+ScribBERT est né de cette idée. C'est un chatbot RAG que j'ai développé pendant mon alternance au département P2S de Bouygues Travaux Publics, pour permettre aux collaborateurs d'interroger en langage naturel les référentiels santé-sécurité internes. Les premiers résultats ont eu un vrai effet "ouahou" : le système répondait de façon pertinente à des questions sur lesquelles un moteur de recherche classique aurait été inutile.
 
-Seulement voilà : dans le domaine de la santé-sécurité, un effet « ouahou » ne suffit pas. La qualité de l'information transmise engage directement la sécurité des compagnons sur les chantiers. Une réponse plausible mais fausse, une procédure mal citée, une obligation transformée en simple recommandation. Les conséquences potentielles dépassent l'enjeu technique. Chaque réponse doit être exacte, fondée sur les bonnes sources, et vérifiable. Cette exigence m'a rapidement confronté à une question que j'ai trouvée à la fois passionnante et frustrante : **comment évaluer la cohérence et la fiabilité d'un système RAG ?**
+Seulement voilà : dans le domaine de la santé-sécurité, un effet "ouahou" ne suffit pas. La qualité de l'information transmise engage directement la sécurité des compagnons sur les chantiers. Une réponse plausible mais fausse, une procédure mal citée, une obligation transformée en simple recommandation. Les conséquences potentielles dépassent l'enjeu technique. Chaque réponse doit être exacte, fondée sur les bonnes sources, et vérifiable. Cette exigence m'a rapidement confronté à une question que j'ai trouvée à la fois passionnante et frustrante : **comment évaluer la cohérence et la fiabilité d'un système RAG ?**
 
 La réponse n'est pas triviale. Évaluer un RAG, ce n'est pas comme évaluer un moteur de recherche classique (où l'on vérifie que les bons documents remontent), ni comme évaluer un LLM seul (où l'on juge la qualité du texte). C'est évaluer une **chaîne**, et les erreurs peuvent se situer à chaque maillon : mauvais découpage des documents, mauvaise recherche, mauvaise exploitation du contexte par le modèle. Comment savoir *où* ça déraille ?
 
@@ -95,7 +95,7 @@ Cette première partie replace les systèmes de **Retrieval-Augmented Generation
 
 Deux constats structurent cette partie :
 
-1. Un RAG n'est pas « un LLM + des documents ». C'est une **chaîne de décision** (découpage, indexation, recherche, assemblage du contexte, génération) dont les erreurs/imprécisions s'additionnent parfois.
+1. Un RAG n'est pas "un LLM + des documents". C'est une **chaîne de décision** (découpage, indexation, recherche, assemblage du contexte, génération) dont les erreurs/imprécisions s'additionnent parfois.
 2. Les critères d'évaluation de l'IR (recherche d'information) classique et ceux des LLMs ne se recouvrent pas. On peut avoir un excellent score de retrieval et une réponse finale fausse.
 
 ## Chapitre 1 — De la recherche documentaire à la recherche sémantique
@@ -106,7 +106,7 @@ Avant de parler de RAG, il faut comprendre d'où vient la recherche d'informatio
 
 La recherche d'information (IR) s'est construite autour d'un problème en apparence simple : étant donné un besoin (une requête) et une collection de documents, comment ordonner ces documents par pertinence ?[@Manning2008] L'idée d'un accès mécanisé à l'information remonte à l'après-guerre, avec le concept de *Memex* imaginé par Vannevar Bush.[@Bush1945]
 
-Les premières approches opérationnelles étaient **lexicales** : un document est un sac de mots, une requête est une contrainte sur ces mots. Le modèle booléen (AND/OR/NOT) est le plus élémentaire : explicable, contrôlable, mais il ne classe pas les résultats et ne gère pas bien les besoins « graduels ».
+Les premières approches opérationnelles étaient **lexicales** : un document est un sac de mots, une requête est une contrainte sur ces mots. Le modèle booléen (AND/OR/NOT) est le plus élémentaire : explicable, contrôlable, mais il ne classe pas les résultats et ne gère pas bien les besoins "graduels".
 
 L'IR moderne s'est ensuite structurée autour de la notion de **ranking** et d'évaluation systématique. Le paradigm de Cranfield a joué un rôle déterminant : constituer un corpus, un ensemble de requêtes, et des jugements de pertinence pour comparer des systèmes.[@Cleverdon1967] Plus tard, les campagnes TREC ont industrialisé cette logique d'évaluation à grande échelle.[@VoorheesHarman2005]
 
@@ -126,11 +126,11 @@ avec $k_1$ et $b$ des paramètres de calibration, $|d|$ la longueur du document 
 
 Enfin, une autre famille importante, très utilisée en pratique, est celle des **modèles de langage pour l'IR**, où l'on estime la probabilité qu'un document génère une requête (approches *query likelihood*), et où l'on utilise des techniques de lissage et de feedback pseudo-pertinent.[@PonteCroft1998; @LavrenkoCroft2001]
 
-Ces modèles « classiques » (BM25, query likelihood, variantes) restent extrêmement compétitifs, notamment sur des corpus techniques où les indices lexicaux (références, numéros de procédure, intitulés normatifs) apportent des signaux précieux.
+Ces modèles "classiques" (BM25, query likelihood, variantes) restent extrêmement compétitifs, notamment sur des corpus techniques où les indices lexicaux (références, numéros de procédure, intitulés normatifs) apportent des signaux précieux.
 
 #### 1.1.1. Évaluer un système de recherche : pourquoi les métriques comptent
 
-Les pipelines RAG héritent directement de l'IR un point crucial : **l'évaluation dépend du protocole**. La performance d'un moteur ne peut pas être « résumée » par un seul score sans préciser la tâche, la définition de pertinence, le nombre de résultats considérés ($k$), et la nature binaire ou graduée des jugements.[@Manning2008; @BaezaYates2011; @Croft2010; @VoorheesHarman2005]
+Les pipelines RAG héritent directement de l'IR un point crucial : **l'évaluation dépend du protocole**. La performance d'un moteur ne peut pas être "résumée" par un seul score sans préciser la tâche, la définition de pertinence, le nombre de résultats considérés ($k$), et la nature binaire ou graduée des jugements.[@Manning2008; @BaezaYates2011; @Croft2010; @VoorheesHarman2005]
 
 Dans sa forme la plus simple, on distingue :
 
@@ -151,23 +151,23 @@ En parallèle, le **learning-to-rank** a permis d'apprendre des fonctions de cla
 
 Les méthodes lexicales (booléen, TF-IDF, BM25) reposent sur une hypothèse forte : la pertinence est principalement capturable par la co-occurrence de termes entre requête et document. En pratique, cette hypothèse se heurte à des problèmes bien documentés, que j'ai pu observer directement lors des premières itérations de ScribBERT :
 
-- **Synonymie** : deux textes peuvent décrire la même notion avec des termes différents. Dans notre corpus, « harnais antichute » et « EPI antichute » désignent la même chose, mais un matching lexical pur les traite comme des requêtes distinctes.
-- **Polysémie** : un même terme peut renvoyer à des concepts différents selon le contexte (ex. « levage » en planification vs levage en opération terrain).
+- **Synonymie** : deux textes peuvent décrire la même notion avec des termes différents. Dans notre corpus, "harnais antichute" et "EPI antichute" désignent la même chose, mais un matching lexical pur les traite comme des requêtes distinctes.
+- **Polysémie** : un même terme peut renvoyer à des concepts différents selon le contexte (ex. "levage" en planification vs levage en opération terrain).
 - **Morphologie et variations** : abréviations, variantes métier. Le jargon des chantiers est particulièrement riche en acronymes et en raccourcis que les référentiels n'utilisent pas toujours.
-- **Requêtes complexes** : les utilisateurs posent rarement des mots-clés isolés. Ils expriment des intentions, des contraintes, des justifications (« que faire si… », « dans quel cas… », « quelles exceptions… »). Les signaux purement lexicaux sont mal équipés pour traiter ces formulations.
+- **Requêtes complexes** : les utilisateurs posent rarement des mots-clés isolés. Ils expriment des intentions, des contraintes, des justifications ("que faire si…", "dans quel cas…", "quelles exceptions…"). Les signaux purement lexicaux sont mal équipés pour traiter ces formulations.
 
 Dans un contexte technique et réglementaire, ces limites sont accentuées : le vocabulaire est spécialisé, la formulation est parfois normative, très théorique, et l'utilisateur peut utiliser un vocabulaire terrain différent de celui du référentiel.
 
 Deux compléments sont importants pour comprendre pourquoi ces limites deviennent critiques dans un RAG :
 
-- **Rappel vs précision** : un moteur lexical peut être très précis (peu de bruit) mais rater des passages formulés différemment ; inversement, il peut être rappelé mais ramener trop de textes « proches » sans être applicables. Le RAG transforme ce compromis en risque de génération : un passage légèrement hors-sujet peut suffire à entraîner une réponse erronée.
-- **Correspondance d'intention** : la requête utilisateur exprime souvent une tâche (ex. « quels EPI obligatoires ? », « quelle procédure avant intervention ? »), et pas seulement un thème. Or les signaux lexicaux capturent mal la structure de tâche (conditions, exceptions, étapes).
+- **Rappel vs précision** : un moteur lexical peut être très précis (peu de bruit) mais rater des passages formulés différemment ; inversement, il peut être rappelé mais ramener trop de textes "proches" sans être applicables. Le RAG transforme ce compromis en risque de génération : un passage légèrement hors-sujet peut suffire à entraîner une réponse erronée.
+- **Correspondance d'intention** : la requête utilisateur exprime souvent une tâche (ex. "quels EPI obligatoires ?", "quelle procédure avant intervention ?"), et pas seulement un thème. Or les signaux lexicaux capturent mal la structure de tâche (conditions, exceptions, étapes).
 
 ### 1.3. Vers la recherche sémantique : représentations distribuées et embeddings
 
 L'idée de dépasser le matching lexical n'est pas nouvelle. Dès les années 1990, l'**indexation sémantique latente** (LSI/LSA) projetait termes et documents dans un espace de dimension réduite via factorisation matricielle (SVD), dans l'espoir de capturer des corrélations entre termes et de réduire les problèmes de synonymie.[@Deerwester1990]
 
-Le vrai tournant est venu avec les embeddings neuronaux. **Word2Vec** (Mikolov et al., 2013) a montré qu'on pouvait apprendre des représentations de mots denses, de faible dimension, où les mots apparaissant dans des contextes similaires se retrouvent proches dans l'espace vectoriel.[@Mikolov2013] GloVe a proposé une approche alternative combinant statistiques globales et optimisation locale.[@Pennington2014] Ces modèles avaient cependant une limite importante : un mot n'avait qu'un seul vecteur, indépendamment de la phrase. Le mot « levage » avait la même représentation qu'il désigne une opération de chantier ou une phase de planification.
+Le vrai tournant est venu avec les embeddings neuronaux. **Word2Vec** (Mikolov et al., 2013) a montré qu'on pouvait apprendre des représentations de mots denses, de faible dimension, où les mots apparaissant dans des contextes similaires se retrouvent proches dans l'espace vectoriel.[@Mikolov2013] GloVe a proposé une approche alternative combinant statistiques globales et optimisation locale.[@Pennington2014] Ces modèles avaient cependant une limite importante : un mot n'avait qu'un seul vecteur, indépendamment de la phrase. Le mot "levage" avait la même représentation qu'il désigne une opération de chantier ou une phase de planification.
 
 Les modèles de type Transformers, et BERT en particulier, ont "résolu" ce problème en introduisant des **représentations contextualisées** : la représentation d'un token dépend désormais de la phrase entière.[@Vaswani2017; @Devlin2019] C'est ce qui a ouvert la voie à la recherche sémantique moderne.
 
@@ -191,19 +191,19 @@ Cette approximation a une conséquence méthodologique : la performance de retri
 - **erreur d'indexation** (approximation ANN),
 - **erreur de formulation de requête** (query rewriting absent ou mal calibré).
 
-### 1.5. Problématiques spécifiques à la sémantisation en contexte technique
+### 1.5. Problématiques spécifiques à la sémantique en contexte technique
 
 Tout ce qui précède s'applique à la recherche sémantique en général. Mais un corpus santé-sécurité pose des problèmes supplémentaires qui méritent d'être explicités.
 
 La **criticité de l'erreur** est d'un autre ordre : une réponse plausible mais fausse n'est pas juste inutile, elle est potentiellement dangereuse. La **granularité** des sources est aussi un défi : un même thème peut être traité dans une règle générale groupe, une procédure filiale, et un mode opératoire chantier, avec des niveaux de détail et d'autorité différents (sans parler des documents clients et réglementaires).
 
-Il faut ajouter des phénomènes fréquents dans les corpus internes et que les benchmarks académiques ne capturent pas : des procédures longues et composites où un chunk peut contenir les bons mots-clés mais être la mauvaise section ; des **niveaux d'obligation** subtils (la différence entre « recommandé » et « obligatoire », entre « interdit » et « déconseillé », peut avoir des conséquences très concrètes).
+Il faut ajouter des phénomènes fréquents dans les corpus internes et que les benchmarks académiques ne capturent pas : des procédures longues et composites où un chunk peut contenir les bons mots-clés mais être la mauvaise section ; des **niveaux d'obligation** subtils (la différence entre "recommandé" et "obligatoire", entre "interdit" et "déconseillé", peut avoir des conséquences très concrètes).
 
-Tout cela fait que l'évaluation d'un RAG en contexte HSE ne peut pas se limiter à la proximité sémantique.
+Tout cela fait que l'évaluation d'un RAG en contexte santé-sécurité ne peut pas se limiter à la proximité sémantique.
 
 ### 1.6. Limites des approches traditionnelles face aux LLMs
 
-L'émergence des LLMs change la donne, et pas seulement du côté de la génération. Elle change aussi la nature des requêtes. L'utilisateur qui interroge un assistant comme ScribBERT n'écrit plus des mots-clés : il pose une question complète, souvent complexe et implicitement située dans un contexte (« que dois-je vérifier avant de commencer un travail en hauteur sur un échafaudage roulant ? »). Le système doit donc gérer des **intentions** (besoin d'explication, de comparaison, de décision) et pas seulement une adéquation thématique.
+L'émergence des LLMs change la donne, et pas seulement du côté de la génération. Elle change aussi la nature des requêtes. L'utilisateur qui interroge un assistant comme ScribBERT n'écrit plus des mots-clés : il pose une question complète, souvent complexe et implicitement située dans un contexte ("que dois-je vérifier avant de commencer un travail en hauteur sur un échafaudage roulant ?"). Le système doit donc gérer des **intentions** (besoin d'explication, de comparaison, de décision) et pas seulement une adéquation thématique.
 
 L'autre problème, plus piègeux, est celui de l'**hallucination**. Les LLMs peuvent produire des textes *cohérents sur la forme* tout en étant incorrects sur le fond.[@Maynez2020; @Ji2023] En contexte santé-sécurité, ce phénomène devient un risque opérationnel à part entière. C'est cette tension entre qualité apparente et fiabilité réelle qui justifie l'existence du RAG, et la nécessité de l'évaluer.
 
@@ -227,7 +227,7 @@ Le RAG n'est pas une invention isolée mais l'aboutissement d'une lignée de rec
 
 ### 2.1. Principe général : génération augmentée par récupération
 
-Le RAG, dans son principe, est assez intuitif : au lieu de laisser un modèle de langage répondre « de tête », on lui fournit des documents pertinents et on lui demande de s'en servir. Autrement dit, on le fait travailler comme le ferait un bon préventeur, en consultant la documentation avant de répondre.
+Le RAG, dans son principe, est assez intuitif : au lieu de laisser un modèle de langage répondre "de tête", on lui fournit des documents pertinents et on lui demande de s'en servir. Autrement dit, on le fait travailler comme le ferait un bon préventeur, en consultant la documentation avant de répondre.
 
 Plus formellement, le Retrieval-Augmented Generation désigne une famille d'architectures où un modèle génératif produit une réponse en s'appuyant sur un contexte documentaire récupéré dynamiquement. C'est un entre-deux :
 
@@ -236,41 +236,44 @@ Plus formellement, le Retrieval-Augmented Generation désigne une famille d'arch
 
 Le RAG combine les deux. Historiquement, cette idée s'inscrit dans la lignée des systèmes **retriever-reader** (DrQA, ORQA) où un module récupère des passages et un second les exploite.[@Chen2017DrQA; @Karpukhin2020]
 
-Formellement, le RAG modélise un problème conditionnel avec variable latente : les passages récupérés $z$ jouent le rôle de variables latentes, et la réponse $y$ est générée conditionnellement à la requête $x$ et à $z$.
-
-On peut le représenter schématiquement par :
+Sur le plan formel, le RAG peut se modéliser comme un problème de génération conditionnelle où les passages récupérés jouent un rôle intermédiaire :
 
 $$p(y\mid x)=\sum_z p(y\mid x,z)\,p(z\mid x)$$
 
-En pratique, on approxime cette somme en ne considérant qu'un petit nombre de passages (top-$k$), ce qui rend les choix de retrieval cruciaux : si le « bon » passage n'apparaît pas dans le top-$k$, la génération est contrainte par un contexte incomplet.
+où :
+- $x$ est la **requête** de l'utilisateur,
+- $z$ est un **passage** issu du corpus (variable latente : on ne l'observe pas directement, on l'infère),
+- $y$ est la **réponse** générée.
+
+La formule se lit ainsi : pour obtenir une réponse $y$ à la question $x$, on somme sur tous les passages $z$ possibles le produit de deux probabilités : celle que $z$ soit un bon passage pour cette question $p(z\mid x)$, et celle que le modèle génère $y$ à partir de ce passage $p(y\mid x,z)$.
+
+En pratique, on ne peut pas parcourir tous les passages du corpus : on approxime cette somme en ne retenant qu'un petit nombre de passages (le top-$k$). C'est ce qui rend les choix de retrieval si importants : si le "bon" passage n'apparaît pas parmi les $k$ retenus, le modèle génère sa réponse sans l'information nécessaire.
 
 ### 2.2. RAG vs fine-tuning : choix méthodologiques
 
-La question « pourquoi un RAG plutôt qu'un fine-tuning ? » revient systématiquement dans les discussions autour de ce type de projet. Pour ScribBERT, le choix s'est fait assez naturellement, mais il mérite d'être explicité.
+La question "pourquoi un RAG plutôt qu'un fine-tuning ?" est revenue plusieurs fois dans les discussions autour de ScribBERT, et le choix s'est fait assez naturellement, mais il mérite d'être explicité.
 
-Le **fine-tuning** consiste à adapter les poids d'un modèle sur des données spécifiques. On obtient un modèle qui « sait » les choses directement, sans avoir besoin de consulter des documents au moment de la requête. En théorie, c'est séduisant. En pratique, dans un contexte comme le nôtre, c'est difficilement tenable : nos procédures évoluent régulièrement, et réentraîner un modèle à chaque mise à jour documentaire serait coûteux et non traçable (on ne saurait pas quelles sources le modèle utilise pour répondre).
+Le **fine-tuning** consiste à adapter les poids d'un modèle sur des données spécifiques. On obtient un modèle qui "sait" les choses directement, sans avoir besoin de consulter des documents au moment de la requête. En théorie ça a l'air cool. En pratique, dans un contexte comme le nôtre, c'est difficilement tenable : nos procédures évoluent régulièrement, et réentraîner un modèle à chaque mise à jour documentaire serait trop coûteux et non traçable (on ne saurait pas quelles sources le modèle utilise pour répondre).
 
-Le **RAG**, à l'inverse, conserve un modèle généraliste et injecte du contexte documentaire à la volée. On met à jour un document ? Il suffit de réindexer. On veut savoir d'où vient une réponse ? On peut inspecter les passages récupérés. Cette séparation entre « le savoir-faire linguistique » (le LLM) et « le savoir factuel » (le corpus indexé) est ce qui rend le RAG auditable. En HSE, l'auditabilité n'est pas un luxe.
+Le **RAG**, à l'inverse, conserve un modèle généraliste et injecte du contexte documentaire à la volée. Pour mettre à jour un document, il "suffit" de réindexer. Et pour avoir d'où vient une réponse, il "suffit" d'inspecter les passages récupérés. 
 
-Cela dit, les deux approches ne s'excluent pas. Un fine-tuning léger peut servir à calibrer le ton (format check-list, formulations prudentes), tandis que le RAG gère l'accès aux connaissances. La littérature récente insiste d'ailleurs sur cette complémentarité.[@Gao2024RAGSurvey]
+Cela dit, le RAG ne nous interdit pas de faire du fine-tunning. Un fine-tuning léger peut servir à calibrer le ton, tandis que le RAG gère l'accès aux connaissances. La littérature récente insiste d'ailleurs sur cette complémentarité.[@Gao2024RAGSurvey]
 
 ### 2.3. Architecture type d'une pipeline RAG
 
 Une pipeline RAG se décompose généralement en cinq étapes :
 
-1. **Ingestion** : collecte des documents (PDF, Word, pages wiki, procédures internes), extraction de texte, normalisation.
-2. **Chunking** : découpage en segments (chunks) pour équilibrer granularité et rappel.
+1. **Ingestion** : collecte des documents (nos référentiels, procédures, ...), extraction de texte, normalisation.
+2. **Chunking** : découpage en segments (chunks).
 3. **Vectorisation / indexation** : calcul d'embeddings pour chaque chunk et insertion dans un index (base vectorielle).
-4. **Retrieval / reranking** : récupération de $k$ passages pertinents, éventuellement reclassés par un modèle plus fin.
-5. **Génération** : construction d'un prompt avec la requête + contexte, puis génération d'une réponse (souvent accompagnée de citations).
+4. **Retrieval / reranking** : récupération de $k$ passages pertinents (qui peuvent être dans un second temps reclassés par un modèle plus fin(reranking)).
+5. **Génération** : construction d'un prompt complet avec la requête + contexte, puis génération d'une réponse.
 
-Dans le cas étudié (ScribBERT), cette architecture se décline avec des choix d'implémentation qui seront décrits en PARTIE III (**[À compléter : stack, type d'index, paramètres de chunking, stratégie de retrieval/reranking, contraintes RGPD]**).
-
-La section 2.3.1 revient brièvement sur la question du chunking, déjà évoquée ci-dessus ; je ne la développe pas davantage ici car le Chapitre 4 y consacre un traitement détaillé.
+Pour ScribBERT, cette architecture se décline avec des choix d'implémentation qui seront décrits en PARTIE III.
 
 #### 2.3.1. Chunking : segmentation, unités de preuve et compromis
 
-Le chunking est souvent décrit comme un paramètre « d'ingestion », mais il correspond en réalité à un choix de modélisation : **quelle est l'unité minimale de connaissance** que le système peut retrouver et citer ?
+Le chunking est souvent décrit comme un paramètre "d'ingestion", mais il correspond en réalité à un choix de modélisation : **quelle est l'unité minimale (et maximale également) de connaissance** que le système peut retrouver et citer ?
 
 On peut distinguer plusieurs logiques de segmentation :
 
@@ -284,31 +287,29 @@ Le chunking influence directement :
 - la **citabilité** (capacité à relier une affirmation à un extrait précis),
 - la **gestion des contradictions** (contradictions détectables si les unités sont comparables).
 
-Ces aspects seront étudiés empiriquement dans la PARTIE III (comparaisons de chunking).
+Ces aspects seront étudiés dans la PARTIE III (comparaisons de chunking).
 
 ### 2.4. Les avantages du RAG
 
-Le premier bénéfice, et le plus souvent cité, est la réduction des hallucinations : en fournissant au modèle des passages explicites, on contraint sa génération et on limite les inventions. En pratique, c'est plus nuancé (le modèle peut toujours halluciner *malgré* le contexte), mais le gain est réel. Surtout, le RAG rend la réponse *traçable* : on peut revenir aux passages utilisés, vérifier, contester. C'est cette auditabilité qui fait la différence dans un cadre industriel.
+Le premier bénéfice est la réduction des hallucinations : en fournissant au modèle des passages explicites, on contraint sa génération et on limite les inventions. En pratique, c'est plus nuancé (le modèle peut toujours halluciner malgré le contexte), mais le gain est réel. Surtout, le RAG rend la réponse traçable : on peut revenir aux passages utiliséset c'est cette auditabilité qui fait la différence dans un cadre industriel.
 
-Les autres avantages sont plus opérationnels : les connaissances peuvent être mises à jour sans réentraîner le modèle (on réindexe les documents modifiés), le corpus interne reste privé (pas besoin de l'envoyer dans un service cloud pour du fine-tuning), et le coût global est souvent moindre qu'un entraînement dédié.
-
-Le RAG est particulièrement pertinent quand les connaissances évoluent, quand la traçabilité est exigée (audit, conformité), quand le corpus est confidentiel, ou quand l'utilisateur attend une vraie réponse, pas seulement une liste de liens vers des documents.
+Les autres avantages sont plus opérationnels : les connaissances peuvent être mises à jour sans réentraîner le modèle (on réindexe les documents modifiés), le corpus interne reste privé (pas besoin de l'envoyer dans un service cloud pour du fine-tuning), et le coût global est moindre qu'un entraînement dédié.
 
 ### 2.5. Les défis du RAG : bruit, contradictions et cohérence
 
-Le RAG n'est pas une solution magique. Il introduit ses propres difficultés, dont certaines ne se révèlent qu'à l'usage.
+Pour autant, le RAG n'est pas une solution magique. Il introduit ses propres difficultés :
 
-Le **bruit documentaire** est probablement le problème le plus fréquent : le retrieval ramène des chunks qui sont sémantiquement proches de la requête mais qui ne sont pas applicables au cas précis. Dans notre corpus, c'est particulièrement fréquent avec les procédures qui partagent une terminologie commune mais s'appliquent à des situations différentes.
+Le **bruit documentaire** est probablement le problème le plus fréquent : le retrieval ramène des chunks qui sont sémantiquement proches de la requête mais qui ne sont pas applicables au cas précis. Dans notre corpus, c'est relativement fréquent avec des procédures qui partagent une terminologie commune mais s'appliquent à des situations différentes.
 
-Les **contradictions** entre documents sont un autre défi, et celui-ci est souvent sous-estimé. Quand un corpus contient à la fois un document de 2019 et sa mise à jour de 2023, que se passe-t-il si le retrieval remonte les deux ? Le modèle peut produire une réponse incohérente, ou pire, choisir silencieusement la mauvaise version.
+Les **contradictions** entre documents sont un autre défi, et celui-ci est souvent sous-estimé. Quand un corpus contient à la fois un document de 2020 et sa mise à jour de 2026, que se passe-t-il si le retrieval remonte les deux ? Le modèle peut produire une réponse incohérente, ou pire, choisir silencieusement la mauvaise version.
 
-La **dépendance au chunking** est un problème plus insidieux : une mauvaise segmentation peut couper une règle en deux, ou séparer une condition de son exception, et le modèle génère alors une réponse incomplète sans qu'on puisse facilement diagnostiquer la cause.
+La **dépendance au chunking** est un problème plus subtil mais réel : une mauvaise segmentation peut couper une règle en deux, ou séparer une condition de son exception, et le modèle génère alors une réponse incomplète sans qu'on puisse facilement diagnostiquer la cause.
 
-Enfin, la **cohérence globale** de la réponse reste fragile : même avec de bons passages, le modèle peut omettre une exception critique ou sur-généraliser.
+Enfin, la **cohérence globale** de la réponse reste fragile : même avec de bons passages, le modèle peut oublier une exception critique ou généraliser.
 
-Ces difficultés justifient une évaluation à deux niveaux (qualité du retrieval *et* qualité de la génération), car un bon score sur l'un ne garantit pas un bon résultat sur l'autre.
+Ces difficultés justifient une évaluation à deux niveaux (qualité du retrieval *et* qualité de la génération), car un bon score sur l'un ne garantit pas un bon résultat sur l'autre (bien qu'un mauvais retrieval ne facilitera pas une bonne génération évidemment).
 
-Plusieurs variantes architecturales cherchent à répondre à ces défis : le RAG « classique » de Lewis et al.[@Lewis2020], REALM qui intègre le retrieval dans la pré-formation[@Guu2020], ou encore Fusion-in-Decoder (FiD) qui concatène de nombreux passages et laisse le décodeur fusionner l'information.[@IzacardGrave2021] Toutes illustrent une même tension : donner plus de passages au générateur augmente le rappel potentiel, mais aussi le risque de contradictions, de dilution, et de coûts.
+Plusieurs variantes architecturales cherchent à répondre à ces défis : le RAG "classique" de Lewis et al.[@Lewis2020], REALM qui intègre le retrieval dans la pré-formation[@Guu2020], ou encore Fusion-in-Decoder (FiD) qui concatène de nombreux passages et laisse le décodeur fusionner l'information.[@IzacardGrave2021] Toutes illustrent un même dilème : donner plus de passages au LLM augmente le rappel potentiel, mais aussi le risque de contradictions, de dilution, et augmente le coût.
 
 #### 2.5.1. Multi-étage retrieval + reranking : un standard pratique
 
@@ -318,108 +319,63 @@ En pratique, les systèmes robustes adoptent souvent une architecture *multi-sta
 2. un **reranking** (souvent cross-encoder) pour augmenter la précision des passages retenus,
 3. une **sélection/assemblage** finale pour respecter la limite de contexte du modèle de génération.
 
-Le reranking de passages avec BERT a montré très tôt qu'un cross-encoder en second étage améliore fortement la qualité des premiers résultats, au prix d'un coût d'inférence qui reste acceptable si on ne reranke qu'un petit ensemble candidat.[@NogueiraCho2019]
+Le reranking de passages avec BERT a montré très tôt qu'un cross-encoder en deuxième étape améliore fortement la qualité des premiers résultats, au prix d'un coût d'inférence qui reste acceptable si on ne reranke qu'un petit ensemble candidat.[@NogueiraCho2019]
 
 Dans un RAG, ces choix ont un effet direct sur la fidélité :
 
 - un retrieval trop large sans reranking augmente le bruit,
-- un reranking mal calibré peut favoriser des passages « proches » mais moins normatifs,
-- une sélection trop agressive peut omettre une exception critique.
+- un reranking mal calibré peut favoriser des passages "proches" mais moins normatifs,
+- une sélection trop agressive peut oublier d'autres passages qui auraient pu être pertinents.
 
-#### 2.5.2. Contradictions documentaires : versioning, autorité et arbitrage
+### 2.6. "Grounding", citations et attribution : de la preuve à la confiance
 
-Les contradictions dans un RAG ne sont pas toujours un bug de génération : elles peuvent refléter la réalité du corpus. Quand on a des versions successives d'un même document, des variantes locales, ou simplement des documents qui auraient dû être retirés mais qui traînent encore, le système doit être capable soit d'identifier la contradiction, soit de l'arbitrer (en privilégiant le document le plus récent ou le plus autoritaire), soit au minimum de rendre l'incertitude visible, en citant les deux sources ou en signalant le désaccord.
-
-En HSE, cette question n'est pas académique. Une réponse « tranchée » qui s'appuie sur un document obsolète est souvent plus dangereuse qu'un aveu d'incertitude.
-
-### 2.6. « Grounding », citations et attribution : de la preuve à la confiance
-
-Citer une source ne suffit pas. J'ai vu, en testant ScribBERT, des cas où le système citait un document qui n'avait qu'un rapport lointain avec la question, une sorte de « fausse traçabilité » qui est peut-être pire que l'absence de citation, parce qu'elle donne une illusion de rigueur. Pour que la citation ait de la valeur, trois conditions doivent être réunies : le passage cité doit être réellement pertinent, la réponse doit en être fidèle (pas juste le mentionner pour la forme), et la granularité doit permettre à un humain de vérifier rapidement.
-
-La littérature sur l'évaluation des RAG formalise cette intuition en distinguant la *context relevance* (le contexte récupéré est-il utile ?), l'*answer relevance* (la réponse traite-t-elle la question ?) et la *faithfulness* (la réponse est-elle supportée par le contexte ?). Ces trois dimensions ne se recouvrent pas, et c'est précisément ce qui rend l'évaluation complexe.
+Citer une source ne suffit pas. En testant ScribBERT, j'ai vu des cas où le système citait un document qui n'avait qu'un rapport lointain avec la question et c'est pire que l'absence de citation, car ça donne une illusion de rigueur. La littérature formalise cette intuition en distinguant trois dimensions : la *context relevance* (le contexte récupéré est-il utile ?), l'*answer relevance* (la réponse traite-t-elle la question ?) et la *faithfulness* (la réponse est-elle supportée par le contexte ?). Ces trois dimensions ne se recouvrent pas, et c'est précisément ce qui rend l'évaluation complexe.
 
 ### 2.7. RAG et mémoire : connaissances paramétriques vs non-paramétriques
 
-On distingue la « mémoire paramétrique » d'un LLM (ses poids) et la « mémoire non-paramétrique » (une base documentaire externe, interrogée à la volée). Un modèle assez gros peut stocker beaucoup de faits dans ses paramètres[@Roberts2020], mais avec des limites évidentes en mise à jour et vérifiabilité. Pour ScribBERT, la mémoire non-paramétrique est préférée parce qu'elle est auditable : on sait quels documents ont été consultés, et on peut les mettre à jour sans toucher au modèle.
+On distingue la "mémoire paramétrique" d'un LLM (ses poids) et la "mémoire non-paramétrique" (une base documentaire externe, interrogée à la volée). Un modèle assez gros peut stocker beaucoup de faits dans ses paramètres[@Roberts2020], mais avec des limites évidentes en mise à jour et vérifiabilité (éxpliquées plus tôt). Pour ScribBERT, la mémoire non-paramétrique est préférée parce qu'elle est auditable : on sait quels documents ont été consultés, et on peut les mettre à jour sans toucher au modèle.
 
-### 2.8. Pourquoi la notion de « source » est centrale en contexte HSE
+### 2.8. Pourquoi la notion de "source" est centrale en contexte santé-sécurité
 
-Dans une application HSE, personne ne cherche une réponse « créative ». Ce qu'on attend, c'est une réponse normative (ce qui est exigé, interdit, obligatoire) ou procédurale (comment faire, dans quel ordre, avec quelles protections). La qualité tient alors à des choses très concrètes : le système sait-il distinguer une procédure groupe validée d'une simple note informelle ? Respecte-t-il la différence entre « doit » et « devrait » ? Quand une règle comporte une exception, la mentionne-t-il ?
+Dans une application santé-sécurité, on ne veut pas de réponse "créative" : on attend une réponse normative ou procédurale, fondée sur les bons documents. La qualité tient alors à des questions très concrètes : le système distingue-t-il une procédure groupe validée d'une note informelle ? Respecte-t-il la différence entre "doit" et "devrait" ? Mentionne-t-il les exceptions ? Ces exigences, bien plus strictes que dans un chatbot grand public, imposent de centrer l'évaluation sur la fidélité aux sources, ce qui sera l'objet de la Partie II.
 
-Ces exigences sont bien plus strictes que dans un chatbot grand public. Elles imposent de centrer l'évaluation sur la fidélité aux sources et la gestion des cas limites, ce qui sera l'objet de la Partie II.
+## Chapitre 3 — La question de la "pertinence" et de la "cohérence"
 
-## Chapitre 3 — La question de la « pertinence » et de la « cohérence »
-
-Les mots « pertinence » et « cohérence » reviennent constamment quand on parle de qualité d'un RAG, mais ils recouvrent des réalités assez différentes selon les interlocuteurs. Ce chapitre tente de les clarifier, non par goût de la taxonomie, mais parce que la qualité d'un protocole d'évaluation dépend directement de la précision avec laquelle on définit ce qu'on évalue.
-
-Dans un RAG, la qualité perçue par l'utilisateur dépend d'un enchaînement de décisions : quels passages sont récupérés, comment ils sont assemblés, et comment le modèle les exploite pour formuler sa réponse. À chaque étape, la « pertinence » prend un sens légèrement différent.
+Les mots "pertinence" et "cohérence" reviennent constamment aussi bien dans ce mémoire que quand on parle de qualité d'un RAG, mais ils recouvrent des réalités assez différentes selon les interlocuteurs. Ce chapitre tente de les clarifier, non pas par amour pour la taxonomie, mais plutôt parce que la qualité d'un protocole d'évaluation dépend directement de ce qu'on en attend.
 
 ### 3.1. Définir la pertinence : une notion multi-dimensionnelle
 
-En recherche d'information, la pertinence n'est pas une propriété absolue. C'est une relation entre un besoin, un utilisateur, un contexte et un document, à un moment donné. La littérature académique insiste depuis longtemps sur cette complexité et sur l'écart entre ce qu'un système juge pertinent et ce que l'utilisateur considère comme utile.[@Saracevic1996; @Mizzaro1997]
+En recherche d'information, la pertinence est un mélange entre un besoin, un utilisateur, un contexte et un document, à un moment donné. La littérature académique insiste depuis longtemps sur cette complexité et sur l'écart entre ce qu'un système juge pertinent et ce que l'utilisateur considère comme pertinent.[@Saracevic1996; @Mizzaro1997] Pour un RAG, plusieurs dimensions s'ajoutent à la simple adéquation thématique.
 
-Pour un système RAG, plusieurs dimensions de pertinence se superposent :
+Un passage peut parler du bon sujet sans être utile pour autant. La **pertinence situationnelle** dépend du rôle de l'utilisateur, de la phase du chantier, des contraintes de site — une procédure générale ne sert pas à un compagnon qui a besoin d'une consigne précise. L'**exhaustivité** est critique quand il cherche une procédure complète : une réponse correcte mais à laquelle il manque une étape ou une exception peut être dangereuse. La **granularité** pose la question inverse : trop de détails peut noyer l'information, surtout si le format attendu est une check-list courte.
 
-#### 3.1.2. Au-delà du sujet : utilité, exhaustivité, granularité
+L'**actualité** et l'**autorité de la source** sont deux dimensions souvent négligées mais centrales dans un corpus d'entreprise vivant. Un passage peut être thématiquement pertinent mais obsolète. Une procédure groupe validée n'a pas la même force qu'une note informelle. Notre SharePoint contient des documents de niveaux de normativité très différents, et le système doit être capable de les hiérarchiser.
 
-Un passage peut parler du bon sujet sans être utile pour autant. En HSE, la **pertinence situationnelle** dépend fortement du contexte de l'utilisateur : son rôle, la phase du chantier, les contraintes de site. Une procédure générale ne sert pas à un compagnon qui a besoin d'une consigne précise pour sa situation.
-
-De même, une réponse peut être correcte mais incomplète : il manque une étape, une exception, une condition de sécurité. L'**exhaustivité** est critique quand l'utilisateur cherche une procédure complète, pas un aperçu. Et la **granularité** pose la question inverse : trop de détails peut noyer l'information essentielle, surtout si le format attendu est une check-list courte plutôt qu'un exposé détaillé.
-
-#### 3.1.3. Actualité et autorité
-
-Deux dimensions souvent négligées dans les évaluations standard, mais centrales dans un corpus d'entreprise vivant : l'**actualité** (un passage peut être thématiquement pertinent mais correspondre à une procédure obsolète) et l'**autorité de la source** (une procédure groupe validée n'a pas la même force qu'une note informelle ou qu'un support de formation). Dans notre cas, le SharePoint contient des documents de niveaux de normativité très différents, et le système doit être capable de les hiérarchiser, ou au minimum de ne pas les traiter de manière indifférenciée.
-
-#### 3.1.7. Pertinence « interactive » : rôle de l'utilisateur et du contexte
-
-Une limite des évaluations purement offline est qu'elles ignorent souvent l'interaction : l'utilisateur reformule, lit les sources, change de stratégie, et l'utilité dépend de ce processus. Les approches d'**Interactive Information Retrieval (IIR)** mettent l'accent sur le contexte et la situation d'usage, et proposent des protocoles centrés sur les tâches plutôt que sur des jugements isolés.[@IngwersenJarvelin2005; @Borlund2003]
-
-Pour un assistant de type ScribBERT, cela suggère de compléter l'évaluation automatique par des signaux d'usage : taux de reformulation, temps pour obtenir une réponse utile, confiance perçue, et cas où l'utilisateur doit escalader vers un expert.
+Enfin, les évaluations purement offline ignorent souvent la **pertinence interactive** : l'utilisateur reformule, lit les sources, change de stratégie, et l'utilité dépend de ce processus.[@IngwersenJarvelin2005; @Borlund2003] Pour ScribBERT, cela suggère de compléter les métriques automatiques par des signaux d'usage : taux de reformulation, temps pour obtenir une réponse utile, cas où l'utilisateur doit escalader vers un expert.
 
 ### 3.2. Définir la cohérence : du texte à la fidélité aux sources
 
-Dans le contexte des LLMs, la cohérence est souvent abordée sous l'angle de la fluidité textuelle. Pour un RAG, cette définition est insuffisante : une réponse peut être très fluide mais factuellement fausse.
+Dans le contexte des LLMs, la cohérence est souvent abordée sous l'angle de la fluidité textuelle. Pour un RAG, cette définition est insuffisante : une réponse peut être très fluide mais fausse.
 
 Il est utile de distinguer trois notions proches mais différentes :
 
-- **Cohérence textuelle** : le texte « se tient » linguistiquement.
-- **Factualité** : les propositions sont vraies dans le monde (ou au moins dans le cadre documentaire).
+- **Cohérence textuelle** : le texte "se tient" linguistiquement.
+- **Factualité** : les propositions sont vraies dans le cadre documentaire.
 - **Fidélité / groundedness** : les propositions sont justifiées par les sources fournies.
 
 Dans un RAG, la fidélité aux sources est souvent plus importante que la factualité absolue : on attend que le système ne dépasse pas ce que le corpus permet d'affirmer.
 
-On propose de distinguer :
+La **cohérence textuelle** a une dimension locale (connecteurs, anaphores, absence de contradictions phrase-à-phrase) et une dimension globale (fil directeur sur l'ensemble de la réponse). Les LLMs modernes maîtrisent généralement bien la première ; la seconde est plus fragile, surtout lorsque le contexte contient des passages hétérogènes ou que le prompt impose un format strict.
 
-#### 3.2.1. Cohérence textuelle (locale et globale)
+La **fidélité factuelle aux sources** (*faithfulness/groundedness*) est la dimension centrale en RAG : les affirmations de la réponse doivent être supportées par les passages récupérés. Elle peut être compromise par une récupération partielle, une mauvaise attribution, une paraphrase qui modifie le sens normatif, ou une sur-généralisation. Une difficulté spécifique aux textes normatifs est la **modalité** : une reformulation peut transformer un "doit" en "peut", ou l'inverse. Dans une évaluation, cela implique de vérifier non seulement les faits, mais aussi la conformité des modalités et conditions.
 
-La réponse doit être lisible, logiquement structurée et enchaînée correctement. Les LLMs modernes maîtrisent généralement bien la cohérence locale (connecteurs, anaphores, absence de contradictions phrase-à-phrase). La cohérence globale, c'est-à-dire le fil directeur sur l'ensemble d'une réponse, est plus fragile, surtout lorsque le contexte contient des passages hétérogènes ou que le prompt impose un format strict.
+La **stabilité / reproductibilité** est un enjeu à la fois opérationnel et méthodologique. À requête identique et à corpus constant, le système doit produire des réponses proches, surtout en contexte santé-sécurité où la variabilité est perçue comme un manque de fiabilité. Si l'output varie fortement, on ne peut pas comparer des variantes (chunking, top-$k$) sans multiplier les répétitions et rapporter des distributions de scores. La stabilité dépend de la stochasticité du modèle (température), du retrieval (approximation ANN) et d'éventuelles reformulations.
 
-#### 3.2.3. Fidélité factuelle aux sources (faithfulness / groundedness)
-
-Dimension centrale en RAG : les affirmations de la réponse doivent être supportées par les passages récupérés. Une réponse est dite *grounded* si l'on peut relier ses éléments à des extraits du corpus.
-
-Cette fidélité peut être compromise par :
-
-- une récupération partielle (manque d'un passage critique),
-- une mauvaise attribution (la réponse mélange deux sources),
-- une paraphrase qui modifie le sens normatif,
-- une sur-généralisation à partir d'un cas particulier.
-
-Une difficulté spécifique aux textes normatifs est la **modalité** : une reformulation peut transformer un « doit » en « peut », ou une recommandation en obligation. Dans une évaluation, cela implique de vérifier non seulement les faits, mais aussi la conformité des modalités et conditions.
-
-#### 3.2.4. Stabilité / reproductibilité
-
-À requête identique, et à corpus constant, le système doit produire des réponses proches (ou au moins cohérentes), surtout en contexte HSE où la variabilité peut être perçue comme un manque de fiabilité. La stabilité dépend de la stochasticité du modèle (température), du retrieval (approximation ANN) et d'éventuelles reformulations.
-
-La stabilité est aussi un enjeu méthodologique : si l'output varie fortement, on peut difficilement comparer des variantes (chunking, top-$k$) sans multiplier les répétitions et rapporter des distributions de scores.
-
-#### 3.2.5. Cohérence terminologique et réglementaire
-
-La réponse doit utiliser un vocabulaire métier stable et éviter les formulations ambiguës. Elle doit aussi respecter les contraintes réglementaires et internes (normes, procédures, interdictions), sans inventer des obligations.
+La **cohérence terminologique et réglementaire** complète ce tableau : la réponse doit utiliser un vocabulaire métier stable, éviter les formulations ambiguës, et respecter les contraintes réglementaires et internes sans inventer des obligations.
 
 ### 3.3. Définir la fiabilité : une synthèse opératoire
 
-Le titre de ce mémoire associe « cohérence » et « fiabilité ». La cohérence a été définie ci-dessus. Mais la fiabilité est un concept plus englobant : c'est la propriété d'un système à produire *de manière constante* des réponses dignes de confiance. Un système peut donner une excellente réponse un jour et une réponse médiocre le lendemain sur la même question : il est ponctuellement bon mais pas fiable.
+Le titre de ce mémoire associe "cohérence" et "fiabilité". La cohérence a été définie ci-dessus. Mais la fiabilité est un concept plus englobant : c'est la propriété d'un système à produire de manière constante des réponses dignes de confiance. Un système peut donner une excellente réponse un jour et une réponse médiocre le lendemain sur la même question : il est ponctuellement bon mais pas fiable.
 
 Pour ce mémoire, j'adopte la définition opératoire suivante :
 
@@ -428,21 +384,16 @@ Pour ce mémoire, j'adopte la définition opératoire suivante :
 Cette définition présente trois intérêts :
 
 1. Elle **décompose la fiabilité en dimensions mesurables**, ce qui permet d'organiser le protocole d'évaluation (Chapitre 5) autour de chacune.
-2. Elle **distingue la cohérence (propriété intrinsèque d'une réponse) de la fiabilité (propriété systémique)** : une réponse peut être cohérente une fois et incohérente la suivante ; un système n'est fiable que si ses réponses sont cohérentes *de manière reproductible*.
-3. Elle **inclut explicitement la traçabilité**, dimension non couverte par les métriques classiques mais essentielle dans un cadre industriel (auditabilité, conformité).
-
-Le Chapitre 5 instancie cette définition sous forme de critères d'évaluation, et le Chapitre 6 traite spécifiquement la dimension **stabilité/répétabilité**, peu couverte par les métriques d'évaluation usuelles.
+2. Elle **distingue la cohérence (propriété intrinsèque d'une réponse) de la fiabilité (propriété systémique)** : une réponse peut être cohérente une fois et incohérente la suivante ; un système n'est fiable que si ses réponses sont cohérentes de manière répétée.
+3. Elle **inclut explicitement la traçabilité**, dimension non couverte par les métriques classiques mais essentielle (auditabilité, conformité).
 
 ### 3.4. Pertinence perçue vs pertinence mesurée
 
-Il y a un écart, parfois considérable, entre ce que les métriques disent et ce que l'utilisateur ressent. J'ai pu l'observer : des configurations avec de « bons » scores de retrieval produisaient des réponses que les préventeurs trouvaient trop vagues ou mal ciblées. Et inversement, des réponses jugées utiles ne correspondaient pas toujours à un Recall@k élevé.
+Il y a un écart, parfois considérable, entre ce que les métriques disent et ce que l'utilisateur ressent. Parfois, des configurations avec de "bons" scores de retrieval produisaient des réponses qui parfois étaient trop vagues ou mal ciblées. Et inversement, des réponses jugées utiles ne correspondaient pas toujours à un Recall@k élevé.
 
 Ce décalage impose de travailler sur les deux fronts : les **mesures automatiques** (utiles pour comparer des variantes, diagnostiquer, itérer) et la **perception utilisateur** (confiance, effort, satisfaction). Un protocole robuste combine les deux, ce que la littérature appelle triangulation.
 
-Sur le plan méthodologique, cela rejoint l'idée de séparer :
-
-- **évaluation intrinsèque** : mesurer des propriétés internes (qualité des embeddings, séparation positives/négatives, rappel retrieval),
-- **évaluation extrinsèque** : mesurer l'effet sur la tâche finale (qualité de réponse, temps de recherche, erreurs évitées).
+Sur le plan méthodologique, cela rejoint l'idée de séparer **évaluation intrinsèque** (mesurer des propriétés internes) et **évaluation extrinsèque** (mesurer l'effet sur la tâche finale).
 
 ### 3.5. Travaux récents sur l'évaluation des RAG et LLMs augmentés
 
@@ -450,10 +401,10 @@ L'évaluation des systèmes RAG s'est structurée autour de plusieurs axes :
 
 1. **Évaluation retrieval** : métriques classiques (Recall@k, nDCG, MRR) sur des jeux de test annotés.[@JarvelinKekalainen2002]
 2. **Évaluation génération** : métriques de similarité (BLEU/ROUGE) peu adaptées à la QA ouverte ; métriques sémantiques (BERTScore, BLEURT) ; métriques de factualité (ex. TruthfulQA, FactScore) visant à quantifier l'alignement factuel des sorties.[@Lin2021TruthfulQA; @Min2023FactScore]
-3. **Évaluation « end-to-end »** : frameworks dédiés au RAG (ex. RAGAS, TruLens, LangSmith) qui tentent de décomposer la qualité en sous-scores (context relevance, answer relevance, faithfulness, citation, etc.).
+3. **Évaluation "end-to-end"** : frameworks dédiés au RAG (ex. RAGAS, TruLens, LangSmith) qui tentent de décomposer la qualité en sous-scores (context relevance, answer relevance, faithfulness, citation, etc.).
 4. **LLM-as-judge** : utiliser un LLM pour noter des réponses selon une grille (G-Eval, Prometheus). Puissant mais nécessite une gouvernance stricte (biais, fuite d'informations, reproductibilité).
 
-Les benchmarks de retrieval généralistes (BEIR) et les *leaderboards* d'embeddings (MTEB) ont également contribué à standardiser la comparaison de modèles et à clarifier l'écart entre performance sur des tâches « web » et performance sur des corpus spécialisés.[@Thakur2021BEIR; @Muennighoff2023MTEB]
+Les benchmarks de retrieval généralistes (BEIR) et les *leaderboards* d'embeddings (MTEB) ont également contribué à standardiser la comparaison de modèles et à clarifier l'écart entre performance sur des tâches "web" et performance sur des corpus spécialisés.[@Thakur2021BEIR; @Muennighoff2023MTEB]
 
 Pour la génération, plusieurs métriques basées sur des modèles pré-entraînés se sont imposées :
 
@@ -469,7 +420,7 @@ Un point récurrent dans la littérature est l'écart entre :
 
 Autrement dit, un bon retrieval ne garantit pas une réponse fidèle, et une réponse fluide ne garantit pas qu'elle soit vraie.
 
-Dans le cas d'un RAG, l'évaluation pertinente doit idéalement être **décomposable** : elle doit permettre de dire *où* se situe l'échec (retrieval, reranking, prompt, génération) et pas seulement constater que l'output final est « bon » ou « mauvais ».
+Dans le cas d'un RAG, l'évaluation pertinente doit idéalement être **décomposable** : elle doit permettre de dire *où* se situe l'échec (retrieval, reranking, prompt, génération) et pas seulement constater que l'output final est "bon" ou "mauvais".
 
 #### 3.5.1. Formaliser quelques métriques retrieval (rappels utiles)
 
@@ -498,9 +449,9 @@ L'intérêt pour le RAG est de relier ces scores à la qualité finale : par exe
 Ce que ce mémoire cherche à apporter, concrètement, c'est un cadre d'évaluation qui permette de :
 
 - **séparer** les erreurs de retrieval et les erreurs de génération, parce qu'on ne corrige pas les unes de la même façon que les autres,
-- **intégrer** les spécificités HSE (criticité, exceptions, autorité des sources) que les benchmarks généralistes ignorent,
-- rester **reproductible** et applicable sur un corpus d'entreprise, pas seulement sur des jeux de données académiques,
-- produire des **diagnostics actionnables** : dire non seulement « c'est bon » ou « c'est mauvais », mais *quoi* améliorer (le chunking, le top-k, le reranking, le prompt, la température).
+- **intégrer** les spécificités santé-sécurité (criticité, exceptions) que les benchmarks généralistes ignorent,
+- rester **reproductible** et applicable sur un corpus d'entreprise,
+- produire des **diagnostics actionnables** : pas seulement "c'est bon" ou "c'est pas bon", mais *quoi* améliorer (le chunking, le top-k, le reranking, le prompt, la température).
 
 La Partie II présente la méthodologie retenue, et la Partie III l'applique à ScribBERT.
 
@@ -508,9 +459,9 @@ La Partie II présente la méthodologie retenue, et la Partie III l'applique à 
 
 # PARTIE II — Méthodologie d'évaluation d'un système RAG
 
-La Partie I a posé les bases : ce qu'est un RAG, ce que signifient « pertinence » et « cohérence » dans ce contexte, et pourquoi ces notions sont si délicates à évaluer quand l'enjeu est la sécurité des personnes. La Partie II entre dans le concret.
+La Partie I a posé les bases : ce qu'est un RAG, ce que signifient "pertinence" et "cohérence" dans ce contexte, et pourquoi ces notions sont si délicates à évaluer quand l'enjeu est la sécurité des personnes. La Partie II entre dans le concret.
 
-Je dois admettre que la question de l'évaluation m'a longtemps paru plus simple qu'elle ne l'est en réalité. Au début du développement de ScribBERT, je procédais par tâtonnement : je testais une configuration, je posais quelques questions, j'observais si les réponses « avaient l'air bonnes ». Sauf que cette approche montre vite ses limites : à chaque modification de paramètre (stratégie de chunking, modèle d'embedding, valeur de $k$), une question qui marchait bien se dégradait, et une autre qui échouait s'améliorait. Il n'y avait pas de progression nette, pas de signal clair. C'est cette frustration qui m'a conduit à formaliser un protocole d'évaluation rigoureux.
+Je dois admettre que la question de l'évaluation m'a longtemps paru plus simple qu'elle ne l'est en réalité. Au début du développement de ScribBERT, je procédais par tâtonnement : je testais une configuration, je posais quelques questions, j'observais si les réponses "avaient l'air bonnes". Sauf que cette approche montre vite ses limites : à chaque modification de paramètre (stratégie de chunking, modèle d'embedding, valeur de $k$), une question qui marchait bien se dégradait, et une autre qui échouait s'améliorait. Il n'y avait pas de progression nette, pas de signal clair. C'est cette frustration qui m'a conduit à formaliser un protocole d'évaluation rigoureux.
 
 Trois questions structurent cette partie :
 
@@ -543,7 +494,7 @@ Le paysage des modèles d'embedding évolue rapidement. Au moment de l'écriture
 - **Modèles multilingues open-source** : `multilingual-e5` (Microsoft), `BGE-M3` (BAAI), `Jina embeddings v3`, qui visent à couvrir un grand nombre de langues avec un seul modèle.
 - **Modèles français ou multilingues spécialisés** : `Solon` (Lajavaness), `CamemBERT`-based encoders, `Sentence-CamemBERT`, particulièrement pertinents pour un corpus francophone comme celui de Bouygues TP.
 - **Modèles propriétaires accessibles par API** : `text-embedding-3-small/large` (OpenAI), `embed-multilingual-v3` (Cohere), `voyage-3` (Voyage AI), `gemini-embedding` (Google). Performants mais soulèvent des questions de coût, latence et confidentialité.
-- **Modèles spécialisés par domaine** : `LegalBERT`, `BioBERT`, `SciBERT`, etc. À ce jour, **aucun modèle d'embedding open-source spécialisé HSE/BTP** n'est librement disponible, ce qui constitue à la fois une limite et une opportunité (fine-tuning interne envisageable).
+- **Modèles spécialisés par domaine** : `LegalBERT`, `BioBERT`, `SciBERT`, etc. À ce jour, **aucun modèle d'embedding open-source spécialisé santé-sécurité/BTP** n'est librement disponible, ce qui constitue à la fois une limite et une opportunité (fine-tuning interne envisageable).
 
 #### 4.1.2. Dimensions d'embedding : compromis qualité / coût
 
@@ -553,7 +504,7 @@ La dimension de sortie d'un modèle d'embedding ($d \in \{384, 512, 768, 1024, 1
 - **le coût de stockage** : un index de $N$ chunks en `float32` occupe $4 \cdot N \cdot d$ octets (ex. : 1 M chunks en dim. 1024 ≈ 4 Go) ;
 - **la latence de recherche** : croît linéairement avec $d$ pour la similarité, et indirectement via la taille de l'index ANN.
 
-Les **embeddings « Matryoshka »** (Matryoshka Representation Learning) permettent de tronquer la dimension a posteriori avec une perte limitée, offrant un curseur qualité/coût ajustable sans réindexation complète.
+Les **embeddings "Matryoshka"** (Matryoshka Representation Learning) permettent de tronquer la dimension a posteriori avec une perte limitée, offrant un curseur qualité/coût ajustable sans réindexation complète.
 
 #### 4.1.3. Multilinguisme et adaptation au français technique
 
@@ -572,7 +523,7 @@ On distingue deux niveaux d'évaluation pour un modèle d'embedding :
 - **Intrinsèque** : qualité de la séparation paires positives / négatives (STS, retrieval@k sur jeux annotés, alignement avec jugements humains) ;
 - **Extrinsèque** : impact sur la tâche aval (qualité de la réponse RAG finale).
 
-Les deux ne coïncident pas toujours : un embedding qui remonte « les bons documents » peut tout de même conduire à une mauvaise réponse si le générateur exploite mal le contexte. C'est une raison supplémentaire pour évaluer les composants **et** la chaîne complète (cf. Chapitre 5).
+Les deux ne coïncident pas toujours : un embedding qui remonte "les bons documents" peut tout de même conduire à une mauvaise réponse si le générateur exploite mal le contexte. C'est une raison supplémentaire pour évaluer les composants **et** la chaîne complète (cf. Chapitre 5).
 
 #### 4.1.5. Critères de sélection en contexte industriel
 
@@ -586,40 +537,40 @@ En contexte d'entreprise, le choix d'un modèle d'embedding ne se résume pas à
 | **Latence** | Temps d'inférence acceptable pour une expérience temps réel (< 200 ms cible) |
 | **Confidentialité** | Le modèle peut-il être hébergé en interne ? Les requêtes peuvent-elles sortir du SI ? |
 | **Maintenance** | Stabilité du fournisseur, fréquence des mises à jour, risques de breaking changes |
-| **Fine-tunabilité** | Possibilité d'adapter le modèle au domaine HSE si nécessaire |
+| **Fine-tunabilité** | Possibilité d'adapter le modèle au domaine santé-sécurité si nécessaire |
 
 Ces critères seront opérationnalisés sur ScribBERT en Partie III.
 
 ### 4.2. Le rôle du chunking et du prétraitement textuel
 
-Le chunking est probablement le sujet sur lequel j'ai passé le plus de temps à tâtonner. Il est souvent présenté comme un « détail d'ingestion » dans les tutoriels, mais c'est en réalité un choix de modélisation à part entière, et ses effets se propagent à toute la chaîne.
+Le chunking est probablement le sujet sur lequel j'ai passé le plus de temps à tâtonner. Il est souvent présenté comme un "détail d'ingestion" dans les tutoriels, mais c'est en réalité un choix de modélisation à part entière, et ses effets se propagent à toute la chaîne.
 
 #### 4.2.1. Stratégies de chunking
 
 Plusieurs approches existent, chacune avec ses compromis :
 
 - **Chunking à taille fixe** (par tokens ou caractères) : simple, prévisible, mais aveugle à la structure. Risque majeur : couper une règle au milieu d'une phrase, ou séparer une condition de son exception.
-- **Chunking récursif** (*recursive character text splitter*) : tente de découper d'abord sur des séparateurs « forts » (`\n\n`, `\n`, `. `, ` `) avant de tomber sur du caractère brut. Bon compromis par défaut, implémenté dans LangChain/LlamaIndex.
+- **Chunking récursif** (*recursive character text splitter*) : tente de découper d'abord sur des séparateurs "forts" (`\n\n`, `\n`, `. `, ` `) avant de tomber sur du caractère brut. Bon compromis par défaut, implémenté dans LangChain/LlamaIndex.
 - **Chunking structurel** : exploite la hiérarchie documentaire (titres, sections, listes, tableaux). Particulièrement adapté aux référentiels normatifs qui ont une structure claire.
 - **Chunking sémantique** : utilise un modèle (souvent un embedder) pour détecter des ruptures de sujet et grouper les phrases sémantiquement proches. Plus coûteux en ingestion, gain variable.
 - **Chunking custom (regex / parser dédié)** : pour des formats spécifiques (procédures avec format imposé, fiches sécurité), un parser dédié peut extraire des unités cohérentes (un § = une règle).
 
-Pour un corpus HSE, la stratégie structurelle ou custom est souvent la plus pertinente, car les règles ont une granularité naturelle (article, paragraphe numéroté, étape de procédure).
+Pour un corpus santé-sécurité, la stratégie structurelle ou custom est souvent la plus pertinente, car les règles ont une granularité naturelle (article, paragraphe numéroté, étape de procédure).
 
 #### 4.2.2. Taille des chunks et overlap
 
 Deux paramètres clés interagissent :
 
-- **Taille du chunk** ($T$, en tokens) : trop petit ⇒ perte de contexte, ambiguïté, perte de l'antécédent (« il », « cette règle ») ; trop grand ⇒ dilution sémantique, *embedding* moins discriminant, contexte LLM saturé.
+- **Taille du chunk** ($T$, en tokens) : trop petit ⇒ perte de contexte, ambiguïté, perte de l'antécédent ("il", "cette règle") ; trop grand ⇒ dilution sémantique, *embedding* moins discriminant, contexte LLM saturé.
 - **Overlap** ($O$, généralement 10–20 % de $T$) : permet d'amortir les coupures malheureuses au prix d'une redondance dans l'index.
 
-L'optimum dépend du type de question : les questions factuelles courtes tolèrent des chunks petits, tandis que les questions procédurales (« comment faire X ? ») requièrent souvent des chunks plus larges qui capturent une séquence d'étapes. C'est ce genre de tension que j'ai observée lors du développement : en réduisant la taille des chunks, je gagnais en précision sur certaines questions, mais je cassais la cohérence des réponses sur d'autres. Un protocole rigoureux **teste plusieurs configurations** ($T \in \{256, 512, 1024\}$, $O \in \{0, 64, 128\}$) et mesure l'impact end-to-end. C'est ce que nous ferons en Partie III.
+L'optimum dépend du type de question : les questions factuelles courtes tolèrent des chunks petits, tandis que les questions procédurales ("comment faire X ?") requièrent souvent des chunks plus larges qui capturent une séquence d'étapes. C'est ce genre de tension que j'ai observée lors du développement : en réduisant la taille des chunks, je gagnais en précision sur certaines questions, mais je cassais la cohérence des réponses sur d'autres. Un protocole rigoureux **teste plusieurs configurations** ($T \in \{256, 512, 1024\}$, $O \in \{0, 64, 128\}$) et mesure l'impact end-to-end. C'est ce que nous ferons en Partie III.
 
 #### 4.2.3. Préservation de la structure et des métadonnées
 
-Un chunk « brut » (texte seul) perd des informations critiques : section d'origine, niveau hiérarchique, type de document, date de validité, autorité émettrice. Or ces métadonnées :
+Un chunk "brut" (texte seul) perd des informations critiques : section d'origine, niveau hiérarchique, type de document, date de validité, autorité émettrice. Or ces métadonnées :
 
-- enrichissent les **filtres de retrieval** (« uniquement procédures validées » / « documents postérieurs à 2023 ») ;
+- enrichissent les **filtres de retrieval** ("uniquement procédures validées" / "documents postérieurs à 2023") ;
 - permettent de **citer correctement** la source dans la réponse ;
 - aident à **arbitrer les contradictions** (préférer la version la plus récente, le plus haut niveau d'autorité).
 
@@ -630,7 +581,7 @@ Un schéma de métadonnées robuste pour ScribBERT pourrait inclure : `document_
 Le prétraitement comprend :
 
 - **Extraction texte** depuis PDF (couches texte natives, OCR pour scans), Word, HTML. Les PDFs techniques posent des problèmes spécifiques : multi-colonnes, tableaux, schémas avec légendes, en-têtes/pieds de page répétitifs. Des outils comme `Unstructured`, `pdfplumber`, `pymupdf` ou `Marker` ont des compromis différents.
-- **Suppression du bruit** : numéros de page, en-têtes répétés, watermarks, références internes type « voir page 12 ».
+- **Suppression du bruit** : numéros de page, en-têtes répétés, watermarks, références internes type "voir page 12".
 - **Normalisation** : unification des guillemets, des espaces insécables, des tirets ; éventuellement passage en minuscules pour le sparse retrieval (mais pas pour les embeddings, qui sont généralement *case-sensitive*).
 - **Conservation du formatage utile** : listes à puces, numérotation hiérarchique, gras pour les termes-clés.
 
@@ -661,7 +612,7 @@ L'hybridation est particulièrement utile sur des corpus techniques où :
 - le **dense** capture les paraphrases et l'intention,
 - le **sparse** garantit le rappel sur des **identifiants exacts** (numéros de procédure, codes EPI, références normatives).
 
-Pour ScribBERT, l'hypothèse forte est qu'un utilisateur citant explicitement « PR-SST-042 » doit retrouver ce document, ce que BM25 garantit mais qu'un dense pur peut manquer. Cette hypothèse sera testée en Partie III.
+Pour ScribBERT, l'hypothèse forte est qu'un utilisateur citant explicitement "PR-SST-042" doit retrouver ce document, ce que BM25 garantit mais qu'un dense pur peut manquer. Cette hypothèse sera testée en Partie III.
 
 #### 4.3.3. Reranking par cross-encoder
 
@@ -690,7 +641,7 @@ Pour ScribBERT, des filtres pertinents incluent : périmètre géographique (cha
 
 La valeur du top-$k$ retourné au générateur a un effet en U inversé :
 
-- $k$ trop petit : la « bonne » preuve n'est pas dans le contexte ⇒ génération erronée ou « je ne sais pas ».
+- $k$ trop petit : la "bonne" preuve n'est pas dans le contexte ⇒ génération erronée ou "je ne sais pas".
 - $k$ trop grand : dilution, bruit, coûts ↑ (tokens consommés, latence), risque de **lost in the middle** (le LLM ignore les passages au milieu du contexte).
 
 Valeurs typiques : $k \in [3, 10]$ après reranking. La valeur optimale dépend du modèle de génération (les LLMs récents avec contexte long tolèrent mieux $k$ élevé) et du type de question.
@@ -702,7 +653,7 @@ Plusieurs techniques visent à enrichir ou reformuler la requête :
 - **HyDE** (*Hypothetical Document Embeddings*) : faire générer par un LLM une réponse hypothétique à la requête, puis utiliser son embedding pour la recherche. Améliore le rappel sur des questions complexes.
 - **Multi-query** : générer plusieurs reformulations de la requête, lancer plusieurs recherches, fusionner les résultats.
 - **Step-back prompting** : reformuler la requête en une question plus générale, qui peut mieux matcher des passages introductifs.
-- **Query rewriting via LLM** : corriger les fautes, expanser les acronymes (« EPI » → « équipement de protection individuelle »), normaliser le vocabulaire.
+- **Query rewriting via LLM** : corriger les fautes, expanser les acronymes ("EPI" → "équipement de protection individuelle"), normaliser le vocabulaire.
 
 Ces techniques améliorent généralement le rappel mais ajoutent de la latence et peuvent introduire du **drift sémantique** (la reformulation s'éloigne de l'intention initiale). Un protocole d'évaluation rigoureux doit mesurer le gain net.
 
@@ -716,7 +667,7 @@ Les options se classent en trois catégories :
 
 - **LLMs propriétaires (API)** : GPT-4 / GPT-4o (OpenAI), Claude 3.5/4 (Anthropic), Gemini (Google), Mistral Large. Excellente qualité, coût marginal par requête, dépendance à un fournisseur externe et contraintes de confidentialité.
 - **LLMs open-weights auto-hébergés** : Llama 3, Mistral / Mixtral, Qwen, DeepSeek, Gemma. Contrôle total des données, coût d'infrastructure (GPU), qualité en progression rapide.
-- **LLMs spécialisés** : modèles plus petits fine-tunés sur un domaine (ex. modèles biomédicaux). À ce jour, peu d'options HSE/BTP.
+- **LLMs spécialisés** : modèles plus petits fine-tunés sur un domaine (ex. modèles biomédicaux). À ce jour, peu d'options santé-sécurité/BTP.
 
 Pour un cas d'usage interne avec contraintes de confidentialité, les LLMs auto-hébergés sont souvent privilégiés. Le compromis est qualité ↔ coût ↔ contrôle.
 
@@ -724,7 +675,7 @@ Pour un cas d'usage interne avec contraintes de confidentialité, les LLMs auto-
 
 Le prompt est le contrat passé entre le développeur et le modèle. Un prompt RAG contient généralement quatre éléments : les instructions système (rôle, contraintes, règles de comportement), la requête utilisateur, le contexte récupéré (passages formatés et numérotés), et le format de sortie attendu.
 
-Dans la pratique, quelques principes font consensus. Le *grounding explicite* est essentiel : il faut dire au modèle de ne répondre que sur la base des extraits fournis, et de l'indiquer clairement si l'information n'y figure pas. Les citations obligatoires (« cite chaque affirmation avec le numéro de la source ») améliorent la traçabilité. Et surtout, il faut autoriser le modèle à dire « je ne sais pas ». C'est contre-intuitif (on veut des réponses), mais c'est ce qui réduit le plus efficacement les hallucinations. On peut aussi ajouter un ou deux exemples (*few-shot*) de paires question/réponse pour calibrer le style.
+Dans la pratique, quelques principes font consensus. Le *grounding explicite* est essentiel : il faut dire au modèle de ne répondre que sur la base des extraits fournis, et de l'indiquer clairement si l'information n'y figure pas. Les citations obligatoires ("cite chaque affirmation avec le numéro de la source") améliorent la traçabilité. Et surtout, il faut autoriser le modèle à dire "je ne sais pas". C'est contre-intuitif (on veut des réponses), mais c'est ce qui réduit le plus efficacement les hallucinations. On peut aussi ajouter un ou deux exemples (*few-shot*) de paires question/réponse pour calibrer le style.
 
 #### 4.4.3. Gestion de la fenêtre de contexte
 
@@ -732,7 +683,7 @@ Le budget de tokens est une contrainte structurante. Quand on a 10 passages de 5
 
 #### 4.4.4. Paramètres de décodage
 
-- **Température** : 0 pour la reproductibilité (cas critiques HSE), 0.2–0.5 pour un compromis qualité/diversité, ≥ 0.7 pour la créativité (peu pertinent ici).
+- **Température** : 0 pour la reproductibilité (cas critiques santé-sécurité), 0.2–0.5 pour un compromis qualité/diversité, ≥ 0.7 pour la créativité (peu pertinent ici).
 - **Top-p / top-k sampling** : alternative à la température, plus rarement utilisée en RAG.
 - **Max tokens** : borne haute pour éviter les réponses interminables.
 - **Repetition / presence penalty** : utile si le modèle bégaie sur des termes techniques.
@@ -741,13 +692,13 @@ Pour ScribBERT, une **température faible (0–0.2)** est recommandée afin de g
 
 #### 4.4.5. Citations et traçabilité
 
-La citation peut prendre plusieurs formes : inline (« Selon [1], le port du harnais est obligatoire dès 2 m »), en fin de réponse (liste des sources), ou avec reproduction littérale des passages clés. Cette dernière option est la plus coûteuse en tokens mais aussi la plus auditable.
+La citation peut prendre plusieurs formes : inline ("Selon [1], le port du harnais est obligatoire dès 2 m"), en fin de réponse (liste des sources), ou avec reproduction littérale des passages clés. Cette dernière option est la plus coûteuse en tokens mais aussi la plus auditable.
 
 L'important, au-delà du format, est que la traçabilité soit *machine-vérifiable*. Chaque citation doit pointer vers un identifiant de chunk loggé, lui-même relié au document d'origine. Sans cette chaîne, on a de la traçabilité cosmétique, utile pour l'utilisateur mais insuffisante pour l'audit et pour la mesure de fidélité (cf. Chapitre 6).
 
-#### 4.4.6. Garde-fous pour le contexte HSE
+#### 4.4.6. Garde-fous pour le contexte santé-sécurité
 
-En contexte critique, il faut prévoir des garde-fous explicites. Le plus important est le **refus contrôlé** : quand le retrieval ne trouve rien de suffisamment pertinent, mieux vaut répondre « je n'ai pas trouvé cette information dans les référentiels » que d'improviser. De même, si plusieurs sources se contredisent, le système devrait le signaler plutôt que d'arbitrer en silence. Pour les questions hors périmètre HSE, une redirection vers les bons interlocuteurs est préférable à une réponse approximative.
+En contexte critique, il faut prévoir des garde-fous explicites. Le plus important est le **refus contrôlé** : quand le retrieval ne trouve rien de suffisamment pertinent, mieux vaut répondre "je n'ai pas trouvé cette information dans les référentiels" que d'improviser. De même, si plusieurs sources se contredisent, le système devrait le signaler plutôt que d'arbitrer en silence. Pour les questions hors périmètre santé-sécurité, une redirection vers les bons interlocuteurs est préférable à une réponse approximative.
 
 ### 4.5. Synthèse des leviers et matrice d'expérimentation
 
@@ -770,9 +721,9 @@ Le Chapitre 5 présente le protocole d'évaluation lui-même : jeux de test, mé
 
 ## Chapitre 5 — Construction d'un protocole d'évaluation
 
-Le Chapitre 4 a inventorié les leviers. Reste la question fondamentale : **comment mesurer leur effet ?** Sans un protocole d'évaluation structuré, on en revient au tâtonnement décrit plus haut : on modifie un paramètre, on pose trois questions, on a « l'impression » que c'est mieux ou moins bien, sans pouvoir trancher.
+Le Chapitre 4 a inventorié les leviers. Reste la question fondamentale : **comment mesurer leur effet ?** Sans un protocole d'évaluation structuré, on en revient au tâtonnement décrit plus haut : on modifie un paramètre, on pose trois questions, on a "l'impression" que c'est mieux ou moins bien, sans pouvoir trancher.
 
-Ce que je cherche ici, c'est un protocole qui produise des mesures (i) reproductibles (le même test donne le même résultat), (ii) comparables (on peut ordonner des configurations), et surtout (iii) **diagnostiques**, qui permettent de dire *où* se situe le problème dans la chaîne, pas seulement que la réponse finale est « bonne » ou « mauvaise ».
+Ce que je cherche ici, c'est un protocole qui produise des mesures (i) reproductibles (le même test donne le même résultat), (ii) comparables (on peut ordonner des configurations), et surtout (iii) **diagnostiques**, qui permettent de dire *où* se situe le problème dans la chaîne, pas seulement que la réponse finale est "bonne" ou "mauvaise".
 
 Ce chapitre s'organise en cinq sections : les critères d'évaluation (§ 5.1), les approches (automatique, humaine, hybride) (§ 5.2), la construction du jeu de test (§ 5.3), les conditions expérimentales (§ 5.4), et les méthodes d'analyse (§ 5.5).
 
@@ -793,13 +744,13 @@ Question : *les passages récupérés contiennent-ils l'information nécessaire 
 | **nDCG@k** | Gain cumulé normalisé avec pertinence graduée | Si plusieurs niveaux de pertinence sont annotés |
 | **Context precision** (RAGAS) | Position moyenne des passages pertinents dans le top-$k$ | Évalue la qualité du *ranking* (pas seulement la présence) |
 
-Pour ScribBERT, **Recall@k** et **MRR** sont les métriques principales : on veut s'assurer que la « bonne règle » figure parmi les passages remontés. Le Hit@k constitue un complément utile pour les questions à passage-or unique.
+Pour ScribBERT, **Recall@k** et **MRR** sont les métriques principales : on veut s'assurer que la "bonne règle" figure parmi les passages remontés. Le Hit@k constitue un complément utile pour les questions à passage-or unique.
 
 #### 5.1.2. Dimension 2 — Fidélité aux sources (factualité, *faithfulness*)
 
 Question : *la réponse générée est-elle effectivement supportée par les passages récupérés ?*
 
-C'est la dimension la plus critique en HSE. Plusieurs métriques opérationnalisent cette notion :
+C'est la dimension la plus critique en santé-sécurité. Plusieurs métriques opérationnalisent cette notion :
 
 - **Faithfulness (RAGAS)** : décomposition de la réponse en propositions atomiques, vérification individuelle de chacune contre le contexte par un LLM-juge. Score = proportion de propositions supportées.
 - **FactScore** : variante de l'approche atomique, validée sur des tâches biographiques et adaptable.[@Min2023FactScore]
@@ -807,7 +758,7 @@ C'est la dimension la plus critique en HSE. Plusieurs métriques opérationnalis
 - **AttrScore / Citation Faithfulness** : vérifier que les passages explicitement cités supportent réellement les affirmations attribuées.
 - **Hallucination rate** : taux de propositions non supportées (1 − faithfulness).
 
-Pour le contexte HSE, on peut introduire une métrique métier : **modality preservation** = la réponse respecte-t-elle les modalités des sources (« doit » vs « peut » vs « ne doit pas ») ? Cette métrique nécessite généralement une évaluation humaine ou un LLM-juge spécialement instruit.
+Pour le contexte santé-sécurité, on peut introduire une métrique métier : **modality preservation** = la réponse respecte-t-elle les modalités des sources ("doit" vs "peut" vs "ne doit pas") ? Cette métrique nécessite généralement une évaluation humaine ou un LLM-juge spécialement instruit.
 
 #### 5.1.3. Dimension 3 — Pertinence et utilité de la réponse
 
@@ -850,7 +801,7 @@ Pour l'industrialisation, on ajoute :
 Les métriques automatiques se classent en trois familles :
 
 - **Lexicales** (BLEU, ROUGE, METEOR, exact match) : peu adaptées à la QA générative car elles pénalisent la paraphrase légitime. Utiles uniquement pour des réponses très courtes et factuelles.
-- **Vectorielles** (BERTScore, BLEURT, similarité cosinus d'embeddings de réponse) : capturent mieux la similarité sémantique. Limitation : peuvent juger « proches » deux réponses dont l'une contient une erreur factuelle subtile.[@Zhang2020BERTScore; @Sellam2020BLEURT]
+- **Vectorielles** (BERTScore, BLEURT, similarité cosinus d'embeddings de réponse) : capturent mieux la similarité sémantique. Limitation : peuvent juger "proches" deux réponses dont l'une contient une erreur factuelle subtile.[@Zhang2020BERTScore; @Sellam2020BLEURT]
 - **LLM-based / LLM-as-judge** : un LLM note la réponse selon une grille (G-Eval, Prometheus, RAGAS, TruLens). Approche dominante pour le RAG aujourd'hui : flexible, capable de juger la fidélité, la complétude, la modalité.
 
 **Avantages** : scalabilité (millions de requêtes), reproductibilité (à seed et prompt fixés), coût marginal réduit.
@@ -878,14 +829,14 @@ Constitue le **gold standard**, particulièrement pour les dimensions difficiles
 | Pertinence | 0–3 | 0 = hors-sujet, 3 = répond exactement à la question |
 | Fidélité aux sources | 0–3 | 0 = invente, 3 = parfaitement supporté par les sources fournies |
 | Complétude | 0–3 | 0 = lacunes critiques, 3 = couvre toutes les exceptions |
-| Modalité (HSE) | 0–2 | 0 = transforme une obligation en recommandation, 2 = modalité conservée |
+| Modalité (santé-sécurité) | 0–2 | 0 = transforme une obligation en recommandation, 2 = modalité conservée |
 | Sûreté opérationnelle | 0–3 | 0 = induirait un comportement dangereux, 3 = aligné avec les bonnes pratiques |
 | Citations | 0–2 | 0 = aucune ou erronée, 2 = chaque affirmation citée correctement |
 
 **Bonnes pratiques** :
 - **Plusieurs annotateurs** par item (idéalement 2–3) pour mesurer l'**accord inter-annotateurs** (Kappa de Cohen, $\alpha$ de Krippendorff).
 - **Annotation à l'aveugle** sur la configuration testée (l'annotateur ne sait pas quel système a produit la réponse).
-- **Profil mixte** d'annotateurs : experts métier (HSE) et utilisateurs cibles (préventeurs chantier), pour capturer expertise et utilisabilité.
+- **Profil mixte** d'annotateurs : experts métier (santé-sécurité) et utilisateurs cibles (préventeurs chantier), pour capturer expertise et utilisabilité.
 - **Charte d'annotation** documentée et exemples gold pour calibrer.
 
 **Limites** : coût, temps, subjectivité résiduelle, fatigue de l'annotateur, scalabilité.
@@ -895,7 +846,7 @@ Constitue le **gold standard**, particulièrement pour les dimensions difficiles
 Compromis pragmatique adopté par la plupart des équipes industrielles :
 
 1. **Screening automatique** sur l'ensemble du jeu de test (toutes configurations, toutes questions) → métriques de tendance.
-2. **Échantillonnage stratifié** des cas litigieux ou critiques pour annotation humaine (ex. : top-30 cas à plus fort désaccord juge ↔ score utilisateur, plus 30 cas critiques HSE).
+2. **Échantillonnage stratifié** des cas litigieux ou critiques pour annotation humaine (ex. : top-30 cas à plus fort désaccord juge ↔ score utilisateur, plus 30 cas critiques santé-sécurité).
 3. **Calibration croisée** : utiliser l'échantillon annoté humainement pour corriger les biais du LLM-juge.
 4. **Triangulation** : conclure uniquement si les deux approches convergent ; investiguer les divergences.
 
@@ -907,9 +858,9 @@ La qualité du jeu de test conditionne la validité de toute l'évaluation. Cett
 
 Quatre sources complémentaires :
 
-1. **Questions « naturelles » issues de l'usage** : extraites des logs si le système est déjà déployé (ScribBERT v0), ou collectées via des enquêtes auprès des utilisateurs cibles. Avantage : représentativité des intentions réelles.
-2. **Questions générées par experts** : un panel d'experts HSE rédige des questions couvrant systématiquement les domaines, niveaux de risque, types de procédures.
-3. **Questions générées par LLM à partir des documents** : pour chaque chunk pertinent, un LLM génère une question dont la réponse est dans le chunk. Permet une couverture exhaustive du corpus mais introduit un biais (questions « trop bien formées »).
+1. **Questions "naturelles" issues de l'usage** : extraites des logs si le système est déjà déployé (ScribBERT v0), ou collectées via des enquêtes auprès des utilisateurs cibles. Avantage : représentativité des intentions réelles.
+2. **Questions générées par experts** : un panel d'experts santé-sécurité rédige des questions couvrant systématiquement les domaines, niveaux de risque, types de procédures.
+3. **Questions générées par LLM à partir des documents** : pour chaque chunk pertinent, un LLM génère une question dont la réponse est dans le chunk. Permet une couverture exhaustive du corpus mais introduit un biais (questions "trop bien formées").
 4. **Questions adversariales** : questions hors-périmètre, ambiguës, formulations terrain (jargon, fautes), questions à réponses contradictoires dans le corpus. Test des garde-fous.
 
 #### 5.3.2. Typologie des questions
@@ -917,11 +868,11 @@ Quatre sources complémentaires :
 Pour un protocole diagnostique, on stratifie le jeu de test selon plusieurs axes :
 
 **Par type d'intention** :
-- **Factuelles** (« Quelle est la hauteur minimale pour port du harnais ? ») — réponse courte, vérifiable.
-- **Procédurales** (« Quelle est la procédure avant intervention en espace confiné ? ») — réponse multi-étapes.
-- **Conditionnelles** (« Que faire si... ? ») — gestion des exceptions.
-- **Comparatives** (« Quelle différence entre EPI niveau 1 et niveau 2 ? ») — agrégation multi-sources.
-- **Justificatives** (« Pourquoi cette mesure est-elle requise ? ») — explication d'une norme.
+- **Factuelles** ("Quelle est la hauteur minimale pour port du harnais ?") — réponse courte, vérifiable.
+- **Procédurales** ("Quelle est la procédure avant intervention en espace confiné ?") — réponse multi-étapes.
+- **Conditionnelles** ("Que faire si... ?") — gestion des exceptions.
+- **Comparatives** ("Quelle différence entre EPI niveau 1 et niveau 2 ?") — agrégation multi-sources.
+- **Justificatives** ("Pourquoi cette mesure est-elle requise ?") — explication d'une norme.
 - **Hors-périmètre** (test du refus contrôlé).
 
 **Par niveau de difficulté** :
@@ -960,7 +911,7 @@ Le RAG étant *zero-shot* (pas d'entraînement sur le jeu de test), le risque de
 
 - ne pas exposer les questions du jeu de test au LLM-juge avant l'évaluation ;
 - vérifier qu'aucune question n'a été utilisée pour la conception du système (overfitting au jeu de test par les développeurs) ;
-- conserver un **jeu de test « caché »** (held-out), non utilisé pendant la phase d'optimisation, pour la validation finale.
+- conserver un **jeu de test "caché"** (held-out), non utilisé pendant la phase d'optimisation, pour la validation finale.
 
 #### 5.3.6. Versioning
 
@@ -1035,7 +986,7 @@ Pour comparer deux configurations sur une métrique :
 
 #### 5.5.3. Stratification et analyses par sous-groupe
 
-L'analyse par strate (type de question, difficulté, criticité) est essentielle : une amélioration moyenne de 5 % peut masquer une dégradation sur les questions difficiles, ce qui est inacceptable en HSE. On rapporte systématiquement les métriques par strate.
+L'analyse par strate (type de question, difficulté, criticité) est essentielle : une amélioration moyenne de 5 % peut masquer une dégradation sur les questions difficiles, ce qui est inacceptable en santé-sécurité. On rapporte systématiquement les métriques par strate.
 
 #### 5.5.4. Analyse d'erreurs typologique
 
@@ -1047,7 +998,7 @@ Pour les cas d'échec, on construit une **typologie d'erreurs** raffinée à par
 | Retrieval bruit | Passages tentants mais non applicables | Embedding / reranking |
 | Hallucination factuelle | Affirmation non supportée | Génération / prompt |
 | Omission d'exception | Règle correcte mais condition oubliée | Génération / contexte tronqué |
-| Inversion de modalité | « doit » devenu « peut » | Génération / prompt |
+| Inversion de modalité | "doit" devenu "peut" | Génération / prompt |
 | Contradiction silencieuse | Sources divergentes non signalées | Prompt / corpus |
 | Refus à tort | Refuse alors que l'info est dans le contexte | Prompt / seuils |
 | Réponse hors-périmètre acceptée | Aurait dû refuser | Prompt / guardrails |
@@ -1076,7 +1027,7 @@ Or trois phénomènes rendent un RAG intrinsèquement variable :
 2. **Approximation du retrieval** : les algorithmes ANN (HNSW, IVF) introduisent une approximation contrôlée mais réelle ; deux exécutions strictement identiques peuvent même retourner des ordres légèrement différents selon l'implémentation et la concurrence.
 3. **Sensibilité au prompt et à la formulation** : une reformulation marginale de la question peut modifier le top-$k$ retourné et donc la réponse.
 
-Pour un système d'aide à la décision en HSE, la **variabilité** est un problème en soi : un préventeur qui obtient deux réponses différentes à la même question perd confiance, et plus gravement, peut prendre des décisions différentes selon le moment où il a posé la question. **La stabilité fait partie intégrante de la fiabilité**, au même titre que la justesse moyenne.
+Pour un système d'aide à la décision en santé-sécurité, la **variabilité** est un problème en soi : un préventeur qui obtient deux réponses différentes à la même question perd confiance, et plus gravement, peut prendre des décisions différentes selon le moment où il a posé la question. **La stabilité fait partie intégrante de la fiabilité**, au même titre que la justesse moyenne.
 
 Cette dimension est aussi un **enjeu méthodologique** : si la variance intra-configuration est élevée, comparer deux configurations sur une exécution unique n'a pas de sens, le bruit de mesure dépasse l'effet à mesurer. L'évaluation de la stabilité conditionne donc la robustesse statistique des comparaisons du Chapitre 5.
 
@@ -1098,9 +1049,9 @@ Je n'ai pas eu le temps de tester systématiquement toutes ces sources de varian
 
 #### 6.2.3. Variance liée à la formulation utilisateur
 
-- **Paraphrases équivalentes** : « Quels EPI pour travail en hauteur ? » vs « Quels équipements de protection pour les travaux en hauteur ? ».
+- **Paraphrases équivalentes** : "Quels EPI pour travail en hauteur ?" vs "Quels équipements de protection pour les travaux en hauteur ?".
 - **Fautes typographiques et accents** : sensibilité variable des embeddings.
-- **Niveau de spécificité** : « EPI travail en hauteur » vs « harnais antichute » ciblent la même règle mais avec des chemins de retrieval différents.
+- **Niveau de spécificité** : "EPI travail en hauteur" vs "harnais antichute" ciblent la même règle mais avec des chemins de retrieval différents.
 - **Code-switching FR/EN** : présence ponctuelle d'anglais.
 
 #### 6.2.4. Dérive temporelle (dimension longue)
@@ -1121,7 +1072,7 @@ Pour chaque requête $q$, on exécute le système $n$ fois (typiquement $n \in [
 - **Variance des métriques** : écart-type inter-runs de la faithfulness, du Recall@k, etc.
 - **Flip rate** : taux de questions pour lesquelles le verdict (réponse acceptable / inacceptable) change entre runs.
 
-Cas binaire (réponse correcte/incorrecte) : on peut résumer par la **proportion de runs corrects** et signaler les questions avec un taux entre 30 % et 70 % comme « instables ».
+Cas binaire (réponse correcte/incorrecte) : on peut résumer par la **proportion de runs corrects** et signaler les questions avec un taux entre 30 % et 70 % comme "instables".
 
 #### 6.3.2. Robustesse aux paraphrases (sensibilité linguistique)
 
@@ -1138,17 +1089,17 @@ Sensibilité au **lost-in-the-middle** : on permute l'ordre des passages dans le
 
 #### 6.3.4. Self-consistency (cohérence interne)
 
-Méthode popularisée par Wang et al. (2022) : on génère $n$ réponses à température > 0, on extrait la réponse « majoritaire » par vote ou agrégation. Le **taux d'accord** entre les $n$ réponses est un indicateur de confiance interne du modèle.[@Wang2022SelfConsistency] Si l'accord est faible, c'est un signal de difficulté ou d'ambiguïté.
+Méthode popularisée par Wang et al. (2022) : on génère $n$ réponses à température > 0, on extrait la réponse "majoritaire" par vote ou agrégation. Le **taux d'accord** entre les $n$ réponses est un indicateur de confiance interne du modèle.[@Wang2022SelfConsistency] Si l'accord est faible, c'est un signal de difficulté ou d'ambiguïté.
 
 ### 6.4. Sensibilité aux paramètres et aux variations adverses
 
-Au-delà des variations « normales », un protocole de stabilité robuste teste des perturbations contrôlées :
+Au-delà des variations "normales", un protocole de stabilité robuste teste des perturbations contrôlées :
 
 - **Fautes injectées** : substitutions de caractères, omissions, accents incorrects.
 - **Reformulations adversariales** : reformulations qui préservent l'intention mais utilisent un vocabulaire différent (jargon chantier, anglicismes).
 - **Bruit dans le contexte** : ajout de chunks non pertinents pour mesurer la résistance à la dilution.
 - **Corpus avec contradictions** : injection de variantes contradictoires pour tester la détection.
-- **Questions pièges** : questions hors-périmètre, questions à présupposés faux (« Quelle est la procédure pour ne pas porter de harnais ? »).
+- **Questions pièges** : questions hors-périmètre, questions à présupposés faux ("Quelle est la procédure pour ne pas porter de harnais ?").
 
 Ces tests *adversariaux* ne sont pas des cas usuels mais des stress-tests : ils caractérisent les **limites** du système et orientent les guardrails.
 
@@ -1172,7 +1123,7 @@ La stabilité a une dimension **psychologique** au-delà de sa dimension statist
 
 Deux pratiques permettent de réconcilier ces enjeux :
 
-- **Exposer l'incertitude** : afficher un score de confiance, ou indiquer explicitement « plusieurs réponses possibles selon le contexte de chantier ».
+- **Exposer l'incertitude** : afficher un score de confiance, ou indiquer explicitement "plusieurs réponses possibles selon le contexte de chantier".
 - **Stabiliser les éléments critiques** sans figer les éléments stylistiques : la liste d'EPI doit être identique, mais la formulation peut varier.
 
 Ces principes seront discutés en Partie III à la lumière des résultats observés sur ScribBERT.
@@ -1250,7 +1201,7 @@ ScribBERT suit l'architecture RAG canonique décrite au Ch. 2.3, instanciée com
 | **Frontend** | ReactJS (codé à la main) | Contrôle total de l'UX, intégration avec la charte graphique interne, pas de dépendance à un framework no-code |
 | **Hébergement (POC)** | Cluster Kubernetes local au **LabTP** (équipe Lab TP Innovation) | Souveraineté des données, pas de transit vers cloud externe, scalabilité interne |
 
-Ce choix d'une stack majoritairement open-source et auto-hébergée répond aux contraintes de **confidentialité** (les référentiels HSE peuvent contenir des informations sensibles sur les sites et les procédures) et d'**indépendance** vis-à-vis de fournisseurs externes pour une éventuelle exploitation à long terme.
+Ce choix d'une stack majoritairement open-source et auto-hébergée répond aux contraintes de **confidentialité** (les référentiels santé-sécurité peuvent contenir des informations sensibles sur les sites et les procédures) et d'**indépendance** vis-à-vis de fournisseurs externes pour une éventuelle exploitation à long terme.
 
 #### 7.2.3. Pipeline d'ingestion
 
@@ -1263,7 +1214,7 @@ Le pipeline d'ingestion transforme un PDF source en chunks indexés. Étapes :
 5. **Embedding** : calcul vectoriel via le modèle retenu (§ 7.5).
 6. **Indexation** : insertion dans ChromaDB avec la collection appropriée.
 
-L'étape 1 est actuellement la plus fragile : les PDFs HSE comportent souvent des **tableaux** (tableaux de risques, matrices RACI, tableaux d'EPI par activité) et des **schémas** (logigrammes de procédure, schémas d'installation). Dans le POC, ces éléments sont **ignorés** ou linéarisés grossièrement. Pour la version production, une chaîne **image-to-text contextualisée** est en cours d'étude : un modèle multimodal génère une description textuelle de chaque image/tableau, conserve le lien vers l'image originale, et l'injecte comme un chunk enrichi. Cette piste sera évaluée séparément (Ch. 10, perspectives).
+L'étape 1 est actuellement la plus fragile : les PDFs santé-sécurité comportent souvent des **tableaux** (tableaux de risques, matrices RACI, tableaux d'EPI par activité) et des **schémas** (logigrammes de procédure, schémas d'installation). Dans le POC, ces éléments sont **ignorés** ou linéarisés grossièrement. Pour la version production, une chaîne **image-to-text contextualisée** est en cours d'étude : un modèle multimodal génère une description textuelle de chaque image/tableau, conserve le lien vers l'image originale, et l'injecte comme un chunk enrichi. Cette piste sera évaluée séparément (Ch. 10, perspectives).
 
 #### 7.2.4. UI et expérience utilisateur
 
@@ -1288,7 +1239,7 @@ L'interface ReactJS expose :
 
 Cette taille reste modeste à l'échelle d'un benchmark IR (BEIR utilise des corpus de 10⁵–10⁶ documents), mais elle est **représentative** d'un cas d'usage d'entreprise : un corpus expert, multilingue, à forte densité informationnelle, où chaque document compte. Le défi n'est pas le passage à l'échelle, mais la **qualité fine** du retrieval et de la génération sur un domaine spécialisé.
 
-À noter : à terme, l'extension envisagée couvre les référentiels HSE de l'ensemble des filiales et chantiers de Bouygues TP, ce qui multiplierait le volume par un ordre de grandeur et ferait apparaître des problématiques nouvelles (variantes locales, contradictions inter-entités, multilinguisme étendu).
+À noter : à terme, l'extension envisagée couvre les référentiels santé-sécurité de l'ensemble des filiales et chantiers de Bouygues TP, ce qui multiplierait le volume par un ordre de grandeur et ferait apparaître des problématiques nouvelles (variantes locales, contradictions inter-entités, multilinguisme étendu).
 
 ### 7.4. Choix de chunking et prétraitement
 
@@ -1300,7 +1251,7 @@ Conformément à la grille du Ch. 4.2, la stratégie retenue est un **chunking s
   - assez large pour contenir une règle complète avec ses conditions et ses exceptions (cf. risque d'omission identifié au Ch. 5.5.4),
   - assez petit pour rester discriminant à l'embedding et économique en tokens lors de l'injection dans le contexte LLM ;
 - l'**overlap est de ~50 tokens**, soit une valeur faible (≈ 4 %), qui suffit à amortir des coupures malheureuses sans gonfler significativement l'index ;
-- une **fenêtre contextuelle** est ajoutée à la récupération : pour chaque chunk retourné par le retrieval, les chunks $n-1$ et $n+1$ sont automatiquement adjoints avant injection dans le contexte LLM. Cette mécanique compense un overlap faible et restaure le contexte amont/aval, particulièrement utile pour les références anaphoriques (« cette règle », « les EPI mentionnés ») et pour la cohérence procédurale.
+- une **fenêtre contextuelle** est ajoutée à la récupération : pour chaque chunk retourné par le retrieval, les chunks $n-1$ et $n+1$ sont automatiquement adjoints avant injection dans le contexte LLM. Cette mécanique compense un overlap faible et restaure le contexte amont/aval, particulièrement utile pour les références anaphoriques ("cette règle", "les EPI mentionnés") et pour la cohérence procédurale.
 
 Les métadonnées attachées à chaque chunk sont actuellement : `nom_document`, `entité_émettrice`, `langue`. Une extension du schéma (ajout de `date_validation`, `niveau_autorité`, `section_titre`) est identifiée comme amélioration prioritaire pour la version production.
 
@@ -1347,7 +1298,7 @@ Pour chaque configuration, les métriques suivantes ont été collectées sur le
 
 Le choix d'un **dense pur** s'explique par la simplicité d'implémentation au POC et par la qualité jugée suffisante en évaluation interne. L'**hybridation sparse+dense** (BM25 + embeddings) reste une amélioration prioritaire, d'autant plus pertinente que le corpus contient de nombreuses **références exactes** (numéros de procédure, codes EPI, références normatives) que BM25 capture mieux que les embeddings (cf. analyse Ch. 4.3.2).
 
-Le **filtrage par score** est une garde-fou simple mais efficace : si aucun chunk ne dépasse le seuil, le système retourne un message « information non trouvée dans les référentiels » plutôt que de générer une réponse non ancrée. Cela répond directement à l'exigence de **refus contrôlé** (Ch. 4.4.6).
+Le **filtrage par score** est une garde-fou simple mais efficace : si aucun chunk ne dépasse le seuil, le système retourne un message "information non trouvée dans les référentiels" plutôt que de générer une réponse non ancrée. Cela répond directement à l'exigence de **refus contrôlé** (Ch. 4.4.6).
 
 ### 7.7. Configuration de la génération
 
@@ -1371,7 +1322,7 @@ Le POC ScribBERT, dans sa version actuelle, présente trois limites assumées qu
 
 1. **Pas d'hybridation sparse+dense** : limite identifiée pour les requêtes contenant des références exactes.
 2. **Pas de reranking** : la précision du top-$k$ pourrait être améliorée via un cross-encoder.
-3. **Pas de gestion des tableaux et schémas** : pertes informationnelles sur des contenus à forte valeur HSE (matrices de risques, logigrammes).
+3. **Pas de gestion des tableaux et schémas** : pertes informationnelles sur des contenus à forte valeur santé-sécurité (matrices de risques, logigrammes).
 
 Ces trois axes constituent les priorités pour le passage en production, et seront discutés en perspective au Ch. 10.
 
@@ -1433,7 +1384,7 @@ Pour chaque question, sont annotés (lorsque disponibles) :
 | Answer relevance | [...] |
 | Completeness | [...] |
 | Citation correctness | [...] |
-| Modality preservation (HSE) | [...] |
+| Modality preservation (santé-sécurité) | [...] |
 
 L'évaluation s'appuie sur :
 - un **LLM-juge** distinct du générateur, instruit selon la grille définie au Ch. 5.2.1 ;
@@ -1458,7 +1409,7 @@ L'évaluation s'appuie sur :
 **[À compléter]** — Analyse croisée :
 
 - corrélation entre Recall@k et faithfulness final (un retrieval plus large dégrade-t-il la génération ?) ;
-- proportion d'erreurs « localisées au retrieval » vs « localisées à la génération » (typologie Ch. 5.5.4) ;
+- proportion d'erreurs "localisées au retrieval" vs "localisées à la génération" (typologie Ch. 5.5.4) ;
 - effet ROC : courbe seuil de filtrage par score vs taux de refus / taux d'erreur.
 
 ### 8a.6. Coût opérationnel
@@ -1501,7 +1452,7 @@ Trois familles de cas limites identifiées dès la phase POC :
 
 #### 8b.4.1. Acronymes et jargon métier
 
-Les utilisateurs HSE emploient des acronymes (EPI, ATEX, EPC, PDP, etc.) que les embeddings généralistes peuvent mal contextualiser. **[À compléter : observations spécifiques sur la sensibilité du système retenu]**.
+Les utilisateurs santé-sécurité emploient des acronymes (EPI, ATEX, EPC, PDP, etc.) que les embeddings généralistes peuvent mal contextualiser. **[À compléter : observations spécifiques sur la sensibilité du système retenu]**.
 
 #### 8b.4.2. Multilinguisme et code-switching
 
@@ -1509,7 +1460,7 @@ Le corpus étant ~50 % anglophone, les questions FR peuvent attendre une répons
 
 #### 8b.4.3. Hors-périmètre
 
-Questions sortant du périmètre HSE (« Quel est le congé maternité ? », « Combien gagne un chef de chantier ? »). Le système doit refuser ; observer si le filtre par score est suffisant ou si des cas se faufilent. **[À compléter]**.
+Questions sortant du périmètre santé-sécurité ("Quel est le congé maternité ?", "Combien gagne un chef de chantier ?"). Le système doit refuser ; observer si le filtre par score est suffisant ou si des cas se faufilent. **[À compléter]**.
 
 ### 8b.5. Biais identifiés
 
@@ -1576,7 +1527,7 @@ Bien que ScribBERT ne traite pas de données personnelles dans son corpus (réf�
 2. **Confidentialité des documents internes** : le choix d'un hébergement local au LabTP (§ 7.2.2) garantit la non-exposition à des fournisseurs cloud externes pour le POC. La bascule éventuelle vers un LLM API (OpenAI, Anthropic) en production exigerait une analyse complémentaire, idéalement via Azure OpenAI EU/FR avec contrats DPA appropriés.
 3. **Traçabilité des décisions** : si une décision opérationnelle (ex. report d'une intervention) s'appuie sur une réponse de ScribBERT, la trace doit être conservée, avec la version du modèle, la version du corpus et la réponse exacte, pour permettre une analyse a posteriori.
 
-### 9.3. Responsabilité en contexte HSE
+### 9.3. Responsabilité en contexte santé-sécurité
 
 #### 9.3.1. La question de la responsabilité
 
@@ -1592,11 +1543,11 @@ ScribBERT affiche actuellement un **disclaimer permanent** rappelant que :
 - la responsabilité de la qualité des réponses n'incombe pas au système ;
 - l'utilisateur doit faire appel à son **esprit critique** et **vérifier les documents sources** avant toute action opérationnelle.
 
-Ce disclaimer est une mesure nécessaire mais **non suffisante** : la jurisprudence européenne sur les outils d'aide à la décision tend à considérer qu'un disclaimer ne dégage pas l'éditeur de toute responsabilité, particulièrement si l'outil est présenté comme « expert » ou « fiable ». Les renforcements possibles incluent :
+Ce disclaimer est une mesure nécessaire mais **non suffisante** : la jurisprudence européenne sur les outils d'aide à la décision tend à considérer qu'un disclaimer ne dégage pas l'éditeur de toute responsabilité, particulièrement si l'outil est présenté comme "expert" ou "fiable". Les renforcements possibles incluent :
 
 - afficher un **score de confiance** par réponse, pour calibrer la vigilance ;
 - **mettre en avant les sources** plus que la réponse synthétisée, l'utilisateur étant ainsi systématiquement renvoyé au document validé ;
-- pour les réponses critiques (port d'EPI vital, mises en sécurité), recommander explicitement la **consultation d'un référent HSE** humain.
+- pour les réponses critiques (port d'EPI vital, mises en sécurité), recommander explicitement la **consultation d'un référent santé-sécurité** humain.
 
 #### 9.3.3. Supervision humaine
 
@@ -1625,7 +1576,7 @@ La meilleure technologie échoue si les utilisateurs ne l'adoptent pas. Trois fa
 2. **L'utilité perçue** par rapport à l'alternative (recherche manuelle dans les PDF, demande à un expert). ScribBERT doit faire gagner du temps **sans dégrader la qualité de la décision**.
 3. **L'accompagnement** : formation initiale, communication interne, identification d'**ambassadeurs** dans les équipes pour porter l'outil.
 
-Une perspective intéressante est de considérer ScribBERT non pas comme un **substitut** à l'expert HSE, mais comme un **amplificateur** : il permet aux préventeurs de répondre plus vite aux questions répétitives, libérant du temps pour les sujets complexes qui requièrent un jugement humain.
+Une perspective intéressante est de considérer ScribBERT non pas comme un **substitut** à l'expert santé-sécurité, mais comme un **amplificateur** : il permet aux préventeurs de répondre plus vite aux questions répétitives, libérant du temps pour les sujets complexes qui requièrent un jugement humain.
 
 ## Chapitre 10 — Discussion et perspectives
 
@@ -1702,8 +1653,8 @@ Synthèse des bonnes pratiques pour un futur projet :
 
 #### 10.5.2. Pistes de recherche moyen terme
 
-- **Fine-tuning d'un modèle d'embedding sur le corpus HSE** (apprentissage contrastif sur paires question/passage), pour combler le manque de modèles spécialisés HSE/BTP identifié au Ch. 4.1.1.
-- **GraphRAG** : exploiter une représentation en graphe des entités HSE (procédures, EPI, risques, situations) pour des requêtes nécessitant un raisonnement multi-saut.
+- **Fine-tuning d'un modèle d'embedding sur le corpus santé-sécurité** (apprentissage contrastif sur paires question/passage), pour combler le manque de modèles spécialisés santé-sécurité/BTP identifié au Ch. 4.1.1.
+- **GraphRAG** : exploiter une représentation en graphe des entités santé-sécurité (procédures, EPI, risques, situations) pour des requêtes nécessitant un raisonnement multi-saut.
 - **Agentic RAG** : pour les questions complexes, décomposer en sous-questions, lancer plusieurs retrievals, agréger.
 - **RAG multimodal** : intégrer images, schémas, vidéos de formation comme sources de premier niveau.
 
@@ -1745,7 +1696,7 @@ Le travail comporte trois limites principales : (i) le jeu de test interne (~20 
 
 ### Perspectives
 
-À court terme, ScribBERT bénéficiera de l'application complète du protocole d'évaluation, de l'extension du jeu de test, et de l'intégration des améliorations identifiées (hybrid retrieval, reranking, gestion des tableaux). À moyen terme, le fine-tuning d'un modèle d'embedding sur le corpus HSE et l'exploration de variantes (GraphRAG, agentic RAG, RAG multimodal) constituent des axes de recherche pertinents. Le cadre méthodologique proposé est par ailleurs transférable à d'autres domaines réglementaires et techniques.
+À court terme, ScribBERT bénéficiera de l'application complète du protocole d'évaluation, de l'extension du jeu de test, et de l'intégration des améliorations identifiées (hybrid retrieval, reranking, gestion des tableaux). À moyen terme, le fine-tuning d'un modèle d'embedding sur le corpus santé-sécurité et l'exploration de variantes (GraphRAG, agentic RAG, RAG multimodal) constituent des axes de recherche pertinents. Le cadre méthodologique proposé est par ailleurs transférable à d'autres domaines réglementaires et techniques.
 
 ### Mot de la fin
 
@@ -1774,10 +1725,10 @@ L'industrialisation des systèmes RAG dans des contextes critiques est une réal
 | **End-to-end** | Désigne un système ou une évaluation qui considère la chaîne complète (de la requête utilisateur à la réponse finale), par opposition à l'évaluation de composants isolés. |
 | **Faithfulness / Groundedness** | Fidélité de la réponse générée par rapport aux sources récupérées. Une réponse est *grounded* si chacune de ses affirmations est justifiable par un passage du contexte. |
 | **Fine-tuning** | Adaptation d'un modèle pré-entraîné à une tâche ou un domaine spécifique par entraînement supplémentaire sur des données ciblées. |
-| **Hallucination** | Génération par un LLM d'informations plausibles mais factuellement incorrectes ou non supportées par les sources. Risque majeur en contexte RAG et HSE. |
+| **Hallucination** | Génération par un LLM d'informations plausibles mais factuellement incorrectes ou non supportées par les sources. Risque majeur en contexte RAG et santé-sécurité. |
 | **Hard negatives** | Exemples négatifs (passages non pertinents) sémantiquement proches de la requête, utilisés pour entraîner des retrievers denses à mieux discriminer les passages réellement pertinents. |
 | **HNSW** (*Hierarchical Navigable Small World*) | Structure d'index pour la recherche approximative du plus proche voisin, basée sur des graphes navigables hiérarchiques. Utilisée dans FAISS, Qdrant, etc. |
-| **HSE** (*Hygiène, Sécurité, Environnement*) | Domaine de la prévention des risques professionnels et de la sécurité au travail. Contexte métier du cas d'usage ScribBERT. |
+| **santé-sécurité** (*Hygiène, Sécurité, Environnement*) | Domaine de la prévention des risques professionnels et de la sécurité au travail. Contexte métier du cas d'usage ScribBERT. |
 | **IDF** (*Inverse Document Frequency*) | Mesure de la rareté d'un terme dans un corpus. Plus un terme est rare, plus son IDF est élevé, et plus il est discriminant pour la recherche. |
 | **IR** (*Information Retrieval*) | Recherche d'information : discipline visant à retrouver des documents ou passages pertinents en réponse à un besoin informationnel. |
 | **LLM** (*Large Language Model*) | Modèle de langage de grande taille (milliards de paramètres), pré-entraîné sur de vastes corpus textuels, capable de générer du texte, répondre à des questions, résumer, etc. Ex. : GPT-4, Claude, Llama. |

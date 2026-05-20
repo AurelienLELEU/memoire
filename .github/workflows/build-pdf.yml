@@ -39,7 +39,7 @@ jobs:
             --csl=apa-fr.csl \
             --variable title="Évaluation de la cohérence et de la fiabilité d'un système RAG" \
             --variable author="Aurélien Leleu" \
-            --variable date="2025" \
+            --variable date="2026" \
             --toc \
             --number-sections \
             -o memoire.pdf
@@ -54,7 +54,7 @@ jobs:
             --csl=apa-fr.csl \
             --variable title="Évaluation de la cohérence et de la fiabilité d'un système RAG" \
             --variable author="Aurélien Leleu" \
-            --variable date="2025" \
+            --variable date="2026" \
             --toc \
             --number-sections \
             -o memoire.tex
