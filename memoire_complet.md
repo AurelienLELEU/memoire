@@ -809,15 +809,15 @@ Les métriques automatiques se classent en trois familles :
 **Avantages** : scalabilité (millions de requêtes), reproductibilité (à seed et prompt fixés), coût marginal réduit.
 
 **Limites** :
-- corrélation imparfaite avec le jugement humain expert (notamment en domaine spécialisé) ;
+- corrélation imparfaite avec le jugement humain expert (surtout en domaine spécialisé comme dans notre cas) ;
 - biais du LLM-juge (préférence pour les réponses verbeuses, biais de longueur, biais de formatage) ;
-- risque de **fuite** si le même LLM sert de générateur et de juge (auto-validation circulaire) ;
+- risque de sur-évaluation si le même LLM sert de générateur et de juge (auto-validation circulaire) ;
 - difficulté à juger les modalités, les exceptions, les conditions implicites.
 
 **Bonnes pratiques** :
-- Utiliser un LLM-juge **différent** du générateur évalué.
-- **Calibrer** le LLM-juge sur un échantillon annoté humainement (quelques dizaines d'exemples).
-- Logger les justifications du juge, pas seulement le score.
+- Utiliser un LLM-juge différent du générateur évalué.
+- Si possible, "calibrer" le LLM-juge sur un échantillon annoté humainement (quelques exemples).
+- Logger les justifications du juge, pas seulement le scorve.
 - Mesurer la stabilité du juge lui-même (même prompt, $n$ exécutions).
 
 #### 5.2.2. Évaluation humaine
@@ -830,39 +830,39 @@ Constitue le **gold standard**, particulièrement pour les dimensions difficiles
 |---------|---------|------------|
 | Pertinence | 0–3 | 0 = hors-sujet, 3 = répond exactement à la question |
 | Fidélité aux sources | 0–3 | 0 = invente, 3 = parfaitement supporté par les sources fournies |
-| Complétude | 0–3 | 0 = lacunes critiques, 3 = couvre toutes les exceptions |
-| Modalité (santé-sécurité) | 0–2 | 0 = transforme une obligation en recommandation, 2 = modalité conservée |
+| Complétude | 0–3 | 0 = manquemants importants, 3 = couvre toutes les exceptions |
+| Modalité (santé-sécurité) | 0–2 | 0 = transforme une obligation en recommandation ou inverse, 2 = modalité conservée |
 | Sûreté opérationnelle | 0–3 | 0 = induirait un comportement dangereux, 3 = aligné avec les bonnes pratiques |
 | Citations | 0–2 | 0 = aucune ou erronée, 2 = chaque affirmation citée correctement |
 
 **Bonnes pratiques** :
-- **Plusieurs annotateurs** par item (idéalement 2–3) pour mesurer l'**accord inter-annotateurs** (Kappa de Cohen, $\alpha$ de Krippendorff).
+- **Plusieurs annotateurs** par item (idéalement 2–3) pour mesurer l'accord inter-annotateurs (Kappa de Cohen, $\alpha$ de Krippendorff).
 - **Annotation à l'aveugle** sur la configuration testée (l'annotateur ne sait pas quel système a produit la réponse).
-- **Profil mixte** d'annotateurs : experts métier (santé-sécurité) et utilisateurs cibles (préventeurs chantier), pour capturer expertise et utilisabilité.
+- **Profil mixte** d'annotateurs : experts métiers et utilisateurs cibles, pour capturer expertise et utilisabilité.
 - **Charte d'annotation** documentée et exemples gold pour calibrer.
 
 **Limites** : coût, temps, subjectivité résiduelle, fatigue de l'annotateur, scalabilité.
 
-#### 5.2.3. Approche hybride : *screening* automatique + validation humaine
+#### 5.2.3. Approche hybride : screening automatique + validation humaine
 
-Compromis pragmatique adopté par la plupart des équipes industrielles :
+L'idée est de combiner les deux approches pour que chacune compense les limites de l'autre :
 
-1. **Screening automatique** sur l'ensemble du jeu de test (toutes configurations, toutes questions) → métriques de tendance.
-2. **Échantillonnage stratifié** des cas litigieux ou critiques pour annotation humaine (ex. : top-30 cas à plus fort désaccord juge ↔ score utilisateur, plus 30 cas critiques santé-sécurité).
-3. **Calibration croisée** : utiliser l'échantillon annoté humainement pour corriger les biais du LLM-juge.
-4. **Triangulation** : conclure uniquement si les deux approches convergent ; investiguer les divergences.
+1. **Screening automatique** d'abord, sur l'ensemble du jeu de test : toutes configurations, toutes questions. C'est rapide, ça donne des tendances, et ça permet de dégrossir avant d'y passer plus de temps.
+2. **Sélection ciblée** d'un sous-ensemble pour annotation humaine : par exemple, les cas où le juge automatique et le score utilisateur divergent le plus (top-30 par exemple), plus une sélection de cas critiques santé-sécurité.
+3. **Calibration** : l'échantillon annoté à la main sert à corriger les biais identifiés dans le LLM-juge, et à mieux interpréter ses scores sur le reste.
+4. **Triangulation** : on ne conclut qu'en cas de convergence des deux approches. Les divergences ne sont pas jetées, elles valent souvent la peine d'être analysées.
 
 ### 5.3. Construction du jeu de test
 
-La qualité du jeu de test conditionne la validité de toute l'évaluation. Cette section décrit la démarche méthodologique générique ; l'instanciation pour ScribBERT figurera en Partie III.
+La qualité du jeu de test conditionne la validité de toute l'évaluation. Cette section décrit la démarche méthodologique générique. L'instanciation pour ScribBERT figurera en Partie III.
 
 #### 5.3.1. Sources des questions
 
 Quatre sources complémentaires :
 
-1. **Questions "naturelles" issues de l'usage** : extraites des logs si le système est déjà déployé (ScribBERT v0), ou collectées via des enquêtes auprès des utilisateurs cibles. Avantage : représentativité des intentions réelles.
+1. **Questions "naturelles" issues de l'usage** : extraites des logs. Avantage : représentativité des intentions réelles.
 2. **Questions générées par experts** : un panel d'experts santé-sécurité rédige des questions couvrant systématiquement les domaines, niveaux de risque, types de procédures.
-3. **Questions générées par LLM à partir des documents** : pour chaque chunk pertinent, un LLM génère une question dont la réponse est dans le chunk. Permet une couverture exhaustive du corpus mais introduit un biais (questions "trop bien formées").
+3. **Questions générées par LLM à partir des documents** : pour chaque chunk pertinent, un LLM génère une question dont la réponse est dans le chunk. Permet une couverture exhaustive du corpus mais introduit un biais (questions trop bien formées).
 4. **Questions adversariales** : questions hors-périmètre, ambiguës, formulations terrain (jargon, fautes), questions à réponses contradictoires dans le corpus. Test des garde-fous.
 
 #### 5.3.2. Typologie des questions
@@ -870,17 +870,17 @@ Quatre sources complémentaires :
 Pour un protocole diagnostique, on stratifie le jeu de test selon plusieurs axes :
 
 **Par type d'intention** :
-- **Factuelles** ("Quelle est la hauteur minimale pour port du harnais ?") — réponse courte, vérifiable.
-- **Procédurales** ("Quelle est la procédure avant intervention en espace confiné ?") — réponse multi-étapes.
-- **Conditionnelles** ("Que faire si... ?") — gestion des exceptions.
-- **Comparatives** ("Quelle différence entre EPI niveau 1 et niveau 2 ?") — agrégation multi-sources.
-- **Justificatives** ("Pourquoi cette mesure est-elle requise ?") — explication d'une norme.
+- **Factuelles** ("Quelle est la hauteur minimale pour port du harnais ?") réponse courte, vérifiable.
+- **Procédurales** ("Quelle est la procédure avant intervention en espace confiné ?") réponse multi-étapes.
+- **Conditionnelles** ("Que faire si... ?") gestion des exceptions.
+- **Comparatives** ("Quelle différence entre EPI niveau 1 et niveau 2 ?") agrégation multi-sources.
+- **Justificatives** ("Pourquoi cette mesure est-elle requise ?") explication d'une norme.
 - **Hors-périmètre** (test du refus contrôlé).
 
 **Par niveau de difficulté** :
 - **Facile** : la réponse est dans un seul passage explicite.
-- **Moyen** : nécessite l'agrégation de 2–3 passages.
-- **Difficile** : exception ou condition à identifier, modalité subtile, contradiction apparente à arbitrer.
+- **Moyen** : nécessite 2–3 passages.
+- **Difficile** : exception ou condition à identifier, modalité subtile ou contradiction apparente à arbitrer.
 
 **Par criticité métier** :
 - **Élevée** : erreur potentiellement dangereuse (port d'EPI vital, procédure de mise en sécurité).
@@ -891,31 +891,22 @@ Pour un protocole diagnostique, on stratifie le jeu de test selon plusieurs axes
 
 Pour chaque question, on annote :
 
-- **réponse de référence** rédigée par un expert (idéalement validée par un second expert).
+- **réponse de référence** rédigée par un expert (idéalement validée par un second expert, mais time-consuming).
 - **Passages de référence** : identifiants des chunks contenant l'information nécessaire et suffisante.
-- **Métadonnées** : type, difficulté, criticité, document(s) source(s), date de validité.
+- **Métadonnées** : type, difficulté, criticité, document(s) source(s).
 - **Variantes acceptables** (paraphrases de la réponse de référence, formats alternatifs).
-- **Pièges connus** (passages tentants mais non applicables, à utiliser pour vérifier la précision).
 
 #### 5.3.4. Volume et représentativité
 
-Un ordre de grandeur **utile** pour un RAG d'entreprise est de **150–300 questions** annotées, stratifiées selon les axes ci-dessus. Cela permet :
+Un ordre de grandeur utile pour un RAG d'entreprise est d'environ 150 à 300 questions annotées, créées selon les axes évoqués ci-dessus. Cela permet :
 
 - des estimations stables des métriques globales (intervalle de confiance acceptable),
-- des analyses par strate (par type, par difficulté),
+- des analyses par groupe (par type, par difficulté),
 - la détection d'effets significatifs entre configurations.
 
 En-deçà de 100 questions, les comparaisons entre configurations sont sujettes à un fort bruit statistique.
 
-#### 5.3.5. Prévention de la contamination
-
-Le RAG étant *zero-shot* (pas d'entraînement sur le jeu de test), le risque de contamination est moindre que pour un modèle fine-tuné. Trois précautions restent utiles :
-
-- ne pas exposer les questions du jeu de test au LLM-juge avant l'évaluation ;
-- vérifier qu'aucune question n'a été utilisée pour la conception du système (overfitting au jeu de test par les développeurs) ;
-- conserver un **jeu de test "caché"** (held-out), non utilisé pendant la phase d'optimisation, pour la validation finale.
-
-#### 5.3.6. Versioning
+#### 5.3.5. Versioning
 
 Le jeu de test évolue (corrections, ajouts, retraits). On versionne :
 - le contenu (questions, réponses de référence, passages de référence),
