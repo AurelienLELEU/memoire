@@ -852,7 +852,7 @@ L'idée est de combiner les deux approches pour que chacune compense les limites
 ### 5.3. Construction du jeu de test
 
 La qualité du jeu de test conditionne la validité de toute l'évaluation. Cette section décrit la démarche méthodologique générique. L'instanciation pour ScribBERT figurera en Partie III.
-
+\newpage
 #### 5.3.1. Sources des questions
 
 Quatre sources complémentaires :
