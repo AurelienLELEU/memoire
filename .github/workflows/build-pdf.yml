@@ -27,7 +27,7 @@ jobs:
 
       - name: Download CSL style (Chicago full note — footnotes)
         run: |
-          curl -sL "https://raw.githubusercontent.com/citation-style-language/styles/master/chicago-fullnote-bibliography.csl" -o chicago-note.csl
+          curl -sSfL "https://www.zotero.org/styles/chicago-fullnote-bibliography" -o chicago-note.csl
 
       - name: Convert Markdown to PDF via LaTeX
         run: |
