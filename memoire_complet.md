@@ -24,8 +24,8 @@ La démarche s'organise en trois parties :
 - **Partie II** — Méthodologie d'évaluation : construction du protocole, choix des métriques, conditions expérimentales.
 - **Partie III** — Application et discussion : mise en œuvre sur ScribBERT, résultats, et recommandations.
 
----
 \newpage
+
 ## Présentation du contexte : Bouygues Travaux Publics et le projet ScribBERT
 
 Avant d'entrer dans le vif du sujet technique, il est nécessaire de poser le décor : l'entreprise, le département, et les contraintes concrètes qui ont façonné ce projet.
@@ -91,8 +91,8 @@ La nature de l'entreprise et du département a directement influencé la problé
 - Les **contraintes de confidentialité** orientent les choix techniques (préférence pour des modèles hébergeables en interne, ou disponible en espace sécurisé).
 - Le caractère **opérationnel** du déploiement (avec des utilisateurs réels, dont certains enthousiastes et d'autres méfiants vis-à-vis de l'IA) impose de considérer non seulement la performance moyenne mais aussi la stabilité et la gestion des cas limites. Les premiers retours utilisateurs ont d'ailleurs confirmé ce point : tout le monde reconnaît l'intérêt de la solution, mais la peur de l'erreur reste présente, et légitime : en phase de POC, certaines réponses se sont avérées incorrectes ou incomplètes, ce qui a renforcé la nécessité d'un cadre d'évaluation solide avant tout déploiement élargi.
 
----
 \newpage
+
 # PARTIE I — Cadre conceptuel et état de l'art
 
 Cette première partie replace les systèmes de **Retrieval-Augmented Generation (RAG)** dans l'histoire des méthodes de recherche d'information. Elle vise ensuite à formaliser les notions de **pertinence** et de **cohérence/fidélité** qui seront au cœur du protocole d'évaluation.
