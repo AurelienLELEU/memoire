@@ -38,20 +38,13 @@ Au sein de ce groupe, **Bouygues Construction** rassemble les activités de bât
 
 ### Bouygues Travaux Publics : périmètre et activités
 
-Bouygues Travaux Publics est la filiale du groupe spécialisée dans la conception et la réalisation de **grandes infrastructures de génie civil** :
+Bouygues Travaux Publics est la filiale du groupe spécialisée dans la réalisation de grandes infrastructures de génie civil : tunnels, ponts, ouvrages maritimes et fluviaux, centrales nucléaires. Elle compte environ 10 000 collaborateurs sur des chantiers en France et à l'international (Grand Paris Express, EPR de Hinkley Point C, projets en Asie, Amérique du Nord et Émirats arabes unis), avec un siège à Guyancourt.
 
-- ouvrages souterrains (tunnels routiers, ferroviaires, métros, galeries hydrauliques) ;
-- ouvrages d'art (ponts, viaducs) ;
-- ouvrages maritimes et fluviaux (ports, digues, écluses) ;
-- ouvrages industriels et énergétiques (centrales nucléaires, barrages, terminaux GNL).
+Cette activité présente trois caractéristiques structurantes pour ce mémoire :
 
-L'entreprise est notamment impliquée dans des projets emblématiques tels que le **Grand Paris Express** (plusieurs lots de tunnels et de gares pour les nouvelles lignes de métro), la centrale nucléaire **EPR de Hinkley Point C** au Royaume-Uni, ou encore divers projets internationaux en Asie, en Afrique et en Amérique du Nord. Elle compte environ **10 000 collaborateurs** répartis sur des chantiers en France et à l'international, avec un siège social à **Guyancourt (Yvelines)**.
-
-Cette typologie d'ouvrages présente trois caractéristiques structurantes pour le sujet de ce mémoire :
-
-1. **Une exposition aux risques élevée** : travaux en hauteur, en milieu confiné, à proximité d'engins lourds ou en environnement nucléaire. Chaque chantier mobilise un volume important de procédures de sécurité spécifiques.
-2. **Une production documentaire considérable et hétérogène** : standards groupe, procédures filiales, modes opératoires chantier, normes externes (NF, EN, ISO), réglementations variables selon les pays d'intervention.
-3. **Une organisation projet décentralisée** : chaque chantier dispose d'une équipe dédiée et d'une certaine autonomie opérationnelle.
+1. **Exposition aux risques élevée** : travaux en hauteur, en milieu confiné, à proximité d'engins lourds ou en environnement nucléaire, chacun associé à des procédures de sécurité spécifiques.
+2. **Production documentaire hétérogène** : standards groupe, procédures filiales, modes opératoires chantier, normes externes (NF, EN, ISO), réglementations variables selon les pays.
+3. **Organisation décentralisée** : chaque chantier dispose d'une équipe dédiée avec une certaine autonomie opérationnelle.
 
 \newpage
 
