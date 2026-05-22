@@ -49,8 +49,8 @@ L'entreprise est notamment impliquée dans des projets emblématiques tels que l
 
 Cette typologie d'ouvrages présente trois caractéristiques structurantes pour le sujet de ce mémoire :
 
-1. **Une exposition aux risques élevée** : travaux en hauteur, en souterrain, à proximité d'engins lourds, en milieu confiné, à proximité d'eau, en environnement nucléaire, etc. Chaque chantier mobilise un volume important de procédures de sécurité spécifiques.
-2. **Une production documentaire considérable et hétérogène** : standards groupe, procédures filiales, modes opératoires chantier, système client/partenaire, plans de prévention, retours d'expérience (REX), normes externes (NF, EN, ISO), réglementations nationales variables selon les pays d'intervention.
+1. **Une exposition aux risques élevée** : travaux en hauteur, en milieu confiné, à proximité d'engins lourds ou en environnement nucléaire. Chaque chantier mobilise un volume important de procédures de sécurité spécifiques.
+2. **Une production documentaire considérable et hétérogène** : standards groupe, procédures filiales, modes opératoires chantier, normes externes (NF, EN, ISO), réglementations variables selon les pays d'intervention.
 3. **Une organisation projet décentralisée** : chaque chantier dispose d'une équipe dédiée et d'une certaine autonomie opérationnelle.
 
 \newpage
