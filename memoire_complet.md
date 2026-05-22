@@ -25,7 +25,7 @@ La démarche s'organise en trois parties :
 - **Partie III** — Application et discussion : mise en œuvre sur ScribBERT, résultats, et recommandations.
 
 ---
-
+\newpage
 ## Présentation du contexte : Bouygues Travaux Publics et le projet ScribBERT
 
 Avant d'entrer dans le vif du sujet technique, il est nécessaire de poser le décor : l'entreprise, le département, et les contraintes concrètes qui ont façonné ce projet.
@@ -53,6 +53,8 @@ Cette typologie d'ouvrages présente trois caractéristiques structurantes pour 
 2. **Une production documentaire considérable et hétérogène** : standards groupe, procédures filiales, modes opératoires chantier, système client/partenaire, plans de prévention, retours d'expérience (REX), normes externes (NF, EN, ISO), réglementations nationales variables selon les pays d'intervention.
 3. **Une organisation projet décentralisée** : chaque chantier dispose d'une équipe dédiée et d'une certaine autonomie opérationnelle.
 
+\newpage
+
 ### Le département P2S (Prévention Santé-Sécurité)
 
 Au sein de Bouygues TP, le département **P2S (Prévention Santé-Sécurité)** est entre autres en charge de la définition, de la diffusion et du suivi de la politique santé-sécurité de l'entreprise. Ses missions couvrent notamment :
@@ -68,6 +70,8 @@ L'enjeu opérationnel central est de **rendre l'information de sécurité access
 ### Le projet ScribBERT
 
 C'est de ce constat qu'est né **ScribBERT**. L'idée initiale vient d'Aurélie Janssens (mon ancienne tutrice) et de Flavien Martin (mon tuteur actuel au moment de la rédaction), qui cherchaient des cas d'usage concrets de l'IA appliquée à la santé-sécurité chez Bouygues TP. Le besoin originel était très opérationnel : simplifier la réponse aux appels d'offre. Les clients soumettent des questionnaires Santé-Sécurité détaillés qu'il faut remplir en s'appuyant sur les référentiels internes, un exercice chronophage qui consiste essentiellement à retrouver la bonne information dans les bons documents. L'idée d'un assistant capable de répondre à ces questions en langage naturel, en citant les passages pertinents, s'est imposée assez naturellement. De là, le périmètre s'est élargi : si le système peut répondre aux questions des clients, il peut tout aussi bien répondre aux questions des collaborateurs au quotidien. L'ambition est alors devenue celle d'un outil qui permette à n'importe quel collaborateur de poser une question et d'obtenir une réponse synthétique, sourcée, fondée sur les référentiels validés du département P2S.
+
+\newpage
 
 Techniquement, ScribBERT repose sur une architecture **RAG** (Retrieval-Augmented Generation). Les principes directeurs, posés dès le début du projet, étaient les suivants :
 
@@ -88,7 +92,7 @@ La nature de l'entreprise et du département a directement influencé la problé
 - Le caractère **opérationnel** du déploiement (avec des utilisateurs réels, dont certains enthousiastes et d'autres méfiants vis-à-vis de l'IA) impose de considérer non seulement la performance moyenne mais aussi la stabilité et la gestion des cas limites. Les premiers retours utilisateurs ont d'ailleurs confirmé ce point : tout le monde reconnaît l'intérêt de la solution, mais la peur de l'erreur reste présente, et légitime : en phase de POC, certaines réponses se sont avérées incorrectes ou incomplètes, ce qui a renforcé la nécessité d'un cadre d'évaluation solide avant tout déploiement élargi.
 
 ---
-
+\newpage
 # PARTIE I — Cadre conceptuel et état de l'art
 
 Cette première partie replace les systèmes de **Retrieval-Augmented Generation (RAG)** dans l'histoire des méthodes de recherche d'information. Elle vise ensuite à formaliser les notions de **pertinence** et de **cohérence/fidélité** qui seront au cœur du protocole d'évaluation.
