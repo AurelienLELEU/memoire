@@ -988,17 +988,17 @@ Le Chapitre 6 approfondit la dimension **stabilité**, qui mérite un traitement
 
 ### 6.1. Pourquoi la stabilité est une dimension distincte de la fiabilité
 
-Les métriques classiques d'évaluation d'un RAG (Recall@k, faithfulness, answer relevance) sont calculées **sur une exécution unique** par requête. Elles décrivent la qualité moyenne d'une réponse à un instant donné, mais ne disent rien sur ce qui se passe **si l'on rejoue la même requête** ou **si l'utilisateur formule légèrement différemment** sa question.
+Les métriques classiques d'évaluation d'un RAG évoquées plus tôt sont calculées sur une exécution unique d'une requête. Elles décrivent la qualité moyenne d'une réponse à un instant t, mais ne disent rien sur ce qui se passe si l'on rejoue la même requête ou si l'utilisateur formule légèrement différemment sa question.
 
 Or trois phénomènes rendent un RAG intrinsèquement variable :
 
 1. **Stochasticité de la génération** : à température > 0, le LLM échantillonne à chaque token, conduisant à des réponses différentes pour une même entrée.
 2. **Approximation du retrieval** : les algorithmes ANN (HNSW, IVF) introduisent une approximation contrôlée mais réelle ; deux exécutions strictement identiques peuvent même retourner des ordres légèrement différents selon l'implémentation et la concurrence.
-3. **Sensibilité au prompt et à la formulation** : une reformulation marginale de la question peut modifier le top-$k$ retourné et donc la réponse.
+3. **Sensibilité au prompt et à la formulation** : une question tournée différement peut modifier le top-$k$ retourné et donc la réponse.
 
-Pour un système d'aide à la décision en santé-sécurité, la **variabilité** est un problème en soi : un préventeur qui obtient deux réponses différentes à la même question perd confiance, et plus gravement, peut prendre des décisions différentes selon le moment où il a posé la question. **La stabilité fait partie intégrante de la fiabilité**, au même titre que la justesse moyenne.
+Pour un système d'aide à la décision en santé-sécurité, la **variabilité** est un problème. Un préventeur ou compagnon qui obtient deux réponses différentes à la même question perd confiance, et plus gravement, peut prendre des décisions différentes selon le moment où il a posé la question. La stabilité fait partie intégrante de la fiabilité (fiabilité apparente à minima), au même titre que la justesse moyenne.
 
-Cette dimension est aussi un **enjeu méthodologique** : si la variance intra-configuration est élevée, comparer deux configurations sur une exécution unique n'a pas de sens, le bruit de mesure dépasse l'effet à mesurer. L'évaluation de la stabilité conditionne donc la robustesse statistique des comparaisons du Chapitre 5.
+Cette dimension est aussi un enjeu méthodologique : si la variance au sein d'une même configuration est élevée, comparer deux configurations sur une exécution unique n'a pas de sens, le bruit de mesure dépasse l'effet à mesurer. L'évaluation de la stabilité conditionne donc la robustesse statistique des comparaisons du Chapitre 5.
 
 ### 6.2. Sources de variance dans un RAG
 
@@ -1007,7 +1007,7 @@ Je n'ai pas eu le temps de tester systématiquement toutes ces sources de varian
 #### 6.2.1. Variance liée à la génération
 
 - **Échantillonnage stochastique** (température, top-p) : effet direct sur la diversité lexicale ; à température élevée, le contenu factuel peut aussi varier.
-- **Non-déterminisme des LLM propriétaires** : même à température 0, certaines API ne garantissent pas le déterminisme strict (parallélisme GPU, batching variable). OpenAI propose un paramètre `seed` et un identifiant `system_fingerprint` pour tracer le déterminisme effectif.
+- **Non-déterminisme des LLM propriétaires** : même à température 0, certaines API ne garantissent pas le déterminisme strict (parallélisme GPU, batching variable). OpenAI propose un paramètre `seed` et un identifiant `system_fingerprint` pour tracer le déterminisme effectif (également disponible en passant par les API Azure OpenAI).
 - **Choix de format** : le LLM peut produire des tournures différentes (puces vs phrases) à structure équivalente, ce qui inflige des comparaisons textuelles brutes.
 
 #### 6.2.2. Variance liée au retrieval
