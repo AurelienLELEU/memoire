@@ -852,7 +852,7 @@ L'idée est de combiner les deux approches pour que chacune compense les limites
 ### 5.3. Construction du jeu de test
 
 La qualité du jeu de test conditionne la validité de toute l'évaluation. Cette section décrit la démarche méthodologique générique. L'instanciation pour ScribBERT figurera en Partie III.
-\newpage
+
 #### 5.3.1. Sources des questions
 
 Quatre sources complémentaires :
@@ -870,7 +870,7 @@ Pour un protocole diagnostique, on stratifie le jeu de test selon plusieurs axes
 - **Factuelles** ("Quelle est la hauteur minimale pour port du harnais ?") réponse courte, vérifiable.
 - **Procédurales** ("Quelle est la procédure avant intervention en espace confiné ?") réponse multi-étapes.
 - **Conditionnelles** ("Que faire si... ?") gestion des exceptions.
-- **Comparatives** ("Quelle différence entre EPI niveau 1 et niveau 2 ?") agrégation multi-sources.
+- **Comparatives** ("Quelle différence entre... ?") agrégation multi-sources.
 - **Justificatives** ("Pourquoi cette mesure est-elle requise ?") explication d'une norme.
 - **Hors-périmètre** (test du refus contrôlé).
 
@@ -919,17 +919,17 @@ Le jeu de test évolue (corrections, ajouts, retraits). On versionne :
 - **OFAT** (*One-Factor-At-a-Time*) : faire varier un paramètre à la fois autour d'une configuration de référence. Simple, interprétable, mais ne capture pas les interactions.
 - **Plans factoriels (réduits)** : tester les combinaisons d'un sous-ensemble de facteurs (plans fractionnels, designs orthogonaux). Capture les interactions au prix d'un volume d'expériences plus important.
 
-Pour ce mémoire, l'approche OFAT sera privilégiée pour les comparaisons principales, complétée par 2–3 expériences factorielles ciblées sur des couples d'intérêt (ex. taille de chunk × top-$k$, embedding × reranking).
+Pour ce mémoire, l'approche OFAT sera privilégiée pour les comparaisons principales.
 
 #### 5.4.2. Configuration de référence (*baseline*)
 
-Toute expérience compare à une **configuration de référence** documentée :
+Toute expérience compare à une configuration de référence documentée :
 - modèle d'embedding et version exacte,
 - stratégie et paramètres de chunking,
 - type de retrieval et top-$k$,
 - modèle de génération et version exacte,
 - prompt complet,
-- paramètres de décodage (température, max tokens, seed).
+- paramètres de décodage (température, max tokens,...).
 
 Cette baseline est elle-même l'objet d'une évaluation initiale, sur l'ensemble des dimensions, qui sert de point de comparaison pour toutes les variantes.
 
@@ -943,40 +943,22 @@ Pour qu'une expérience soit reproductible :
 
 Lorsque la reproductibilité parfaite est impossible (LLM propriétaires non déterministes), on rapporte des **distributions** sur $n$ runs (médiane et IQR) plutôt que des valeurs ponctuelles.
 
-#### 5.4.4. Logging et observabilité
-
-Pour chaque exécution, on enregistre :
-
-```
-{
-  "query_id": ..., "query_text": ..., "config_id": ...,
-  "retrieved_chunks": [{"id": ..., "score": ..., "rank": ...}],
-  "reranked_chunks": [...],
-  "prompt_full": ...,
-  "response": ..., "citations": [...],
-  "latency_ms": {"retrieval": ..., "rerank": ..., "generation": ...},
-  "timestamp": ..., "seed": ..., "model_versions": {...}
-}
-```
-
-Cette trace permet l'analyse a posteriori (*post-mortem* d'erreurs, audit, recalcul de métriques avec des juges différents).
-
 ### 5.5. Méthodes d'analyse
 
 #### 5.5.1. Statistiques descriptives
 
-Pour chaque configuration et chaque métrique : moyenne, médiane, écart-type, IQR, distribution (histogramme). Toujours rapporter la **distribution** et pas seulement la moyenne, particulièrement important pour la fidélité, où une moyenne à 0.85 peut masquer une queue de réponses gravement fausses.
+Pour chaque configuration et chaque métrique analyser la moyenne, médiane, écart-type, IQR et distribution (histogramme). La moyenne seule ne suffit pas, un score de fidélité à 0,85 peut très bien cacher 15 % de réponses complètement inventées, ce qui est inacceptable en santé-sécurité.
 
 #### 5.5.2. Tests de significativité
 
 Pour comparer deux configurations sur une métrique :
-- **Test apparié** (la même question est posée aux deux configurations) : Wilcoxon signed-rank (non paramétrique, robuste) ou test t apparié si distribution proche normale.
+- **Test apparié** (la même question est posée aux deux configurations) : préférer le test de Wilcoxon signed-rank, non paramétrique et robuste. Le test t apparié reste possible si la distribution des différences est proche de la normale.
 - **Correction multiple** si l'on teste plusieurs métriques ou plusieurs configurations simultanément (Bonferroni, Holm).
 - **Effet plutôt que p-value seule** : rapporter la **taille d'effet** (différence moyenne, Cohen's $d$) et un intervalle de confiance.
 
 #### 5.5.3. Stratification et analyses par sous-groupe
 
-L'analyse par strate (type de question, difficulté, criticité) est essentielle : une amélioration moyenne de 5 % peut masquer une dégradation sur les questions difficiles, ce qui est inacceptable en santé-sécurité. On rapporte systématiquement les métriques par strate.
+L'analyse par strate (type de question, difficulté, criticité) est essentielle : une amélioration moyenne de 5 % peut masquer une dégradation sur les questions difficiles, ce qui est inacceptable en santé-sécurité. On rapporte systématiquement les métriques par strate pour être sûr que l'amélioration soit à tous les niveaux.
 
 #### 5.5.4. Analyse d'erreurs typologique
 
@@ -995,13 +977,10 @@ Pour les cas d'échec, on construit une **typologie d'erreurs** raffinée à par
 
 Cette typologie sert de grille pour l'analyse qualitative en Partie III et oriente les améliorations.
 
-#### 5.5.5. Études de cas
 
-Pour illustrer les résultats agrégés, sélectionner 5–10 cas représentatifs (succès exemplaires, échecs typiques, cas limites), avec narratif expliquant la chaîne de décision et le lien avec les métriques.
+### 5.5. Synthèse
 
-### 5.6. Synthèse
-
-Le protocole proposé articule **cinq dimensions de la fiabilité** (retrieval, fidélité, pertinence réponse, stabilité, traçabilité) avec **trois approches d'évaluation** (automatique, humaine, hybride), appliquées sur un **jeu de test stratifié** dans des **conditions expérimentales reproductibles**, et analysées avec des outils statistiques adaptés.
+Le protocole proposé articule cinq dimensions de la fiabilité (retrieval, fidélité, pertinence, stabilité et traçabilité) avec trois approches d'évaluation (automatique, humaine, hybride), appliquées sur un jeu de test stratifié dans des conditions expérimentales reproductibles, et analysées avec des outils statistiques adaptés.
 
 Le Chapitre 6 approfondit la dimension **stabilité**, qui mérite un traitement spécifique car elle est sous-traitée par les frameworks usuels et particulièrement critique pour un système RAG en production sur un sujet sensible.
 
