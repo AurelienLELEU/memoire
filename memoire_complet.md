@@ -1,4 +1,4 @@
-﻿# Mémoire — Évaluation de la cohérence et de la fiabilité d'un système RAG (cas d'usage : ScribBERT)
+﻿# Mémoire : Évaluation de la cohérence et de la fiabilité d'un système RAG (cas d'usage : ScribBERT)
 
 > Document de travail (version brouillon). Les éléments marqués **[À compléter]** sont des placeholders (chiffres, exemples internes, schémas, références exactes).
 
@@ -20,9 +20,9 @@ L'objectif de ce mémoire est de proposer une méthode d'évaluation rigoureuse 
 
 La démarche s'organise en trois parties :
 
-- **Partie I** — Cadre conceptuel et théorique : les fondements du RAG, l'histoire de la recherche d'information, et les notions de pertinence et de cohérence qui sous-tendent l'évaluation.
-- **Partie II** — Méthodologie d'évaluation : construction du protocole, choix des métriques, conditions expérimentales.
-- **Partie III** — Application et discussion : mise en œuvre sur ScribBERT, résultats, et recommandations.
+- **Partie I** - Cadre conceptuel et théorique : les fondements du RAG, l'histoire de la recherche d'information, et les notions de pertinence et de cohérence qui sous-tendent l'évaluation.
+- **Partie II** - Méthodologie d'évaluation : construction du protocole, choix des métriques, conditions expérimentales.
+- **Partie III** - Application et discussion : mise en œuvre sur ScribBERT, résultats, et recommandations.
 
 \newpage
 
@@ -86,7 +86,7 @@ La nature de l'entreprise et du département a directement influencé la problé
 
 \newpage
 
-# PARTIE I — Cadre conceptuel et état de l'art
+# PARTIE I - Cadre conceptuel et état de l'art
 
 Cette première partie replace les systèmes de **Retrieval-Augmented Generation (RAG)** dans l'histoire des méthodes de recherche d'information. Elle vise ensuite à formaliser les notions de **pertinence** et de **cohérence/fidélité** qui seront au cœur du protocole d'évaluation.
 
@@ -95,7 +95,7 @@ Deux constats structurent cette partie :
 1. Un RAG n'est pas "un LLM + des documents". C'est une **chaîne de décision** (découpage, indexation, recherche, assemblage du contexte, génération) dont les erreurs/imprécisions s'additionnent parfois.
 2. Les critères d'évaluation de l'IR (recherche d'information) classique et ceux des LLMs ne se recouvrent pas. On peut avoir un excellent score de retrieval et une réponse finale fausse.
 
-## Chapitre 1 — De la recherche documentaire à la recherche sémantique
+## Chapitre 1 - De la recherche documentaire à la recherche sémantique
 
 ### 1.1. Brève histoire de la recherche d'information : du lexical au probabiliste
 
@@ -220,7 +220,7 @@ Le paradigme *retriever-reader* a d'abord été popularisé par **DrQA** (Chen e
 
 Le RAG n'est pas une invention isolée mais l'aboutissement d'une lignée de recherche en IR.
 
-## Chapitre 2 — Les fondements du RAG (Retrieval-Augmented Generation)
+## Chapitre 2 - Les fondements du RAG (Retrieval-Augmented Generation)
 
 ### 2.1. Principe général : génération augmentée par récupération
 
@@ -320,7 +320,7 @@ On distingue la "mémoire paramétrique" d'un LLM (ses poids) et la "mémoire no
 
 Dans une application santé-sécurité, on ne veut pas de réponse "créative" : on attend une réponse normative ou procédurale, fondée sur les bons documents. La qualité tient alors à des questions très concrètes : le système distingue-t-il une procédure groupe validée d'une note informelle ? Respecte-t-il la différence entre "doit" et "devrait" ? Mentionne-t-il les exceptions ? Ces exigences, bien plus strictes que dans un chatbot grand public, imposent de centrer l'évaluation sur la fidélité aux sources, ce qui sera l'objet de la Partie II.
 
-## Chapitre 3 — La question de la "pertinence" et de la "cohérence"
+## Chapitre 3 - La question de la "pertinence" et de la "cohérence"
 
 Les mots "pertinence" et "cohérence" reviennent constamment aussi bien dans ce mémoire que quand on parle de qualité d'un RAG, mais ils recouvrent des réalités assez différentes selon les interlocuteurs. Ce chapitre tente de les clarifier, non pas par amour pour la taxonomie, mais plutôt parce que la qualité d'un protocole d'évaluation dépend directement de ce qu'on en attend.
 
@@ -328,7 +328,7 @@ Les mots "pertinence" et "cohérence" reviennent constamment aussi bien dans ce 
 
 En recherche d'information, la pertinence est un mélange entre un besoin, un utilisateur, un contexte et un document, à un moment donné. La littérature académique insiste depuis longtemps sur cette complexité et sur l'écart entre ce qu'un système juge pertinent et ce que l'utilisateur considère comme pertinent.[@Saracevic1996; @Mizzaro1997] Pour un RAG, plusieurs dimensions s'ajoutent à la simple adéquation thématique.
 
-Un passage peut parler du bon sujet sans être utile pour autant. La **pertinence situationnelle** dépend du rôle de l'utilisateur, de la phase du chantier, des contraintes de site — une procédure générale ne sert pas à un compagnon qui a besoin d'une consigne précise. L'**exhaustivité** est critique quand il cherche une procédure complète : une réponse correcte mais à laquelle il manque une étape ou une exception peut être dangereuse. La **granularité** pose la question inverse : trop de détails peut noyer l'information, surtout si le format attendu est une check-list courte.
+Un passage peut parler du bon sujet sans être utile pour autant. La **pertinence situationnelle** dépend du rôle de l'utilisateur, de la phase du chantier, des contraintes de site : une procédure générale ne sert pas à un compagnon qui a besoin d'une consigne précise. L'**exhaustivité** est critique quand il cherche une procédure complète : une réponse correcte mais à laquelle il manque une étape ou une exception peut être dangereuse. La **granularité** pose la question inverse : trop de détails peut noyer l'information, surtout si le format attendu est une check-list courte.
 
 L'**actualité** et l'**autorité de la source** sont deux dimensions souvent négligées mais centrales dans un corpus d'entreprise vivant. Un passage peut être thématiquement pertinent mais obsolète. Une procédure groupe validée n'a pas la même force qu'une note informelle. Notre SharePoint contient des documents de niveaux de normativité très différents, et le système doit être capable de les hiérarchiser.
 
@@ -436,7 +436,7 @@ La Partie II présente la méthodologie retenue, et la Partie III l'applique à 
 
 ---
 
-# PARTIE II — Méthodologie d'évaluation d'un système RAG
+# PARTIE II - Méthodologie d'évaluation d'un système RAG
 
 La Partie I a posé les bases : ce qu'est un RAG, ce que signifient "pertinence" et "cohérence" dans ce contexte, et pourquoi ces notions sont si délicates à évaluer quand l'enjeu est la sécurité des collaborateurs. La Partie II entre dans le concret.
 
@@ -450,7 +450,7 @@ Trois questions structurent cette partie :
 
 L'ambition est de proposer un cadre transférable, pas spécifique à ScribBERT, mais qui sera instancié sur ce cas en Partie III.
 
-## Chapitre 4 — Modèles et paramètres influençant la performance
+## Chapitre 4 - Modèles et paramètres influençant la performance
 
 Un système RAG n'est pas une boîte noire à un seul bouton. C'est un assemblage de composants, chacun avec ses propres réglages, et la qualité finale dépend de l'ensemble. Le problème (et je l'ai vécu de façon assez directe), c'est que modifier un paramètre peut améliorer certains cas et en dégrader d'autres. Pour sortir du tâtonnement, il faut d'abord cartographier ces leviers et comprendre comment ils interagissent.
 
@@ -697,7 +697,7 @@ L'expérimentation menée en Partie III ne pourra pas tester toutes les combinai
 
 Le Chapitre 5 présente le protocole d'évaluation lui-même : jeux de test, métriques, conditions d'expérimentation.
 
-## Chapitre 5 — Construction d'un protocole d'évaluation
+## Chapitre 5 - Construction d'un protocole d'évaluation
 
 Le Chapitre 4 a inventorié les différents leviers actionnables. Reste la question fondamentale : **comment mesurer leur effet ?** Sans un protocole d'évaluation structuré, on en revient au tâtonnement décrit plus haut : on modifie un paramètre, on pose trois questions, on a "l'impression" que c'est mieux ou moins bien, sans pouvoir trancher.
 
@@ -709,7 +709,7 @@ Ce chapitre s'organise en cinq sections : les critères d'évaluation (§ 5.1), 
 
 Plutôt que de dresser une liste plate de métriques, j'organise l'évaluation autour des **cinq dimensions de la fiabilité** définies au Chapitre 3. Pour chacune, la question centrale est : quel type d'échec cherche-t-on à détecter ?
 
-#### 5.1.1. Dimension 1 — Pertinence du retrieval
+#### 5.1.1. Dimension 1 - Pertinence du retrieval
 
 *Les passages récupérés contiennent-ils l'information nécessaire pour répondre ?*
 
@@ -723,7 +723,7 @@ C'est le premier maillon de la chaîne, et si le retrieval rate la bonne règle,
 
 Pour ScribBERT, **Recall@k** et **MRR** sont les métriques principales : l'enjeu est avant tout de s'assurer que la "bonne règle" figure bien parmi les passages remontés. Le Hit@k est un bon complément rapide pour les questions qui n'ont qu'un seul passage.
 
-#### 5.1.2. Dimension 2 — Fidélité aux sources (*faithfulness*)
+#### 5.1.2. Dimension 2 - Fidélité aux sources (*faithfulness*)
 
 *La réponse s'en tient-elle à ce que disent vraiment les passages récupérés ?*
 
@@ -738,7 +738,7 @@ Plusieurs approches permettent de mesurer ça automatiquement :
 
 À ces métriques génériques, on peut ajouter en contexte santé-sécurité une mesure plus spécifique : la **préservation des modalités** : la réponse respecte-t-elle les niveaux d'obligation des sources ("doit" vs "peut" vs "il est recommandé de") ? Cette dimension est difficile à automatiser de façon fiable et nécessite souvent une vérification humaine ou un LLM-juge avec des instructions très précises à ce sujet.
 
-#### 5.1.3. Dimension 3 — Pertinence et complétude de la réponse
+#### 5.1.3. Dimension 3 - Pertinence et complétude de la réponse
 
 *La réponse dit-elle ce qu'il faut, ni plus ni moins ?*
 
@@ -749,13 +749,13 @@ Cette dimension évalue la réponse en tant que telle, indépendamment de ses so
 - **Concision** : la réponse est-elle proportionnée à la complexité de la question, ou le modèle noie-t-il l'information dans une réponse excessivement longue ?
 - **Respect du format** : si le prompt demande une check-list numérotée, le modèle l'a-t-il bien produite ?
 
-#### 5.1.4. Dimension 4 — Stabilité et répétabilité
+#### 5.1.4. Dimension 4 - Stabilité et répétabilité
 
 *Si l'on rejoue la même question, la réponse est-elle cohérente ?*
 
 Un système peut obtenir de bons scores en moyenne tout en produisant des réponses très variables d'une exécution à l'autre. Cette dimension, traitée en détail au Chapitre 6, mesure la **variance** des réponses plutôt que leur qualité moyenne. Elle conditionne également la robustesse statistique de toutes les comparaisons du protocole : si la variabilité intra-configuration est élevée, comparer deux configurations sur une seule exécution par question n'a pas de sens.
 
-#### 5.1.5. Dimension 5 — Traçabilité et auditabilité
+#### 5.1.5. Dimension 5 - Traçabilité et auditabilité
 
 *Peut-on vérifier, a posteriori, l'origine de chaque affirmation de la réponse ?*
 
@@ -966,7 +966,7 @@ Le protocole proposé articule cinq dimensions de la fiabilité (retrieval, fid�
 
 Le Chapitre 6 approfondit la dimension **stabilité**, qui mérite un traitement spécifique car elle est sous-traitée par les frameworks usuels et particulièrement critique pour un système RAG en production sur un sujet sensible.
 
-## Chapitre 6 — Évaluation de la stabilité et de la répétabilité
+## Chapitre 6 - Évaluation de la stabilité et de la répétabilité
 
 ### 6.1. Pourquoi la stabilité est une dimension distincte de la fiabilité
 
@@ -1000,40 +1000,28 @@ Cette stabilité à requête identique ne suffit pas : un système peut être st
 
 ### 6.4. Sensibilité aux paramètres et aux variations adverses
 
-Au-delà des variations "normales", un protocole de stabilité robuste teste des perturbations contrôlées :
+Au-delà des variations classiques, un bon protocole de stabilité teste aussi des perturbations contrôlées :
 
-- **Fautes injectées** : substitutions de caractères, omissions, accents incorrects.
+- **Fautes injectées** : inversion de caractères, omissions, accents incorrects.
 - **Reformulations adversariales** : reformulations qui préservent l'intention mais utilisent un vocabulaire différent (jargon chantier, anglicismes).
 - **Bruit dans le contexte** : ajout de chunks non pertinents pour mesurer la résistance à la dilution.
 - **Corpus avec contradictions** : injection de variantes contradictoires pour tester la détection.
 - **Questions pièges** : questions hors-périmètre, questions à présupposés faux ("Quelle est la procédure pour ne pas porter de harnais ?").
 
-Ces tests *adversariaux* ne sont pas des cas usuels mais des stress-tests : ils caractérisent les **limites** du système et orientent les guardrails.
+Ces tests adversariaux ne sont pas des cas usuels mais des sortes stress-tests : ils caractérisent les limites de notre système et orientent les guardrails (même si en principe, on ne devrait pas arriver sur ces cas extrêmes si notre retreival est bien fait).
 
 ### 6.5. Protocole de test de stabilité
 
-Un protocole opérationnel pour évaluer la stabilité d'un RAG :
-
-**Étape 1 — Sélection d'un sous-jeu de questions critiques** (30–60 questions, stratifiées par criticité).
-
-**Étape 2 — Tests inter-runs** : pour chaque question, $n=10$ exécutions à seed et configuration constants. Calcul de Stability@retrieval, Stability@citations, Stability@answer, flip rate.
-
-**Étape 3 — Tests de paraphrase** : pour chaque question, génération de $m=5$ paraphrases (validées par expert pour préserver l'intention). Une exécution par paraphrase. Mesure de la consistance sémantique des réponses.
-
-**Étape 4 — Tests adversariaux** : pour un sous-ensemble (10–20 questions), application des perturbations (fautes, reformulations, questions pièges).
-
-**Étape 5 — Synthèse** : tableau de bord par configuration, agrégeant qualité moyenne (Ch. 5) et stabilité (Ch. 6). Une configuration n'est retenue que si elle dépasse des seuils minimaux sur **les deux dimensions**.
+Un protocole opérationnel pour évaluer la stabilité d'un RAG peut s'organiser en cinq temps. On commence par sélectionner un sous-jeu de questions critiques, classées par niveau de criticité. On réalise ensuite des tests inter-runs : pour chaque question, on exécute le système $n=10$ fois à seed et configuration constants, afin de calculer Stability@retrieval, Stability@citations, Stability@answer ainsi que le flip rate. Le protocole est ensuite complété par des tests de paraphrase : chaque question est reformulée en $m=5$ paraphrases, validées par un expert pour garantir la conservation de l'intention, puis exécutées une fois chacune afin de mesurer la consistance sémantique des réponses. À cela s'ajoutent des tests adversariaux, menés sur un sous-ensemble de 10 à 20 questions, en appliquant des perturbations contrôlées telles que des fautes, des reformulations ou des questions pièges. Enfin, l'ensemble des résultats est synthétisé dans un tableau de bord par configuration, agrégeant la qualité moyenne présentée au Chapitre 5 et les indicateurs de stabilité de ce chapitre. Une configuration ne devrait être retenue que si elle dépasse des seuils minimaux sur **les deux dimensions**.
 
 ### 6.6. Stabilité et confiance utilisateur
 
-La stabilité a une dimension **psychologique** au-delà de sa dimension statistique. Un utilisateur perçoit l'instabilité comme un signe d'incompétence du système, même si la réponse moyenne est correcte. Inversement, un système stable mais subtilement biaisé peut générer une **fausse confiance**.
+La stabilité a aussi une dimension psychologique. Cela a déjà été évoqué plus haut, mais un utilisateur perçoit l'instabilité comme un signe d'incompétence/incertitude du système, même si la réponse moyenne est correcte. Inversement, un système stable mais subtilement biaisé peut générer une fausse confiance. L'utilisateur a confiance dans le systeme, même si il est stable dans l'echec.
 
 Deux pratiques permettent de réconcilier ces enjeux :
 
-- **Exposer l'incertitude** : afficher un score de confiance, ou indiquer explicitement "plusieurs réponses possibles selon le contexte de chantier".
-- **Stabiliser les éléments critiques** sans figer les éléments stylistiques : la liste d'EPI doit être identique, mais la formulation peut varier.
-
-Ces principes seront discutés en Partie III à la lumière des résultats observés sur ScribBERT.
+- Exposer l'incertitude : afficher un score de confiance, ou indiquer explicitement "plusieurs réponses possibles selon le contexte de chantier".
+- Stabiliser les éléments critiques sans figer les éléments stylistiques : la liste d'EPI doit être identique, mais la formulation peut varier.
 
 ### 6.7. Synthèse de la Partie II
 
@@ -1041,7 +1029,7 @@ Les chapitres 4 à 6 ont défini un cadre méthodologique complet :
 
 - **Ch. 4** a inventorié les leviers techniques actionnables (embedding, chunking, retrieval, génération) avec leurs compromis ;
 - **Ch. 5** a structuré le protocole d'évaluation autour des cinq dimensions de la fiabilité, avec des approches automatiques, humaines et hybrides ;
-- **Ch. 6** a approfondi la dimension stabilité, sous-traitée mais critique pour un déploiement en production.
+- **Ch. 6** a approfondi la dimension stabilité aussi bien perçue que statistique, sous-traitée mais critique pour un déploiement en production.
 
 La Partie III instancie ce cadre sur ScribBERT : architecture déployée (Ch. 7), résultats expérimentaux (Ch. 8a-8b), enjeux de gouvernance (Ch. 9) et discussion (Ch. 10).
 
@@ -1049,7 +1037,7 @@ La Partie III instancie ce cadre sur ScribBERT : architecture déployée (Ch. 7)
 
 ---
 
-# PARTIE III — Application pratique : étude de cas ScribBERT
+# PARTIE III - Application pratique : étude de cas ScribBERT
 
 Cette dernière partie applique le cadre méthodologique des Parties I et II au cas de ScribBERT. Conformément au principe anti-redondance énoncé en introduction de la Partie II, ce qui est déjà décrit en Ch. 4 (théorie des leviers) n'est pas répété ici : on documente uniquement les **choix réalisés** et leurs **justifications**.
 
@@ -1060,22 +1048,22 @@ La structure est la suivante :
 - **Ch. 9** : enjeux éthiques, réglementaires et industriels.
 - **Ch. 10** : discussion et perspectives.
 
-## Chapitre 7 — Mise en œuvre du système RAG ScribBERT
+## Chapitre 7 - Mise en œuvre du système RAG ScribBERT
 
 ### 7.1. Contexte et historique du projet
 
-Le projet ScribBERT a été initié en deuxième année d'alternance, après une première année consacrée à l'immersion métier au sein du département P2S et à la cartographie des usages documentaires. Le développement s'est étalé sur **environ un an et demi**, en deux phases :
+Le projet ScribBERT a été initié en deuxième année d'alternance, après une première année consacrée à l'immersion métier au sein du département P2S et à la cartographie des usages documentaires. Cette première année m'a également permis de me familiariser avec plusieurs outils internes de reporting, tels que QuickConnect, Power BI, Heures Travaillées et Cority, et de reprendre à partir d'une page blanche le système de reporting existant sous Power BI afin de le fiabiliser, de l'améliorer et de poser les bases de son fonctionnement actuel. Les développements autour de ScribBERT se sont étalés sur environ un an et demi, en deux phases :
 
-1. **Phase POC** (Proof of Concept) : prototype rapide visant à valider la faisabilité technique et l'appétence des utilisateurs métier.
-2. **Phase exploratoire / industrialisation** : benchmark systématique des composants, durcissement de l'architecture, préparation à la mise en production.
+1. **Phase POC** (Proof of Concept) : prototype rapide visant à valider la faisabilité technique, l'utilité réelle de la solution et son appropriation par les utilisateurs métier.
+2. **Phase exploratoire / industrialisation** : benchmark des composants, construction d'une architecture, préparation à la mise en production (engagement, cadrage,...).
 
-Ce mémoire documente principalement la phase exploratoire, qui constitue le terrain d'application du protocole d'évaluation.
+Ce mémoire documente principalement la phase exploratoire, qui constitue le terrain d'application du protocole d'évaluation, et donc de ce mémoire.
 
 ### 7.2. Architecture déployée
 
 #### 7.2.1. Vue d'ensemble
 
-ScribBERT suit l'architecture RAG canonique décrite au Ch. 2.3, instanciée comme suit :
+ScribBERT suit l'architecture RAG classique décrite au Ch. 2.3, instanciée comme suit :
 
 ```
 [Documents PDF]
@@ -1100,112 +1088,111 @@ ScribBERT suit l'architecture RAG canonique décrite au Ch. 2.3, instanciée com
 
 | Composant | Choix | Justification |
 |-----------|-------|---------------|
-| **Langage backend** | Python 3.x | Écosystème IA dominant, compatibilité avec les bibliothèques d'embedding et LLM |
-| **Orchestration RAG** | LangChain | Maturité, intégrations préexistantes (loaders, splitters, retrievers, chains) ; permet de pivoter rapidement entre fournisseurs |
+| **Langage backend** | Python 3.11 | Écosystème IA dominant, compatibilité avec la quasi-totalité des bibliothèques d'embedding et LLM |
+| **Orchestration RAG** | LangChain | Maturité, intégrations préexistantes (loaders, splitters, retrievers, chains) ; permet de switcher à chaud entre différents fournisseurs (hégergement loca, cloud)|
 | **Calcul tensoriel** | TensorFlow | Présence en interne, compatibilité GPU sur le cluster |
 | **Base vectorielle** | ChromaDB | Léger, embeddable, gestion native des métadonnées et du filtrage, déploiement local sans dépendance cloud |
-| **API** | FastAPI | Performance asynchrone, OpenAPI auto-généré, intégration naturelle avec Pydantic |
+| **API** | FastAPI | Performance asynchrone, intégration facile et straight-forward |
 | **Frontend** | ReactJS (codé à la main) | Contrôle total de l'UX, intégration avec la charte graphique interne, pas de dépendance à un framework no-code |
-| **Hébergement (POC)** | Cluster Kubernetes local au **LabTP** (équipe Lab TP Innovation) | Souveraineté des données, pas de transit vers cloud externe, scalabilité interne |
+| **Hébergement (POC)** | Cluster Kubernetes local au LabTP (équipe Lab TP Innovation) | Souveraineté des données, pas de transit vers cloud externe, scalabilité interne, facilité d'accès et de mise à jour |
 
-Ce choix d'une stack majoritairement open-source et auto-hébergée répond aux contraintes de **confidentialité** (les référentiels santé-sécurité peuvent contenir des informations sensibles sur les sites et les procédures) et d'**indépendance** vis-à-vis de fournisseurs externes pour une éventuelle exploitation à long terme.
+Ce choix d'une stack majoritairement open-source et auto-hébergée répond aux contraintes de confidentialité et d'indépendance vis-à-vis de fournisseurs externes pour une éventuelle exploitation à long terme.
 
 #### 7.2.3. Pipeline d'ingestion
 
 Le pipeline d'ingestion transforme un PDF source en chunks indexés. Étapes :
 
-1. **Extraction** : conversion PDF → Markdown via **[À compléter : outil retenu, ex. pymupdf, marker, unstructured]**, choix qui préserve mieux la mise en forme (titres, listes, tableaux) que l'extraction texte brut.
+1. **Extraction** : conversion PDF → Markdown via fitz (PyMuPDF), ce qui permet de conserver au mieux la mise en forme (titres, listes, tableaux), tout en disposant de texte facile à parser.
 2. **Nettoyage** : suppression des en-têtes/pieds de page répétitifs, normalisation des caractères spéciaux.
 3. **Chunking** : découpage par regex sur les marqueurs structurels (titres Markdown `#`, `##`, séparateurs de paragraphes), avec contrainte de taille cible (~1200 tokens) et overlap (~50 tokens). Détails en § 7.4.
 4. **Enrichissement métadonnées** : ajout pour chaque chunk de : `nom_document`, `entité_émettrice`, `langue`, `position_dans_doc`.
 5. **Embedding** : calcul vectoriel via le modèle retenu (§ 7.5).
 6. **Indexation** : insertion dans ChromaDB avec la collection appropriée.
 
-L'étape 1 est actuellement la plus fragile : les PDFs santé-sécurité comportent souvent des **tableaux** (tableaux de risques, matrices RACI, tableaux d'EPI par activité) et des **schémas** (logigrammes de procédure, schémas d'installation). Dans le POC, ces éléments sont **ignorés** ou linéarisés grossièrement. Pour la version production, une chaîne **image-to-text contextualisée** est en cours d'étude : un modèle multimodal génère une description textuelle de chaque image/tableau, conserve le lien vers l'image originale, et l'injecte comme un chunk enrichi. Cette piste sera évaluée séparément (Ch. 10, perspectives).
+L'étape 1 est actuellement la plus fragile : les PDFs santé-sécurité contiennent souvent des tableaux et des schémas. Dans le POC, ces éléments sont ignorés ou linéarisés à la volée comme du texte. Pour la version production, une chaîne image-to-text est en cours d'étude : un modèle multimodal génère une description textuelle de chaque image/tableau, conserve le lien vers l'image originale, et l'injecte comme un chunk enrichi. Cette piste sera évaluée séparément dans le Ch. 10 qui traite des perspectives d'évolution.
 
 #### 7.2.4. UI et expérience utilisateur
 
 L'interface ReactJS expose :
 - une **zone de saisie** en langage naturel ;
 - un **filtre** optionnel sur les métadonnées (entité émettrice, langue) ;
-- la **réponse générée** avec citations cliquables ;
-- pour chaque citation, un **panneau latéral** affichant l'extrait source, le nom du document et la possibilité de télécharger le PDF d'origine ;
-- un **disclaimer permanent** rappelant que la réponse n'engage pas la responsabilité du système et que l'utilisateur reste tenu de vérifier les sources (cf. § 9.3).
+- la **réponse générée** avec citations cliquables, le nom du document avec la (ou les) page(s) utilisée(s) pour la réponse, et la possibilité de télécharger le PDF d'origine ;
+- un **disclaimer permanent** rappelant que la réponse n'engage pas la responsabilité du système et que l'utilisateur reste tenu de vérifier les sources citées (cf. § 9.3).
 
 ### 7.3. Description du corpus
 
 | Caractéristique | Valeur |
 |-----------------|--------|
-| **Périmètre** | Documents santé-sécurité du siège de Bouygues TP |
-| **Volume** | ~100 documents PDF |
-| **Langues** | ≈ 50 % français, 50 % anglais |
-| **Taille des documents** | De quelques pages à 80 pages |
-| **Types** | Procédures, standards, guides méthodologiques, fiches sécurité |
-| **Mise à jour** | Annuelle environ |
+| **Périmètre** | Documents santé-sécurité du siège de Bouygues TP, et de clients/partenaires |
+| **Volume** | ~200 documents PDF |
+| **Langues** | ≈ 40 % français, 60 % anglais |
+| **Taille des documents** | De quelques pages à 500 pages |
+| **Types** | Procédures, standards, guides méthodologiques |
 | **Éléments non-textuels** | Tableaux et schémas présents (non gérés dans le POC, prévus en production) |
 
-Cette taille reste modeste à l'échelle d'un benchmark IR (BEIR utilise des corpus de 10⁵–10⁶ documents), mais elle est **représentative** d'un cas d'usage d'entreprise : un corpus expert, multilingue, à forte densité informationnelle, où chaque document compte. Le défi n'est pas le passage à l'échelle, mais la **qualité fine** du retrieval et de la génération sur un domaine spécialisé.
+Cette taille reste modeste à l'échelle d'un benchmark IR (Information Retrieval) (BEIR utilise des corpus de 10⁵ à 10⁶ documents), mais elle est représentative d'un cas d'usage d'entreprise : un corpus expert, multilingue, à forte densité informationnelle, où chaque document compte. Le défi n'est pas le passage à l'échelle, mais plutôt la qualité du retrieval et de la génération sur un domaine spécialisé.
 
-À noter : à terme, l'extension envisagée couvre les référentiels santé-sécurité de l'ensemble des filiales et chantiers de Bouygues TP, ce qui multiplierait le volume par un ordre de grandeur et ferait apparaître des problématiques nouvelles (variantes locales, contradictions inter-entités, multilinguisme étendu).
+À noter : à terme, l'extension envisagée couvre les référentiels santé-sécurité de l'ensemble des filiales et chantiers du groupe Bouygues Construction, ce qui multiplierait le volume par un ordre de grandeur et ferait apparaître des problématiques nouvelles (variantes locales, contradictions inter-entités, multilinguisme étendu).
 
 ### 7.4. Choix de chunking et prétraitement
 
-Conformément à la grille du Ch. 4.2, la stratégie retenue est un **chunking structurel custom**, justifié comme suit :
+Conformément à la grille du Ch. 4.2, la stratégie retenue est un chunking structurel custom, justifié comme suit :
 
-- les documents PDF sont d'abord convertis en **Markdown** pour préserver la hiérarchie (titres, listes, mise en forme) qui est porteuse de sens dans des référentiels normatifs ;
-- des **expressions régulières** identifient les séparateurs structurels (titres `#`, `##`, `###`, paragraphes) et découpent le texte en unités correspondant à des **paragraphes ou sous-sections** ;
-- la cible de taille est d'**environ 1200 tokens** par chunk, ce qui correspond empiriquement à un compromis entre :
+- les documents PDF sont d'abord convertis en Markdown pour préserver la hiérarchie (titres, listes, mise en forme) qui est porteuse de sens dans des référentiels normatifs ;
+- des expressions régulières identifient les séparateurs structurels (titres `#`, `##`, `###`, paragraphes) et découpent le texte en unités correspondant à des paragraphes ou sous-sections ;
+- la cible de taille est d'environ **[à completer]** tokens par chunk, ce qui correspond empiriquement à un compromis entre :
   - assez large pour contenir une règle complète avec ses conditions et ses exceptions (cf. risque d'omission identifié au Ch. 5.5.4),
   - assez petit pour rester discriminant à l'embedding et économique en tokens lors de l'injection dans le contexte LLM ;
-- l'**overlap est de ~50 tokens**, soit une valeur faible (≈ 4 %), qui suffit à amortir des coupures malheureuses sans gonfler significativement l'index ;
-- une **fenêtre contextuelle** est ajoutée à la récupération : pour chaque chunk retourné par le retrieval, les chunks $n-1$ et $n+1$ sont automatiquement adjoints avant injection dans le contexte LLM. Cette mécanique compense un overlap faible et restaure le contexte amont/aval, particulièrement utile pour les références anaphoriques ("cette règle", "les EPI mentionnés") et pour la cohérence procédurale.
+- l'overlap est de ~50 tokens, soit une valeur faible (≈ 4 %), qui suffit à amortir des coupures malheureuses sans gonfler significativement l'index ;
+- une fenêtre contextuelle est ajoutée à la récupération : pour chaque chunk retourné par le retrieval, les chunks $n-1$ et $n+1$ sont automatiquement adjoints avant injection dans le contexte LLM. Cette mécanique compense un overlap faible et restaure le contexte amont/aval, particulièrement utile pour les références anaphoriques ("cette règle", "les EPI mentionnés") et pour la cohérence procédurale.
 
-Les métadonnées attachées à chaque chunk sont actuellement : `nom_document`, `entité_émettrice`, `langue`. Une extension du schéma (ajout de `date_validation`, `niveau_autorité`, `section_titre`) est identifiée comme amélioration prioritaire pour la version production.
+Les métadonnées attachées à chaque chunk sont actuellement : `nom_document`, `entité_émettrice`, `langue`, `date du document`.
 
 ### 7.5. Choix d'embedding et de LLM
 
 #### 7.5.1. Phase POC
 
-Le POC initial a utilisé **GPT-3.5 Turbo** comme générateur, choisi pour :
+Le POC initial a utilisé en grande partie GPT-3.5 Turbo comme LLM, choisi pour :
 - la rapidité de mise en œuvre (API mature),
 - un compromis coût/qualité acceptable pour valider la faisabilité,
-- l'absence de contrainte forte de confidentialité à ce stade exploratoire.
 
-Le modèle d'embedding du POC était **[À compléter : modèle d'embedding utilisé en POC, probablement `text-embedding-ada-002` ou un sentence-transformer]**.
+Pour les embeddings, j'ai fait tourner à la fois des modèles locaux disponnibles sur HuggingFace et `text-embedding-ada-002` via l'API Azure OpenAI. Cette double approche m'a permis de comparer une solution auto-hébergeable, plus compatible avec les contraintes de souveraineté, et une solution propriétaire servant de point de référence en termes de qualité de retrieval.
 
 Cette configuration a permis de valider l'intérêt utilisateur et de débloquer la phase exploratoire suivante.
 
-#### 7.5.2. Phase exploratoire — benchmark systématique
+#### 7.5.2. Phase exploratoire : benchmark systématique
 
-La phase exploratoire a consisté en un **benchmark de 48 configurations** : **12 modèles d'embedding** distincts évalués chacun sous **4 combinaisons de paramètres** (taille de chunk, top-$k$, présence/absence de filtre par score, **[À compléter : axe précis du plan factoriel]**).
+La phase exploratoire a consisté en un **benchmark retrieval de 480 combinaisons théoriques**, soit 8 stratégies de chunking, 10 modèles d'embedding et 6 variantes de retrieval. Parmi ces combinaisons, **288 configurations** ont produit des résultats exploitables dans [results/benchmark_retrieval.csv](results/benchmark_retrieval.csv), correspondant à **6 chunkings effectivement consolidés**, **8 modèles d'embedding effectivement évalués** et **6 combinaisons de paramètres de retrieval** (`dense-k5`, `dense-k10`, `dense-k5-thresh`, `dense-k5-neigh`, `hybrid-k5`, `dense-k20-rerank5`). Les deux embeddings `jina-v3` et `bilingual-fr-en` ont échoué à l'initialisation dans les résultats disponibles, et les chunkings `markdown-1200-50` et `semantic-mpnet` ne disposaient pas encore de résultats consolidés dans le CSV au moment de l'analyse.
 
 Les modèles évalués couvrent les familles suivantes (cf. Ch. 4.1.1) :
-- **[À compléter : liste des 12 modèles testés]** — intégrant typiquement des modèles open-source francophones (ex. famille Solon, sentence-CamemBERT), multilingues (E5, BGE-M3, Jina), et propriétaires (OpenAI text-embedding-3, Cohere) à titre de référence.
+- modèles généralistes open-source compacts ou intermédiaires : `minilm-l6`, `mpnet-base` ;
+- modèles multilingues orientés retrieval : `e5-small-ml`, `e5-base-ml`, `e5-large-ml`, `bge-m3`, `jina-v3` ;
+- modèles francophones spécialisés : `camembert-large`, `solon-large`, `bilingual-fr-en`.
 
 Pour chaque configuration, les métriques suivantes ont été collectées sur le jeu de test interne (§ 8a.2) :
 - métriques de retrieval (Recall@k, MRR), conformément au Ch. 5.1.1 ;
-- évaluation qualitative des réponses générées, sur la grille définie au Ch. 5.2.2.
+- une évaluation qualitative des réponses générées était prévue sur la grille définie au Ch. 5.2.2, mais les résultats actuellement présents dans [results/benchmark_generation.csv](results/benchmark_generation.csv) ne sont pas exploitables, les exécutions disponibles ayant échoué avec l'erreur `Azure non configuré`.
 
-**[À compléter : modèle d'embedding finalement retenu et critères ayant emporté la décision (qualité brute, coût d'inférence, possibilité d'auto-hébergement, taille de l'index résultant)].**
+Au vu des résultats disponibles, le modèle d'embedding **retenu** pour la configuration dense de référence est **`e5-large-ml`**. C'est lui qui obtient le meilleur compromis sur les configurations denses simples effectivement benchmarkées : la meilleure MRR observée sans hybridation ni reranking est obtenue avec `fixed-1024-128` + `e5-large-ml` + `dense-k10` (MRR = **0,659**), et la variante `dense-k5-thresh` reste très proche (MRR = **0,643**) tout en ajoutant un garde-fou de refus contrôlé. Le modèle présente en outre trois avantages pratiques : il est **multilingue**, **auto-hébergeable**, et reste d'une **latence faible** dans les résultats observés (de l'ordre de **20 à 25 ms** par requête sur les configurations denses simples retenues).
 
-**[À compléter : LLM retenu pour la phase exploratoire / production, et justification — choix entre conservation de GPT-3.5/4 via Azure OpenAI FR, basculement vers un modèle open-weights auto-hébergé (Mistral, Llama 3) au LabTP, ou modèle souverain].**
+Concernant le **LLM de génération**, les résultats disponibles ne permettent pas encore de trancher empiriquement entre `azure-gpt35`, `azure-gpt4` et un modèle open-weights auto-hébergé, car les runs de génération présents ont échoué avant calcul des métriques. En l'état du pipeline et des scripts de benchmark, le choix opérationnel reste donc **GPT-3.5 Turbo via Azure OpenAI** pour la phase exploratoire, pour des raisons de simplicité d'intégration et de coût, tandis que l'arbitrage production entre Azure, modèle open-weights auto-hébergé au LabTP, ou solution souveraine reste à confirmer par une campagne de génération complète.
 
 ### 7.6. Configuration du retrieval
 
 | Paramètre | Valeur retenue | Renvoi théorique |
 |-----------|----------------|------------------|
 | Type de retrieval | Dense pur | Ch. 4.3.2 (hybridation BM25+dense identifiée comme amélioration) |
-| Modèle d'embedding | **[À compléter]** | Ch. 4.1, § 7.5 |
-| Similarité | Cosinus (par défaut ChromaDB) | Ch. 4.3.1 |
-| Top-$k$ | **[À compléter, typiquement 5–10]** | Ch. 4.3.5 |
-| Filtre par score | Oui — seuil minimal sur le score de similarité, en dessous duquel le chunk est écarté | Ch. 5.1.2 (lutte anti-hallucination par grounding faible) |
-| Reranking | Non (POC) — étude en cours pour la production | Ch. 4.3.3 |
-| Filtres métadonnées | Disponibles via ChromaDB sur : `nom`, `entité`, `langue` | Ch. 4.3.4 |
-| Contextualisation | Adjonction des chunks $n-1$ et $n+1$ pour chaque chunk retourné | § 7.4 |
+| Modèle d'embedding | text-embedding-ada-002 (déploiement Azure configuré) | Ch. 4.1, § 7.5 |
+| Similarité | Cosinus (espace HNSW configuré sur cosine dans ChromaDB) | Ch. 4.3.1 |
+| Top-$k$ | 10 | Ch. 4.3.5 |
+| Filtre par score | Filtrage par distance avec seuil maximal 0,17. Les chunks avec distance >= 0,17 sont écartés | Ch. 5.1.2 (lutte anti-hallucination par grounding faible) |
+| Reranking | Non-existant sur le POC présent dans le cahier des charged pour l'industrialisation | Ch. 4.3.3 |
+| Filtres métadonnées | Filtrage retrieval actif sur `doc_name` (liste d’inclusions) ; les filtres `client`/`langue` sont d'abord traduits en mapping de `doc_name` concernés, puis appliqués sur ces `doc_name` directement | Ch. 4.3.4 |
+| Contextualisation | Contextualisation par concaténation du chunk précédent, courant et suivant (n-1, n, n+1) lors de l’indexation, avec garde-fou sur ruptures de chapitre | § 7.4 |
 
-Le choix d'un **dense pur** s'explique par la simplicité d'implémentation au POC et par la qualité jugée suffisante en évaluation interne. L'**hybridation sparse+dense** (BM25 + embeddings) reste une amélioration prioritaire, d'autant plus pertinente que le corpus contient de nombreuses **références exactes** (numéros de procédure, codes EPI, références normatives) que BM25 capture mieux que les embeddings (cf. analyse Ch. 4.3.2).
+Le choix d'un dense pur s'explique par la simplicité d'implémentation au POC et par une qualité jugée suffisante en évaluation interne (cf. Ch. 4.3.2 et les configurations de § 7.5.2). L'hybridation sparse+dense (BM25 + embeddings) reste toutefois une amélioration prioritaire, particulièrement pertinente pour les requêtes contenant des références exactes (numéros de procédure, codes EPI, références normatives), mieux captées par une composante lexicale (cf. Ch. 4.3.2).
 
-Le **filtrage par score** est une garde-fou simple mais efficace : si aucun chunk ne dépasse le seuil, le système retourne un message "information non trouvée dans les référentiels" plutôt que de générer une réponse non ancrée. Cela répond directement à l'exigence de **refus contrôlé** (Ch. 4.4.6).
+Le filtrage actuellement implémenté repose sur une distance maximale. En pratique, les chunks au-delà du seuil sont exclus (cf. Ch. 5.1.2). En revanche, le refus contrôlé strict n'est pas totalement verrouillé dans la version actuelle : quand aucun chunk pertinent n'est retenu, un message de contexte indique qu'aucun document n'a été trouvé, mais le modèle peut encore s'appuyer sur l'historique de conversation, ce qui rappelle la nécessité d'un garde-fou plus strict comme discuté au Ch. 4.4.6 et au Ch. 6.
 
 ### 7.7. Configuration de la génération
 
@@ -1214,55 +1201,70 @@ Le **filtrage par score** est une garde-fou simple mais efficace : si aucun chun
 - consigne explicite de citation des sources et d'aveu d'ignorance le cas échéant,
 - consignes de format (réponse synthétique, structurée, avec liens vers les sources).
 
-**[À compléter : texte intégral du prompt système, ou au moins les consignes-clés]**.
+Le prompt système utilisé dans la pipeline est le suivant :
+
+```python
+return (
+                  f"Contexte de la conversation :\n{context_elements}\n\n"
+                  f"Si la question concerne la santé et la sécurité, rédige une réponse en te basant uniquement sur les extraits de documents suivants :\n"
+                  f"{context_documents}\n"
+                  f"Cites les documents que tu utilises ainsi : \" conformément au document [doc_name], page: [page_number] (sans modifier ou reformuler le nom, respectes la casse, n'ajoutes pas d'accents). "
+                  f'Apporte des détails utiles. Structure avec des listes si utile. {language_instruction} à la question : "{query}".'
+            )
+```
 
 **Paramètres de décodage** :
-- **Température** : **[À compléter, recommandation : 0 ou 0.1 pour stabilité maximale, conformément à Ch. 4.4.4]** ;
-- **Max tokens** : **[À compléter]** ;
-- **Seed** : fixé pour reproductibilité.
+- **Température** : **0,05** (réglage effectif de la route de génération principale, cohérent avec la recommandation de stabilité formulée plus haut en Ch. 4.4.4 et au Ch. 6) ;
+- **Max tokens** : non fixé explicitement, pas de plafond applicatif dédié dans cette couche ;
+- **Seed** : non fixée à ce stade: la génération est globalement stable grâce à une température basse, mais la reproductibilité stricte d’un run à l’autre n’est pas garantie.
 
-**Citations** : format inline `[n]` renvoyant à une liste numérotée en fin de réponse, chaque entrée pointant vers le document source via un identifiant unique. Le frontend ReactJS rend ces citations cliquables et affiche l'extrait dans un panneau latéral.
+**Citations** : la mécanique implémantée dans le POC n’est pas un format strict [n] avec bibliographie finale. Le backend pousse plutôt une citation textuelle du document + page utilisée, puis enrichit la réponse avec le blobid (permettant de construire le lien de visualisation/téléchargement). Le frontend transforme ces blobid en boutons cliquables ouvrant la source (et la page quand disponible).
 
 ### 7.8. Synthèse des choix et limites assumées du POC
 
-Le POC ScribBERT, dans sa version actuelle, présente trois limites assumées qui orientent les pistes d'amélioration :
+Le POC ScribBERT, dans sa version actuelle, présente au moins ces limites structurantes pour un passage en production :
 
-1. **Pas d'hybridation sparse+dense** : limite identifiée pour les requêtes contenant des références exactes.
+1. **Pas d'hybridation sparse+dense** : ce qui limite la robustesse sur les requêtes contenant des correspondance exacte.
 2. **Pas de reranking** : la précision du top-$k$ pourrait être améliorée via un cross-encoder.
-3. **Pas de gestion des tableaux et schémas** : pertes informationnelles sur des contenus à forte valeur santé-sécurité (matrices de risques, logigrammes).
+3. **Gestion partielle des refus contrôlés** : le filtrage vectoriel existe, mais le refus n’est pas hard codé ; il repose surtout sur une instruction donnée au LLM de ne pas répondre lorsqu’aucun extrait pertinent n’est disponible, sans garantie de refus strict systématique.
+4. **Pas de gestion des tableaux et schémas** : pertes informationnelles sur des contenus à forte valeur santé-sécurité (matrices de risques, logigrammes).
 
-Ces trois axes constituent les priorités pour le passage en production, et seront discutés en perspective au Ch. 10.
+Ces axes constituent des priorités cohérentes pour la trajectoire de production et seront discutés en perspective au Ch. 10.
 
 ## Chapitre 8a — Résultats quantitatifs
-
-> **Note méthodologique** : les retours utilisateurs collectés lors de la phase de test ont été qualitatifs et globalement positifs. Aucun protocole d'évaluation automatisé selon le cadre des Ch. 5 et 6 n'a été instancié de bout en bout au moment de la rédaction. Je préfère être transparent là-dessus plutôt que de présenter des résultats incomplets comme s'ils étaient définitifs. Ce chapitre est donc structuré comme un **plan d'évaluation à exécuter**, avec des emplacements `[À compléter]` pour les valeurs à mesurer.
 
 ### 8a.1. Protocole expérimental instancié
 
 #### 8a.1.1. Configurations testées
 
-Les configurations comparées dans la phase exploratoire correspondent au plan factoriel **12 modèles d'embedding × 4 jeux de paramètres = 48 configurations**, déjà évoqué en § 7.5.2. Les axes du plan factoriel sont :
+Les configurations comparées dans la phase exploratoire correspondent au plan factoriel **10 modèles d'embedding × 6 variantes de retrieval × 6 stratégies de chunking = 360 combinaisons**, déjà évoqué en § 7.5.2. Les axes du plan factoriel sont :
 
-- **Axe 1 — Modèle d'embedding** : 12 modèles couvrant les familles francophone, multilingue, propriétaire (cf. § 7.5.2).
-- **Axe 2 — Combinaisons de paramètres** : **[À compléter — 4 combinaisons portant typiquement sur top-$k$, taille de chunk, seuil de filtrage par score]**.
+- **Axe 1 — Modèle d'embedding** : 10 modèles couvrant les familles francophone, multilingue, propriétaire (cf. § 7.5.2).
+- **Axe 2 — Combinaisons de paramètres** : 6 combinaisons :
+      - dense-k5 : top-k = 5, sans seuil de score ;
+      - dense-k10 : top-k = 10, sans seuil de score ;
+      - dense-k5-thresh : top-k = 5, avec seuil minimal de similarité cosinus (seuil = 0,35) ;
+      - dense-k5-neigh : top-k = 5, avec contextualisation par voisins n−1/n+1 ;
+      - hybrid-k5 : hybridation dense + BM25 sparse, top-k = 5, α = 0,5 ;
+      - dense-k20-rerank5 : top-k = 20, reranking cross-encoder BGE, retour top-5.
+- **Axe 3 — Stratégie de chunking** : 6 stratégies : fixed-256-0, fixed-512-64, fixed-1024-128, recursive-512-64, recursive-1024-128, regex-paragraph.
 
-Les autres composants (LLM, prompt, type de retrieval) sont **gelés** à leur valeur de référence (§ 7.5–7.7) pour isoler l'effet des paramètres testés.
+Les autres composants (LLM, prompt, type de retrieval) sont gelés à leur valeur de référence (§ 7.5–7.7) pour isoler l'effet des paramètres testés.
 
 #### 8a.1.2. Jeu de test
 
-Le jeu de test utilisé dans la phase exploratoire compte **environ 20 questions de référence**, construites manuellement à partir d'une connaissance directe du corpus et des cas d'usage observés. Ces questions couvrent **[À compléter — répartition par type : factuelles, procédurales, conditionnelles ; et par langue]**.
+Le jeu de test utilisé dans la phase exploratoire contient une trentaine de questions, construites manuellement à partir d'une connaissance directe du corpus et des cas d'usage observés. La répartition est la suivante : **types** (factuelle ×7, procédurale ×7, conditionnelle ×5, comparative ×4, hors_périmètre ×4, justificative ×3), **difficulté** (facile ×4, moyen ×16, difficile ×10) et **langue** (fr ×25, en ×5).
 
-Cette taille est inférieure aux 150–300 questions recommandées au Ch. 5.3.4 pour une analyse statistique robuste : les comparaisons entre configurations doivent donc être lues avec prudence et complétées par une **extension du jeu de test** selon les recommandations du Ch. 10.
+Cette taille est inférieure aux 150–300 questions recommandées au Ch. 5.3.4 pour une analyse statistique robuste : les comparaisons entre configurations doivent donc être lues avec prudence.
 
-Pour chaque question, sont annotés (lorsque disponibles) :
+Pour chaque question, sont annotés :
 - une réponse de référence attendue,
-- les passages de référence (chunks contenant l'information nécessaire),
+- les documents de référence (contenant l'information nécessaire),
 - la difficulté estimée et le type de question.
 
 #### 8a.1.3. Conditions d'exécution
 
 - Index vectoriel reconstruit pour chaque modèle d'embedding testé (réutilisation impossible).
-- Seed fixe pour reproductibilité.
 - Logs complets conservés pour chaque exécution conformément au schéma du Ch. 5.4.4.
 
 ### 8a.2. Résultats retrieval
