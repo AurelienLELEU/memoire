@@ -14,6 +14,46 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ============================================================
+# SSL – proxy d'inspection Netskope / Bouygues Construction
+# Construit un bundle CA = certifi + certs corporate, et
+# l'injecte dans toutes les libs HTTP (requests, httpx, urllib3).
+# ============================================================
+def _configure_corporate_ssl() -> None:
+    _certs_dir = Path(__file__).resolve().parent.parent / "certs"
+    _bundle_path = _certs_dir / "ca-bundle.pem"
+    # Ne reconstruit le bundle que si absent ou si un cert source est plus récent
+    _custom_certs = sorted(_certs_dir.glob("*.crt"))
+    if not _custom_certs:
+        return
+    if not _bundle_path.exists() or any(
+        c.stat().st_mtime > _bundle_path.stat().st_mtime for c in _custom_certs
+    ):
+        try:
+            import certifi
+            base = Path(certifi.where()).read_text(encoding="utf-8")
+        except Exception:
+            base = ""
+        extra = "\n".join(c.read_text(encoding="utf-8") for c in _custom_certs)
+        _bundle_path.write_text(base + "\n" + extra, encoding="utf-8")
+    bundle = str(_bundle_path)
+    os.environ.setdefault("REQUESTS_CA_BUNDLE", bundle)
+    os.environ.setdefault("SSL_CERT_FILE", bundle)
+    os.environ.setdefault("CURL_CA_BUNDLE", bundle)
+
+_configure_corporate_ssl()
+
+# ============================================================
+# HuggingFace authentication
+# ============================================================
+_HF_TOKEN = os.getenv("HF_TOKEN", "")
+if _HF_TOKEN:
+    try:
+        from huggingface_hub import login as _hf_login
+        _hf_login(token=_HF_TOKEN, add_to_git_credential=False)
+    except Exception:
+        pass  # huggingface_hub non installé ou token invalide – on continue
+
+# ============================================================
 # Paths
 # ============================================================
 ROOT = Path(__file__).resolve().parent.parent

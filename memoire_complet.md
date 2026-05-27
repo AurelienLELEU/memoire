@@ -1012,9 +1012,9 @@ Je n'ai pas eu le temps de tester systématiquement toutes ces sources de varian
 
 #### 6.2.2. Variance liée au retrieval
 
-- **ANN approximatif** : HNSW est généralement déterministe à structure d'index donnée, mais des reconstructions d'index produisent des graphes différents.
-- **Égalités de scores** : plusieurs passages avec le même score peuvent être ordonnés arbitrairement.
-- **Concurrence** : sur une base distribuée, l'ordre peut dépendre du shard répondant en premier.
+- **ANN approximatif** : une reconstruction d'index HNSW peut produire un graphe différent, donc un classement différent.
+- **Égalités de scores** : des passages de score identique sont ordonnés arbitrairement.
+- **Concurrence** : sur une base vectorielle distribuée, une requête est envoyée en parallèle à plusieurs nœuds (shards) ; chaque shard retourne ses meilleurs candidats locaux, et le coordinateur fusionne les résultats. Si deux passages ont des scores proches, celui du shard le plus rapide peut "passer devant" l'autre selon la latence réseau du moment, ce qui introduit une variabilité de classement à requête identique. Cette source de variance ne s'applique pas à ChromaDB (déployé localement dans le POC de ScribBERT) et ne sera donc pas évaluée sur ScribBERT, mais devient pertinente pour un déploiement en cluster (Qdrant, Weaviate, Pinecone).
 
 #### 6.2.3. Variance liée à la formulation utilisateur
 
