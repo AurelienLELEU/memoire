@@ -222,20 +222,23 @@ def add_neighbors(retrieved: list[RetrievedChunk], chunking_name: str) -> list[R
 # ============================================================
 # Façade
 # ============================================================
-def run_retrieval(query: str, chunking_name: str, embed_name: str,
-                  ret_cfg: RetrievalConfig) -> list[RetrievedChunk]:
+def build_retriever(chunking_name: str, embed_name: str, ret_cfg: RetrievalConfig):
+    """Construit le retriever adapté à la configuration."""
     if ret_cfg.mode == "dense":
-        retriever = DenseRetriever(chunking_name, embed_name)
-        k_initial = ret_cfg.rerank_top_n if ret_cfg.rerank else ret_cfg.top_k
-        results = retriever.search(query, top_k=k_initial)
-    elif ret_cfg.mode == "sparse":
-        retriever = BM25Retriever(chunking_name)
-        results = retriever.search(query, top_k=ret_cfg.top_k)
-    elif ret_cfg.mode == "hybrid":
-        retriever = HybridRetriever(chunking_name, embed_name, alpha=ret_cfg.alpha)
-        results = retriever.search(query, top_k=ret_cfg.top_k)
-    else:
-        raise ValueError(ret_cfg.mode)
+        return DenseRetriever(chunking_name, embed_name)
+    if ret_cfg.mode == "sparse":
+        return BM25Retriever(chunking_name)
+    if ret_cfg.mode == "hybrid":
+        return HybridRetriever(chunking_name, embed_name, alpha=ret_cfg.alpha)
+    raise ValueError(ret_cfg.mode)
+
+
+def run_retrieval(query: str, chunking_name: str, embed_name: str,
+                  ret_cfg: RetrievalConfig,
+                  retriever=None) -> list[RetrievedChunk]:
+    retriever = retriever or build_retriever(chunking_name, embed_name, ret_cfg)
+    k_initial = ret_cfg.rerank_top_n if ret_cfg.rerank else ret_cfg.top_k
+    results = retriever.search(query, top_k=k_initial)
 
     if ret_cfg.rerank:
         results = rerank(query, results, ret_cfg.rerank_model, top_n=ret_cfg.top_k)

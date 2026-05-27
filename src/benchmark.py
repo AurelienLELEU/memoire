@@ -26,7 +26,18 @@ from src.config import (
 from src.embeddings import list_available_embedders
 from src.evaluation.retrieval_metrics import compute_all as compute_retrieval_metrics
 from src.generation import answer_question
-from src.retrieval import run_retrieval
+from src.retrieval import build_retriever, run_retrieval
+
+
+def _is_embedding_level_error(msg: str) -> bool:
+    patterns = (
+        "Unrecognized processing class",
+        "Can't instantiate a processor",
+        "SentencePieceExtractor requires the SentencePiece library",
+        "transformers_modules/jinaai",
+        "No such file or directory",
+    )
+    return any(p in msg for p in patterns)
 
 
 def load_test_set() -> list[dict]:
@@ -44,6 +55,8 @@ def benchmark_retrieval(
     retrievals: list[str] | None = None,
     ks: tuple[int, ...] = (1, 3, 5, 10),
     level: str = "doc",  # 'doc' (recommandé si chunk_ids de référence absents) ou 'chunk'
+    resume: bool = True,
+    output_path: Path | None = None,
 ) -> pd.DataFrame:
     test_set = load_test_set()
     chunkings = chunkings or [c.name for c in CHUNKING_CONFIGS]
@@ -54,18 +67,97 @@ def benchmark_retrieval(
     chunk_lookup = {c.name: c for c in CHUNKING_CONFIGS}
     ret_lookup = {r.name: r for r in RETRIEVAL_CONFIGS}
 
-    rows = []
     combos = list(product(chunkings, embeddings, retrievals))
-    print(f"→ {len(combos)} configurations × {len(test_set)} questions")
+    out = output_path or (RESULTS_DIR / "benchmark_retrieval.csv")
 
-    for ch_name, emb_name, ret_name in tqdm(combos, desc="Configs"):
+    existing_rows: list[dict] = []
+    completed: set[tuple[str, str, str]] = set()
+    if resume and out.exists():
+        try:
+            prev_df = pd.read_csv(out)
+            for _, row in prev_df.iterrows():
+                key = (str(row.get("chunking", "")), str(row.get("embedding", "")), str(row.get("retrieval", "")))
+                if all(key):
+                    completed.add(key)
+                    existing_rows.append(row.to_dict())
+            if completed:
+                print(f"↻ Reprise activée: {len(completed)} configurations déjà présentes dans {out.name}")
+        except Exception as e:
+            print(f"⚠ Impossible de lire {out}, reprise ignorée: {e}")
+
+    pending = [c for c in combos if c not in completed]
+    print(f"→ {len(pending)}/{len(combos)} configurations à exécuter × {len(test_set)} questions")
+
+    rows = list(existing_rows)
+
+    current_pair = None
+    retriever_cache: dict[tuple, object] = {}
+    failed_pairs: dict[tuple[str, str], str] = {}
+    failed_embeddings: dict[str, str] = {}
+
+    for ch_name, emb_name, ret_name in tqdm(pending, desc="Configs"):
         ret_cfg = ret_lookup[ret_name]
+        pair = (ch_name, emb_name)
+
+        if emb_name in failed_embeddings:
+            rows.append({
+                "chunking": ch_name,
+                "embedding": emb_name,
+                "retrieval": ret_name,
+                "n_questions": len(test_set),
+                "error": f"retriever_init_failed_embedding_cached: {failed_embeddings[emb_name]}",
+            })
+            pd.DataFrame(rows).to_csv(out, index=False)
+            continue
+
+        if pair in failed_pairs:
+            rows.append({
+                "chunking": ch_name,
+                "embedding": emb_name,
+                "retrieval": ret_name,
+                "n_questions": len(test_set),
+                "error": f"retriever_init_failed_cached: {failed_pairs[pair]}",
+            })
+            pd.DataFrame(rows).to_csv(out, index=False)
+            continue
+
+        if pair != current_pair:
+            # On recycle les retrievers entre variantes retrieval d'un même couple
+            # (chunking, embedding), puis on les libère quand on passe au couple suivant.
+            retriever_cache = {}
+            current_pair = pair
+
+        if ret_cfg.mode == "hybrid":
+            retriever_key = (ret_cfg.mode, ret_cfg.alpha)
+        else:
+            retriever_key = (ret_cfg.mode,)
+        retriever = retriever_cache.get(retriever_key)
+        if retriever is None:
+            try:
+                retriever = build_retriever(ch_name, emb_name, ret_cfg)
+                retriever_cache[retriever_key] = retriever
+            except Exception as e:
+                msg = str(e)
+                failed_pairs[pair] = str(e)
+                if _is_embedding_level_error(msg):
+                    failed_embeddings[emb_name] = msg
+                rows.append({
+                    "chunking": ch_name,
+                    "embedding": emb_name,
+                    "retrieval": ret_name,
+                    "n_questions": len(test_set),
+                    "error": f"retriever_init_failed: {e}",
+                })
+                pd.DataFrame(rows).to_csv(out, index=False)
+                print(f"  ✗ Init retriever échouée pour {ch_name} | {emb_name} | {ret_name}: {e}")
+                continue
+
         # skip combos invalides (sparse n'a pas besoin d'embedding mais on garde pour homogénéité)
         per_q_rows = []
         for q in test_set:
             try:
                 t0 = time.time()
-                retrieved = run_retrieval(q["question"], ch_name, emb_name, ret_cfg)
+                retrieved = run_retrieval(q["question"], ch_name, emb_name, ret_cfg, retriever=retriever)
                 latency = time.time() - t0
             except Exception as e:
                 per_q_rows.append({"question_id": q["id"], "error": str(e)})
@@ -93,8 +185,10 @@ def benchmark_retrieval(
         })
         rows.append(agg)
 
+        # Sauvegarde incrémentale : chaque configuration validée est persistée.
+        pd.DataFrame(rows).to_csv(out, index=False)
+
     df = pd.DataFrame(rows)
-    out = RESULTS_DIR / "benchmark_retrieval.csv"
     df.to_csv(out, index=False)
     print(f"✓ Résultats retrieval -> {out}")
     return df
@@ -115,6 +209,7 @@ def benchmark_generation(
     for cfg in selected_configs:
         ch, emb, ret, gen = cfg["chunking"], cfg["embedding"], cfg["retrieval"], cfg["generation"]
         ret_cfg = ret_lookup[ret]
+        retriever = build_retriever(ch, emb, ret_cfg)
         print(f"→ Génération : {ch} | {emb} | {ret} | {gen}")
 
         samples = []
@@ -122,7 +217,7 @@ def benchmark_generation(
         for q in tqdm(test_set, desc="  questions"):
             try:
                 t0 = time.time()
-                retrieved = run_retrieval(q["question"], ch, emb, ret_cfg)
+                retrieved = run_retrieval(q["question"], ch, emb, ret_cfg, retriever=retriever)
                 t_retrieval = time.time() - t0
                 t0 = time.time()
                 answer = answer_question(q["question"], retrieved, gen)
@@ -207,6 +302,7 @@ def benchmark_stability(
 
     test_set = load_test_set()
     ret_cfg = next(r for r in RETRIEVAL_CONFIGS if r.name == config["retrieval"])
+    retriever = build_retriever(config["chunking"], config["embedding"], ret_cfg)
 
     rows = []
     for q in tqdm(test_set, desc="Stabilité"):
@@ -218,7 +314,13 @@ def benchmark_stability(
         ids_runs, ans_runs = [], []
         for _ in range(n_runs):
             try:
-                retrieved = run_retrieval(q["question"], config["chunking"], config["embedding"], ret_cfg)
+                retrieved = run_retrieval(
+                    q["question"],
+                    config["chunking"],
+                    config["embedding"],
+                    ret_cfg,
+                    retriever=retriever,
+                )
                 ids_runs.append([r.chunk.chunk_id for r in retrieved])
                 ans_runs.append(answer_question(q["question"], retrieved, config["generation"]))
             except Exception as e:
@@ -237,7 +339,13 @@ def benchmark_stability(
             para_answers = []
             for para in q["paraphrases"]:
                 try:
-                    retrieved = run_retrieval(para, config["chunking"], config["embedding"], ret_cfg)
+                    retrieved = run_retrieval(
+                        para,
+                        config["chunking"],
+                        config["embedding"],
+                        ret_cfg,
+                        retriever=retriever,
+                    )
                     para_answers.append(answer_question(para, retrieved, config["generation"]))
                 except Exception:
                     pass
