@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import time
 from functools import lru_cache
+from typing import Any
 from typing import Iterable
 
 import numpy as np
@@ -41,11 +42,29 @@ class HFEmbedder(BaseEmbedder):
         from sentence_transformers import SentenceTransformer
 
         self.cfg = cfg
-        kwargs = {}
-        # bge-m3, jina v3 nécessitent trust_remote_code
-        if any(x in cfg.model_id.lower() for x in ("bge-m3", "jina")):
+        kwargs: dict[str, Any] = {}
+        # Certains modèles (bge-m3, jina v3, Lajavaness bilingual) nécessitent trust_remote_code.
+        if any(x in cfg.model_id.lower() for x in ("bge-m3", "jina", "lajavaness")):
             kwargs["trust_remote_code"] = True
-        self.model = SentenceTransformer(cfg.model_id, device=DEVICE, **kwargs)
+
+        # Résilience face aux erreurs réseau HF transitoires (connection reset,
+        # client httpx fermé après retry interne, etc.).
+        last_error: Exception | None = None
+        for attempt in range(4):
+            try:
+                self.model = SentenceTransformer(cfg.model_id, device=DEVICE, **kwargs)
+                break
+            except Exception as e:
+                last_error = e
+                msg = str(e).lower()
+                if "client has been closed" not in msg and "connection reset" not in msg:
+                    raise
+                if attempt == 3:
+                    raise
+                time.sleep(2 ** attempt)
+        else:
+            raise RuntimeError(f"Impossible de charger le modèle HF {cfg.model_id}: {last_error}")
+
         try:
             self.model.max_seq_length = min(cfg.max_seq_length, self.model.max_seq_length)
         except Exception:

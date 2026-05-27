@@ -38,6 +38,7 @@ def build_dense_index(chunking_name: str, embed_name: str, batch_size: int = 64)
     Retourne le nom de la collection.
     """
     import chromadb
+    from chromadb.utils.batch_utils import create_batches
 
     chunks = load_chunks(chunking_name)
     if not chunks:
@@ -61,21 +62,30 @@ def build_dense_index(chunking_name: str, embed_name: str, batch_size: int = 64)
 
     embedder = get_embedder(embed_name)
     texts = [c.text for c in chunks]
+    ids = [c.chunk_id for c in chunks]
+    metadatas = [{
+        "doc_id": c.doc_id,
+        "position": c.position,
+        "filename": c.metadata.get("filename", ""),
+        "language": c.metadata.get("language", "unknown"),
+    } for c in chunks]
     print(f"  → Embedding {len(texts)} chunks avec {embed_name}...")
     embs = embedder.encode_passages(texts, batch_size=batch_size)
 
-    # ChromaDB veut listes
-    coll.add(
-        ids=[c.chunk_id for c in chunks],
+    # ChromaDB impose une taille maximale d'insertion par requete.
+    for batch_ids, batch_embs, batch_metadatas, batch_documents in create_batches(
+        api=client,
+        ids=ids,
         embeddings=embs.tolist(),
+        metadatas=metadatas,
         documents=texts,
-        metadatas=[{
-            "doc_id": c.doc_id,
-            "position": c.position,
-            "filename": c.metadata.get("filename", ""),
-            "language": c.metadata.get("language", "unknown"),
-        } for c in chunks],
-    )
+    ):
+        coll.add(
+            ids=batch_ids,
+            embeddings=batch_embs,
+            documents=batch_documents,
+            metadatas=batch_metadatas,
+        )
     return coll_name
 
 

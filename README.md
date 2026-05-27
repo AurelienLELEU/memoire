@@ -192,6 +192,10 @@ Tout est dans [src/config.py](src/config.py) :
 
 ## Notes pratiques
 
+- **Certificats entreprise (Netskope/proxy TLS)** : le projet charge automatiquement
+  `certs/netskope_bundle.pem` si présent et exporte `SSL_CERT_FILE`,
+  `REQUESTS_CA_BUNDLE`, `CURL_CA_BUNDLE`. Tu peux surcharger avec `CUSTOM_CA_BUNDLE`
+  dans `.env`.
 - **Coût Azure** : RAGAS appelle le LLM-judge plusieurs fois par sample. Sur 150
   questions et 3 configurations, prévoir ~2000 appels. Utilise GPT-3.5-turbo pour
   le juge ou limite le nombre de configs en génération.

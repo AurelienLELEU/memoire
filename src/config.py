@@ -28,6 +28,32 @@ TEST_SET_PATH = DATA_DIR / "test_set.json"
 for d in (DATA_DIR, EXTRACTED_DIR, CHUNKS_DIR, INDEXES_DIR, RESULTS_DIR, INPUT_DIR):
     d.mkdir(parents=True, exist_ok=True)
 
+
+# ============================================================
+# SSL / certificats d'entreprise
+# ============================================================
+def configure_ssl_certificates() -> None:
+    """
+    Configure un bundle CA explicite pour requests/httpx/huggingface_hub.
+    Priorité:
+      1) CUSTOM_CA_BUNDLE (env)
+      2) certs/netskope_bundle.pem (repo)
+    """
+    custom_bundle = os.getenv("CUSTOM_CA_BUNDLE", "").strip()
+    default_bundle = ROOT / "certs" / "netskope_bundle.pem"
+
+    bundle_path = Path(custom_bundle).expanduser() if custom_bundle else default_bundle
+    if not bundle_path.exists():
+        return
+
+    # Définit seulement si absent, pour respecter une config système explicite.
+    os.environ.setdefault("SSL_CERT_FILE", str(bundle_path))
+    os.environ.setdefault("REQUESTS_CA_BUNDLE", str(bundle_path))
+    os.environ.setdefault("CURL_CA_BUNDLE", str(bundle_path))
+
+
+configure_ssl_certificates()
+
 # ============================================================
 # Device
 # ============================================================

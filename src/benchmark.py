@@ -209,7 +209,16 @@ def benchmark_generation(
     for cfg in selected_configs:
         ch, emb, ret, gen = cfg["chunking"], cfg["embedding"], cfg["retrieval"], cfg["generation"]
         ret_cfg = ret_lookup[ret]
-        retriever = build_retriever(ch, emb, ret_cfg)
+        try:
+            retriever = build_retriever(ch, emb, ret_cfg)
+        except Exception as e:
+            print(f"  ⚠ Config ignorée ({ch} | {emb} | {ret} | {gen}) : {e}")
+            all_rows.append({
+                **cfg,
+                "n_questions": len(test_set),
+                "error": str(e),
+            })
+            continue
         print(f"→ Génération : {ch} | {emb} | {ret} | {gen}")
 
         samples = []
