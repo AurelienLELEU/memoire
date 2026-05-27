@@ -268,9 +268,7 @@ Une pipeline RAG se décompose généralement en cinq étapes :
 
 Pour ScribBERT, cette architecture se décline avec des choix d'implémentation qui seront décrits en PARTIE III.
 
-#### 2.3.1. Chunking : segmentation, unités de preuve et compromis
-
-Le chunking est souvent décrit comme un paramètre "d'ingestion", mais il correspond en réalité à un choix de modélisation : **quelle est l'unité minimale (et maximale également) de connaissance** que le système peut retrouver et citer ?
+Un mot sur le **chunking**, qui est souvent décrit comme un paramètre "d'ingestion" mais correspond en réalité à un choix de modélisation : **quelle est l'unité minimale (et maximale également) de connaissance** que le système peut retrouver et citer ?
 
 On peut distinguer plusieurs logiques de segmentation :
 
@@ -308,21 +306,7 @@ Ces difficultés justifient une évaluation à deux niveaux (qualité du retriev
 
 Plusieurs variantes architecturales cherchent à répondre à ces défis : le RAG "classique" de Lewis et al.[@Lewis2020], REALM qui intègre le retrieval dans la pré-formation[@Guu2020], ou encore Fusion-in-Decoder (FiD) qui concatène de nombreux passages et laisse le décodeur fusionner l'information.[@IzacardGrave2021] Toutes illustrent un même dilème : donner plus de passages au LLM augmente le rappel potentiel, mais aussi le risque de contradictions, de dilution, et augmente le coût.
 
-#### 2.5.1. Multi-étage retrieval + reranking : un standard pratique
-
-En pratique, les systèmes robustes adoptent souvent une architecture *multi-stage* :
-
-1. un **retrieval large** (top-$k$ élevé) pour maximiser le rappel,
-2. un **reranking** (souvent cross-encoder) pour augmenter la précision des passages retenus,
-3. une **sélection/assemblage** finale pour respecter la limite de contexte du modèle de génération.
-
-Le reranking de passages avec BERT a montré très tôt qu'un cross-encoder en deuxième étape améliore fortement la qualité des premiers résultats, au prix d'un coût d'inférence qui reste acceptable si on ne reranke qu'un petit ensemble candidat.[@NogueiraCho2019]
-
-Dans un RAG, ces choix ont un effet direct sur la fidélité :
-
-- un retrieval trop large sans reranking augmente le bruit,
-- un reranking mal calibré peut favoriser des passages "proches" mais moins normatifs,
-- une sélection trop agressive peut oublier d'autres passages qui auraient pu être pertinents.
+En pratique, les systèmes robustes adoptent une architecture *multi-stage* qui répond directement à ce dilemme : un **retrieval large** (top-$k$ élevé) maximise le rappel, un **reranking** par cross-encoder augmente ensuite la précision sur ce petit ensemble candidat[@NogueiraCho2019], et une **sélection/assemblage** finale respecte la limite de contexte du générateur. Chaque étage a un effet direct sur la fidélité : un retrieval trop large sans reranking augmente le bruit, un reranking mal calibré peut favoriser des passages "proches" mais moins normatifs, et une sélection trop agressive peut écarter des passages qui auraient été utiles.
 
 ### 2.6. "Grounding", citations et attribution : de la preuve à la confiance
 
@@ -419,9 +403,7 @@ Autrement dit, un bon retrieval ne garantit pas une réponse fidèle, et une ré
 
 Dans le cas d'un RAG, l'évaluation pertinente doit idéalement être **décomposable** : elle doit permettre de dire *où* se situe l'échec (retrieval, reranking, prompt, génération) et pas seulement constater que l'output final est "bon" ou "mauvais".
 
-#### 3.5.1. Formaliser quelques métriques retrieval (rappels utiles)
-
-Pour expliciter la suite, on rappelle des définitions courantes sur un ensemble de requêtes $Q$. On note $\mathrm{TopK}(q)$ l'ensemble des $k$ premiers passages récupérés pour la requête $q$, et $\mathrm{Rel}(q)$ l'ensemble des passages pertinents (selon l'annotation).
+Pour expliciter la suite, on rappelle quelques définitions courantes du côté retrieval, sur un ensemble de requêtes $Q$. On note $\mathrm{TopK}(q)$ l'ensemble des $k$ premiers passages récupérés pour la requête $q$, et $\mathrm{Rel}(q)$ l'ensemble des passages pertinents (selon l'annotation).
 
 - **Recall@k** :
 
@@ -993,7 +975,7 @@ Les métriques classiques d'évaluation d'un RAG évoquées plus tôt sont calcu
 Or trois phénomènes rendent un RAG intrinsèquement variable :
 
 1. **Stochasticité de la génération** : à température > 0, le LLM échantillonne à chaque token, conduisant à des réponses différentes pour une même entrée.
-2. **Approximation du retrieval** : les algorithmes ANN (HNSW, IVF) introduisent une approximation contrôlée mais réelle ; deux exécutions strictement identiques peuvent même retourner des ordres légèrement différents selon l'implémentation et la concurrence.
+2. **Approximation du retrieval** : les algorithmes ANN (HNSW, IVF) introduisent une approximation contrôlée mais réelle ; deux exécutions strictement identiques peuvent même retourner des ordres légèrement différents selon l'implémentation, les égalités de scores (plusieurs passages au même score ordonnés arbitrairement) et la concurrence (sur un index distribué, l'ordre dépend du shard répondant en premier).
 3. **Sensibilité au prompt et à la formulation** : une question tournée différement peut modifier le top-$k$ retourné et donc la réponse.
 
 Pour un système d'aide à la décision en santé-sécurité, la **variabilité** est un problème. Un préventeur ou compagnon qui obtient deux réponses différentes à la même question perd confiance, et plus gravement, peut prendre des décisions différentes selon le moment où il a posé la question. La stabilité fait partie intégrante de la fiabilité (fiabilité apparente à minima), au même titre que la justesse moyenne.
@@ -1002,63 +984,19 @@ Cette dimension est aussi un enjeu méthodologique : si la variance au sein d'un
 
 ### 6.2. Sources de variance dans un RAG
 
-Je n'ai pas eu le temps de tester systématiquement toutes ces sources de variance sur ScribBERT (cf. limites, Ch. 10). La cartographie ci-dessous reste donc en partie théorique, fondée sur la littérature et sur quelques observations ponctuelles pendant le développement.
+Je n'ai pas eu le temps de tester systématiquement ces sources de variance sur ScribBERT (cf. limites, Ch. 10). La cartographie ci-dessous reste donc en partie théorique, fondée sur la littérature et sur quelques observations ponctuelles pendant le développement.
 
-#### 6.2.1. Variance liée à la génération
+Côté **génération**, la variance vient d'abord de l'échantillonnage stochastique (température, top-p) qui agit sur la diversité lexicale et, à température élevée, sur le contenu factuel lui-même. Même à température 0, le non-déterminisme persiste sur les LLM propriétaires : parallélisme GPU et batching variable empêchent un déterminisme strict, et il faut s'appuyer sur des paramètres dédiés (`seed`, identifiant `system_fingerprint` côté OpenAI / Azure OpenAI) pour tracer ce qui est effectivement reproductible. S'y ajoutent les choix de format : un même contenu peut être rendu en puces ou en phrases, ce qui fausse toute comparaison textuelle brute. Les sources de variance côté retrieval (approximation ANN, égalités de scores, concurrence sur index distribué) ont déjà été décrites en § 2.2, § 3.2 et § 6.1, et ne sont pas reprises ici.
 
-- **Échantillonnage stochastique** (température, top-p) : effet direct sur la diversité lexicale ; à température élevée, le contenu factuel peut aussi varier.
-- **Non-déterminisme des LLM propriétaires** : même à température 0, certaines API ne garantissent pas le déterminisme strict (parallélisme GPU, batching variable). OpenAI propose un paramètre `seed` et un identifiant `system_fingerprint` pour tracer le déterminisme effectif (également disponible en passant par les API Azure OpenAI).
-- **Choix de format** : le LLM peut produire des tournures différentes (puces vs phrases) à structure équivalente, ce qui inflige des comparaisons textuelles brutes.
+Côté **formulation utilisateur**, deux requêtes sémantiquement équivalentes peuvent produire des réponses différentes : paraphrases ("Quels EPI pour travail en hauteur ?" vs "Quels équipements de protection pour les travaux en hauteur ?"), fautes d'orthographe et accents (auxquels les embeddings sont inégalement sensibles), niveau de spécificité ("EPI travail en hauteur" vs "harnais antichute" qui ciblent la même règle par des chemins différents) ou code-switching FR/EN ponctuel.
 
-#### 6.2.2. Variance liée au retrieval
-
-- **ANN approximatif** : une reconstruction d'index HNSW peut produire un graphe différent, donc un classement différent.
-- **Égalités de scores** : des passages de score identique sont ordonnés arbitrairement.
-- **Concurrence** : sur une base vectorielle distribuée, une requête est envoyée en parallèle à plusieurs nœuds (shards) ; chaque shard retourne ses meilleurs candidats locaux, et le coordinateur fusionne les résultats. Si deux passages ont des scores proches, celui du shard le plus rapide peut "passer devant" l'autre selon la latence réseau du moment, ce qui introduit une variabilité de classement à requête identique. Cette source de variance ne s'applique pas à ChromaDB (déployé localement dans le POC de ScribBERT) et ne sera donc pas évaluée sur ScribBERT, mais devient pertinente pour un déploiement en cluster (Qdrant, Weaviate, Pinecone).
-
-#### 6.2.3. Variance liée à la formulation utilisateur
-
-- **Paraphrases équivalentes** : "Quels EPI pour travail en hauteur ?" vs "Quels équipements de protection pour les travaux en hauteur ?".
-- **Fautes typographiques et accents** : sensibilité variable des embeddings.
-- **Niveau de spécificité** : "EPI travail en hauteur" vs "harnais antichute" ciblent la même règle mais avec des chemins de retrieval différents.
-- **Code-switching FR/EN** : présence ponctuelle d'anglais.
-
-#### 6.2.4. Dérive temporelle (dimension longue)
-
-- **Mise à jour silencieuse des modèles propriétaires** (modèle versioné `gpt-4o-2024-08-06` peut être déprécié et remplacé).
-- **Mise à jour du corpus** : ajouts, retraits, révisions de procédures.
-- **Dérive de l'index** si la stratégie de chunking ou d'embedding est modifiée.
+Enfin, à plus long terme, une **dérive temporelle** s'installe : mise à jour silencieuse des modèles propriétaires (un `gpt-4o-2024-08-06` peut être déprécié et remplacé), évolution du corpus (ajouts, retraits, révisions de procédures), et dérive de l'index dès que la stratégie de chunking ou d'embedding est modifiée.
 
 ### 6.3. Métriques de stabilité
 
-#### 6.3.1. Stabilité inter-runs (même requête, plusieurs exécutions)
+Le cas le plus simple est la **stabilité inter-runs** : à requête et configuration constantes, on exécute le système $n$ fois (typiquement $n \in [5, 20]$) et on mesure le recouvrement des sorties. Côté retrieval, on calcule un **Stability@retrieval** comme indice de Jaccard moyen des ensembles de chunks récupérés entre paires de runs. Le Jaccard mesure le recouvrement entre deux ensembles, défini comme le rapport entre la taille de leur intersection et celle de leur union : $\mathrm{J}(A_i, A_j) = |A_i \cap A_j| / |A_i \cup A_j|$. Il vaut 1 si les deux runs retournent exactement les mêmes chunks, 0 s'ils sont disjoints. La même mesure peut être restreinte aux chunks effectivement **cités** dans la réponse (et non simplement récupérés), ce qui est souvent plus informatif sur la fidélité perçue. Côté génération, un **BERTScore moyen** entre paires de réponses donne une stabilité sémantique, qu'on complète par l'écart-type inter-runs des métriques de qualité (faithfulness, Recall@k…) et par un **flip rate** : taux de questions pour lesquelles le verdict (réponse acceptable / inacceptable) change entre runs. Dans le cas binaire correct/incorrect, on résume par la proportion de runs corrects et on flague comme "instables" les questions dont ce taux se situe entre 30 % et 70 %.
 
-Pour chaque requête $q$, on exécute le système $n$ fois (typiquement $n \in [5, 20]$) et on mesure :
-
-- **Stability@retrieval** : Jaccard moyen des ensembles de chunks récupérés entre paires de runs. $\mathrm{J}(A_i, A_j) = |A_i \cap A_j| / |A_i \cup A_j|$.
-- **Stability@citations** : Jaccard moyen des ensembles de chunks effectivement cités dans la réponse.
-- **Stability@answer (sémantique)** : BERTScore moyen entre paires de réponses.
-- **Variance des métriques** : écart-type inter-runs de la faithfulness, du Recall@k, etc.
-- **Flip rate** : taux de questions pour lesquelles le verdict (réponse acceptable / inacceptable) change entre runs.
-
-Cas binaire (réponse correcte/incorrecte) : on peut résumer par la **proportion de runs corrects** et signaler les questions avec un taux entre 30 % et 70 % comme "instables".
-
-#### 6.3.2. Robustesse aux paraphrases (sensibilité linguistique)
-
-Pour chaque requête $q$, on génère $m$ paraphrases (par LLM ou manuellement) et on mesure :
-
-- **Stability@paraphrase** : variantes des métriques ci-dessus, mais entre la requête originale et ses paraphrases.
-- **Answer consistency** : un LLM-juge évalue si les réponses aux paraphrases véhiculent la *même information factuelle* (au-delà des différences de surface).
-
-Cette mesure est complémentaire : un système peut être stable inter-runs (à requête identique) mais fragile aux paraphrases.
-
-#### 6.3.3. Robustesse à l'ordre des passages
-
-Sensibilité au **lost-in-the-middle** : on permute l'ordre des passages dans le contexte et on mesure la variation de la réponse. Un système robuste produit des réponses sémantiquement équivalentes quel que soit l'ordre.
-
-#### 6.3.4. Self-consistency (cohérence interne)
-
-Méthode popularisée par Wang et al. (2022) : on génère $n$ réponses à température > 0, on extrait la réponse "majoritaire" par vote ou agrégation. Le **taux d'accord** entre les $n$ réponses est un indicateur de confiance interne du modèle.[@Wang2022SelfConsistency] Si l'accord est faible, c'est un signal de difficulté ou d'ambiguïté.
+Cette stabilité à requête identique ne suffit pas : un système peut être stable inter-runs et fragile aux **paraphrases**. Pour chaque requête, on génère donc $m$ reformulations et on applique les mêmes métriques entre la requête originale et ses variantes, en confiant à un LLM-juge la vérification que les réponses véhiculent bien la même information factuelle au-delà des différences de surface. Dans le même esprit, on peut tester la **robustesse à l'ordre des passages** (sensibilité au *lost in the middle*) en permutant l'ordre des chunks injectés dans le contexte : un système robuste produit des réponses sémantiquement équivalentes quel que soit l'ordre.
 
 ### 6.4. Sensibilité aux paramètres et aux variations adverses
 
