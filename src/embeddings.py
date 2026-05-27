@@ -14,13 +14,14 @@ import numpy as np
 from src.config import (
     DEVICE,
     AZURE_ENDPOINT,
-    AZURE_API_KEY,
     AZURE_API_VERSION,
     AZURE_DEPLOY_ADA002,
     AZURE_DEPLOY_EMBED3_LARGE,
     EmbeddingConfig,
     EMBEDDING_MODELS,
     azure_available,
+    get_azure_api_key,
+    resolve_embedding_deployments,
 )
 
 
@@ -44,7 +45,10 @@ class HFEmbedder(BaseEmbedder):
         self.cfg = cfg
         kwargs: dict[str, Any] = {}
         # Certains modèles (bge-m3, jina v3, Lajavaness bilingual) nécessitent trust_remote_code.
-        if any(x in cfg.model_id.lower() for x in ("bge-m3", "jina", "lajavaness")):
+        if any(
+            x in cfg.model_id.lower()
+            for x in ("bge-m3", "jina", "lajavaness", "nomic", "qwen", "nvidia", "granite", "gte-")
+        ):
             kwargs["trust_remote_code"] = True
 
         # Résilience face aux erreurs réseau HF transitoires (connection reset,
@@ -100,9 +104,10 @@ class AzureEmbedder(BaseEmbedder):
             raise RuntimeError("Azure non configuré (.env)")
 
         self.cfg = cfg
+        self.api_key = get_azure_api_key()
         self.client = AzureOpenAI(
             azure_endpoint=AZURE_ENDPOINT,
-            api_key=AZURE_API_KEY,
+            api_key=self.api_key,
             api_version=AZURE_API_VERSION,
         )
         # cfg.model_id = "azure:ada-002" -> deployment name
@@ -114,19 +119,30 @@ class AzureEmbedder(BaseEmbedder):
         self.deployment = mapping.get(suffix, suffix)
 
     def _encode(self, texts: list[str], batch_size: int = 16) -> np.ndarray:
+        deployments = resolve_embedding_deployments(self.deployment)
         out = []
         for i in range(0, len(texts), batch_size):
             batch = texts[i:i + batch_size]
-            for attempt in range(3):
-                try:
-                    resp = self.client.embeddings.create(
-                        model=self.deployment, input=batch
-                    )
+            last_error = None
+            resp = None
+            for deployment in deployments:
+                for attempt in range(3):
+                    try:
+                        resp = self.client.embeddings.create(
+                            model=deployment, input=batch
+                        )
+                        break
+                    except Exception as e:
+                        last_error = e
+                        if attempt == 2:
+                            continue
+                        time.sleep(2 ** attempt)
+                if resp is not None:
                     break
-                except Exception as e:
-                    if attempt == 2:
-                        raise
-                    time.sleep(2 ** attempt)
+            if resp is None:
+                if last_error is not None:
+                    raise last_error
+                raise RuntimeError("Erreur inconnue lors de l'appel embeddings Azure")
             out.extend([d.embedding for d in resp.data])
         arr = np.asarray(out, dtype=np.float32)
         # normalisation L2 (cosinus = dot product)

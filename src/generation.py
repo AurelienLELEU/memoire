@@ -7,13 +7,14 @@ import time
 from functools import lru_cache
 
 from src.config import (
-    AZURE_API_KEY,
     AZURE_API_VERSION,
     AZURE_ENDPOINT,
     DEVICE,
     GenerationConfig,
     SYSTEM_PROMPT,
     azure_available,
+    get_azure_api_key,
+    resolve_chat_deployments,
 )
 
 
@@ -31,30 +32,37 @@ class AzureGenerator(BaseGenerator):
         if not azure_available():
             raise RuntimeError("Azure non configuré")
         self.cfg = cfg
+        self.api_key = get_azure_api_key()
         self.client = AzureOpenAI(
             azure_endpoint=AZURE_ENDPOINT,
-            api_key=AZURE_API_KEY,
+            api_key=self.api_key,
             api_version=AZURE_API_VERSION,
         )
 
     def generate(self, system: str, user: str) -> str:
-        for attempt in range(3):
-            try:
-                resp = self.client.chat.completions.create(
-                    model=self.cfg.model_id,
-                    messages=[
-                        {"role": "system", "content": system},
-                        {"role": "user", "content": user},
-                    ],
-                    temperature=self.cfg.temperature,
-                    max_tokens=self.cfg.max_tokens,
-                    seed=self.cfg.seed,
-                )
-                return resp.choices[0].message.content or ""
-            except Exception as e:
-                if attempt == 2:
-                    raise
-                time.sleep(2 ** attempt)
+        deployments = resolve_chat_deployments(self.cfg.model_id)
+        last_error = None
+        for deployment in deployments:
+            for attempt in range(3):
+                try:
+                    resp = self.client.chat.completions.create(
+                        model=deployment,
+                        messages=[
+                            {"role": "system", "content": system},
+                            {"role": "user", "content": user},
+                        ],
+                        temperature=self.cfg.temperature,
+                        max_tokens=self.cfg.max_tokens,
+                        seed=self.cfg.seed,
+                    )
+                    return resp.choices[0].message.content or ""
+                except Exception as e:
+                    last_error = e
+                    if attempt == 2:
+                        break
+                    time.sleep(2 ** attempt)
+        if last_error is not None:
+            raise last_error
         return ""
 
 

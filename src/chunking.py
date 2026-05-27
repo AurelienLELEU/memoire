@@ -1,13 +1,15 @@
 """
-Stratégies de chunking : fixed, recursive, markdown structural, semantic, regex custom.
+Stratégies de chunking : fixed, recursive, markdown structural, semantic,
+regex custom, et chunker markdown de référence.
 Chaque stratégie retourne une liste de Chunk avec métadonnées.
 """
 from __future__ import annotations
 
 import json
 import re
-import uuid
+import time
 from dataclasses import dataclass, asdict, field
+from functools import lru_cache
 from pathlib import Path
 from typing import Callable
 
@@ -16,9 +18,11 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
     MarkdownHeaderTextSplitter,
 )
+from tqdm import tqdm
 
-from src.config import CHUNKING_CONFIGS, CHUNKS_DIR, EXTRACTED_DIR, ChunkingConfig
+from src.config import CHUNKING_CONFIGS, CHUNKS_DIR, ChunkingConfig
 from src.ingestion import iter_documents
+from src.markdown_chunker import chunk_markdown_text
 
 
 # Encodeur tiktoken pour compter les tokens (cl100k = GPT-3.5/4, bonne approx)
@@ -121,6 +125,45 @@ def split_regex_custom(text: str, size_tokens: int, overlap_tokens: int) -> list
     return chunks
 
 
+def split_markdown_reference(
+    text: str,
+    size_tokens: int,
+    overlap_tokens: int,
+    min_length: int = 100,
+) -> list[str]:
+    """
+    Applique le chunker markdown de référence basé sur le parser PDF historique.
+    size_tokens est réutilisé ici comme longueur max en caractères.
+    """
+    del overlap_tokens
+    chunks = chunk_markdown_text(
+        text,
+        max_chunk_length=size_tokens,
+        min_length=min_length,
+    )
+    return [chunk["text"] for chunk in chunks if chunk.get("text", "").strip()]
+
+
+@lru_cache(maxsize=4)
+def _load_semantic_model(embed_model: str):
+    from sentence_transformers import SentenceTransformer
+
+    last_error: Exception | None = None
+    for attempt in range(4):
+        try:
+            return SentenceTransformer(embed_model)
+        except Exception as e:
+            last_error = e
+            msg = str(e).lower()
+            if "client has been closed" not in msg and "connection reset" not in msg:
+                raise
+            if attempt == 3:
+                raise
+            time.sleep(2 ** attempt)
+
+    raise RuntimeError(f"Impossible de charger le modèle sémantique {embed_model}: {last_error}")
+
+
 def split_semantic(text: str, size_tokens: int, overlap_tokens: int, embed_model: str = "sentence-transformers/all-mpnet-base-v2") -> list[str]:
     """
     Chunking sémantique : on découpe en phrases, on calcule les embeddings,
@@ -137,8 +180,17 @@ def split_semantic(text: str, size_tokens: int, overlap_tokens: int, embed_model
     if len(sentences) < 3:
         return [text]
 
-    model = SentenceTransformer(embed_model)
-    embs = model.encode(sentences, show_progress_bar=False, normalize_embeddings=True)
+    try:
+        model = _load_semantic_model(embed_model)
+    except Exception as e:
+        print(f"  ! semantic fallback to recursive for {embed_model}: {e}")
+        return split_recursive(text, size_tokens, overlap_tokens)
+
+    embs = model.encode(
+        sentences,
+        show_progress_bar=len(sentences) > 64,
+        normalize_embeddings=True,
+    )
     # similarités consécutives
     sims = [float(np.dot(embs[i], embs[i + 1])) for i in range(len(embs) - 1)]
     threshold = float(np.percentile(sims, 25))  # 25e percentile = ruptures
@@ -165,6 +217,7 @@ SPLITTERS: dict[str, Callable[..., list[str]]] = {
     "fixed": split_fixed,
     "recursive": split_recursive,
     "markdown": split_markdown,
+    "markdown_reference": split_markdown_reference,
     "regex_custom": split_regex_custom,
     "semantic": split_semantic,
 }
@@ -176,9 +229,15 @@ def chunk_corpus(cfg: ChunkingConfig) -> list[Chunk]:
     kwargs = dict(size_tokens=cfg.chunk_size, overlap_tokens=cfg.chunk_overlap)
     if cfg.strategy == "semantic":
         kwargs["embed_model"] = cfg.extra.get("embed_model", "sentence-transformers/all-mpnet-base-v2")
+    if cfg.strategy == "markdown_reference":
+        kwargs["min_length"] = cfg.extra.get("min_length", 100)
 
     all_chunks: list[Chunk] = []
-    for doc_id, text, meta in iter_documents():
+    documents = iter_documents()
+    if cfg.strategy == "semantic":
+        documents = tqdm(documents, desc=f"docs:{cfg.name}", unit="doc")
+
+    for doc_id, text, meta in documents:
         try:
             texts = splitter(text, **kwargs)
         except Exception as e:
@@ -221,22 +280,57 @@ def load_chunks(cfg_name: str) -> list[Chunk]:
     return chunks
 
 
-def build_all_chunkings():
-    """Génère tous les jeux de chunks définis dans config.py."""
-    stats = []
-    for cfg in CHUNKING_CONFIGS:
-        print(f"→ Chunking : {cfg.name}")
-        chunks = chunk_corpus(cfg)
-        save_chunks(chunks, cfg.name)
-        avg_tok = sum(c.n_tokens for c in chunks) / max(1, len(chunks))
-        stats.append({
-            "config": cfg.name,
-            "n_chunks": len(chunks),
-            "avg_tokens": round(avg_tok, 1),
-        })
-        print(f"  ✓ {len(chunks)} chunks (moy. {avg_tok:.0f} tokens)")
+def _summarize_chunks(cfg_name: str, chunks: list[Chunk]) -> dict:
+    avg_tok = sum(c.n_tokens for c in chunks) / max(1, len(chunks))
+    return {
+        "config": cfg_name,
+        "n_chunks": len(chunks),
+        "avg_tokens": round(avg_tok, 1),
+    }
+
+
+def build_all_chunkings(
+    chunking_names: list[str] | None = None,
+    skip_existing: bool = False,
+):
+    """Génère les jeux de chunks demandés définis dans config.py."""
+    cfg_lookup = {cfg.name: cfg for cfg in CHUNKING_CONFIGS}
+    if chunking_names:
+        unknown = [name for name in chunking_names if name not in cfg_lookup]
+        if unknown:
+            raise ValueError(f"Chunkings inconnus: {', '.join(unknown)}")
+        selected_cfgs = [cfg_lookup[name] for name in chunking_names]
+    else:
+        selected_cfgs = CHUNKING_CONFIGS
 
     stats_path = CHUNKS_DIR / "_stats.json"
+    stats_map: dict[str, dict] = {}
+    if stats_path.exists():
+        try:
+            existing_stats = json.loads(stats_path.read_text(encoding="utf-8"))
+            stats_map = {
+                item["config"]: item
+                for item in existing_stats
+                if isinstance(item, dict) and item.get("config")
+            }
+        except Exception:
+            stats_map = {}
+
+    for cfg in selected_cfgs:
+        print(f"→ Chunking : {cfg.name}")
+        out_path = CHUNKS_DIR / f"{cfg.name}.jsonl"
+        if skip_existing and out_path.exists():
+            print("  ↷ déjà présent, génération ignorée")
+            if cfg.name not in stats_map:
+                stats_map[cfg.name] = _summarize_chunks(cfg.name, load_chunks(cfg.name))
+            continue
+        chunks = chunk_corpus(cfg)
+        save_chunks(chunks, cfg.name)
+        stats_map[cfg.name] = _summarize_chunks(cfg.name, chunks)
+        avg_tok = stats_map[cfg.name]["avg_tokens"]
+        print(f"  ✓ {len(chunks)} chunks (moy. {avg_tok:.0f} tokens)")
+
+    stats = [stats_map[cfg.name] for cfg in CHUNKING_CONFIGS if cfg.name in stats_map]
     stats_path.write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")
     return stats
 

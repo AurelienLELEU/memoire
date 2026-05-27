@@ -16,7 +16,7 @@ from src.benchmark import benchmark_stability  # noqa: E402
 def main():
     config = {
         "chunking": "markdown-1200-50",
-        "embedding": "e5-large-ml",
+        "embedding": "ada-002",
         "retrieval": "dense-k5-thresh",
         "generation": "azure-gpt35",
     }

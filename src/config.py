@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
@@ -68,32 +69,6 @@ TEST_SET_PATH = DATA_DIR / "test_set.json"
 for d in (DATA_DIR, EXTRACTED_DIR, CHUNKS_DIR, INDEXES_DIR, RESULTS_DIR, INPUT_DIR):
     d.mkdir(parents=True, exist_ok=True)
 
-
-# ============================================================
-# SSL / certificats d'entreprise
-# ============================================================
-def configure_ssl_certificates() -> None:
-    """
-    Configure un bundle CA explicite pour requests/httpx/huggingface_hub.
-    Priorité:
-      1) CUSTOM_CA_BUNDLE (env)
-      2) certs/netskope_bundle.pem (repo)
-    """
-    custom_bundle = os.getenv("CUSTOM_CA_BUNDLE", "").strip()
-    default_bundle = ROOT / "certs" / "netskope_bundle.pem"
-
-    bundle_path = Path(custom_bundle).expanduser() if custom_bundle else default_bundle
-    if not bundle_path.exists():
-        return
-
-    # Définit seulement si absent, pour respecter une config système explicite.
-    os.environ.setdefault("SSL_CERT_FILE", str(bundle_path))
-    os.environ.setdefault("REQUESTS_CA_BUNDLE", str(bundle_path))
-    os.environ.setdefault("CURL_CA_BUNDLE", str(bundle_path))
-
-
-configure_ssl_certificates()
-
 # ============================================================
 # Device
 # ============================================================
@@ -112,16 +87,61 @@ DEVICE = get_device()
 # ============================================================
 # Azure OpenAI
 # ============================================================
-AZURE_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "")
+AZURE_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "https://labtp-openai.openai.azure.com/")
 AZURE_API_KEY = os.getenv("AZURE_OPENAI_API_KEY", "")
-AZURE_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview")
-AZURE_DEPLOY_GPT35 = os.getenv("AZURE_DEPLOYMENT_GPT35", "gpt-35-turbo")
+AZURE_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+AZURE_DEPLOY_GPT35 = os.getenv("AZURE_DEPLOYMENT_GPT35", "gpt35turbo")
 AZURE_DEPLOY_GPT4 = os.getenv("AZURE_DEPLOYMENT_GPT4", "gpt-4o")
-AZURE_DEPLOY_ADA002 = os.getenv("AZURE_DEPLOYMENT_ADA002", "text-embedding-ada-002")
+AZURE_DEPLOY_ADA002 = os.getenv("AZURE_DEPLOYMENT_ADA002", "ada-002")
 AZURE_DEPLOY_EMBED3_LARGE = os.getenv("AZURE_DEPLOYMENT_EMBED3_LARGE", "text-embedding-3-large")
 
+AZURE_CHAT_DEPLOYMENT_FALLBACKS = ("gpt35turbo", "gpt-35-turbo")
+AZURE_EMBEDDING_DEPLOYMENT_FALLBACKS = ("ada-002", "text-embedding-ada-002")
+
+AZURE_KEY_VAULT_URL = os.getenv("AZURE_KEY_VAULT_URL", "https://kv-databricks-labtp.vault.azure.net")
+AZURE_KEY_VAULT_SECRET_NAME = os.getenv("AZURE_KEY_VAULT_SECRET_NAME", "labopenaikey")
+
+
+@lru_cache(maxsize=1)
+def get_azure_api_key() -> str:
+    if AZURE_API_KEY:
+        return AZURE_API_KEY
+
+    try:
+        from azure.identity import DefaultAzureCredential
+        from azure.keyvault.secrets import SecretClient
+
+        credential = DefaultAzureCredential()
+        client = SecretClient(vault_url=AZURE_KEY_VAULT_URL, credential=credential)
+        secret = client.get_secret(AZURE_KEY_VAULT_SECRET_NAME)
+        if secret.value:
+            return secret.value
+    except Exception:
+        pass
+
+    for name in ("CHAT_OPENAI_KEY", "OPENAI_KEY", "AZURE_OPENAI_API_KEY", "EMB_OPENAI_KEY"):
+        value = os.getenv(name)
+        if value:
+            return value
+
+    return ""
+
+
+def resolve_chat_deployments(primary: str | None = None) -> list[str]:
+    first = primary or AZURE_DEPLOY_GPT35
+    ordered = [first]
+    ordered.extend([d for d in AZURE_CHAT_DEPLOYMENT_FALLBACKS if d not in ordered])
+    return ordered
+
+
+def resolve_embedding_deployments(primary: str | None = None) -> list[str]:
+    first = primary or AZURE_DEPLOY_ADA002
+    ordered = [first]
+    ordered.extend([d for d in AZURE_EMBEDDING_DEPLOYMENT_FALLBACKS if d not in ordered])
+    return ordered
+
 def azure_available() -> bool:
-    return bool(AZURE_ENDPOINT and AZURE_API_KEY)
+    return bool(AZURE_ENDPOINT and get_azure_api_key())
 
 # ============================================================
 # Embedding models à benchmarker
@@ -150,8 +170,21 @@ EMBEDDING_MODELS: list[EmbeddingConfig] = [
     # BGE
     EmbeddingConfig("bge-m3",           "BAAI/bge-m3",                                 1024, True, 8192),
 
+    # IBM Granite embeddings
+    EmbeddingConfig("granite-311m-ml",  "ibm-granite/granite-embedding-311m-multilingual-r2", 768, True, 8192),
+
     # Jina v3 (multilingue, 8k)
     EmbeddingConfig("jina-v3",          "jinaai/jina-embeddings-v3",                   1024, True, 8192),
+    EmbeddingConfig("jina-v2-base-en",  "jinaai/jina-embeddings-v2-base-en",            768, False, 8192),
+
+    # Nomic Embed v2 (prompt prefixes requis)
+    EmbeddingConfig("nomic-v2",         "nomic-ai/nomic-embed-text-v2-moe",             768, True, 512,
+                    "search_query: ", "search_document: "),
+
+    # Modèles volumineux (GPU mémoire élevée recommandée)
+    EmbeddingConfig("qwen3-embed-8b",   "Qwen/Qwen3-Embedding-8B",                     4096, True, 8192),
+    EmbeddingConfig("gte-qwen2-7b",     "Alibaba-NLP/gte-Qwen2-7B-instruct",           3584, True, 8192),
+    EmbeddingConfig("nv-embed-v2",      "nvidia/NV-Embed-v2",                          4096, True, 4096),
 
     # Français spécialisés
     EmbeddingConfig("camembert-large",  "dangvantuan/sentence-camembert-large",         1024, False, 512),
@@ -160,19 +193,27 @@ EMBEDDING_MODELS: list[EmbeddingConfig] = [
 
     # Azure (si dispo)
     EmbeddingConfig("ada-002",          "azure:ada-002",                               1536, True, 8191),
+    # OpenAI text-embedding-3-large (via Azure deployment)
     EmbeddingConfig("embed-3-large",    "azure:embed-3-large",                         3072, True, 8191),
 ]
 
 # ============================================================
 # Stratégies de chunking
 # ============================================================
-ChunkingStrategy = Literal["fixed", "recursive", "markdown", "semantic", "regex_custom"]
+ChunkingStrategy = Literal[
+    "fixed",
+    "recursive",
+    "markdown",
+    "semantic",
+    "regex_custom",
+    "markdown_reference",
+]
 
 @dataclass
 class ChunkingConfig:
     name: str
     strategy: ChunkingStrategy
-    chunk_size: int = 512        # en tokens
+    chunk_size: int = 512        # en tokens, sauf strategie markdown_reference (caracteres)
     chunk_overlap: int = 64
     extra: dict = field(default_factory=dict)
 
@@ -183,6 +224,13 @@ CHUNKING_CONFIGS: list[ChunkingConfig] = [
     ChunkingConfig("recursive-512-64",  "recursive",    512, 64),
     ChunkingConfig("recursive-1024-128","recursive",   1024, 128),
     ChunkingConfig("markdown-1200-50",  "markdown",    1200, 50),  # style ScribBERT
+    ChunkingConfig(
+        "markdown-reference-1000-100",
+        "markdown_reference",
+        1000,
+        0,
+        extra={"min_length": 100},
+    ),
     ChunkingConfig("regex-paragraph",   "regex_custom", 1200, 50),
     # semantic : coûteux, on l'active sur sous-ensemble
     ChunkingConfig("semantic-mpnet",    "semantic",     512, 0,

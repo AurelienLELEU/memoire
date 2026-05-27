@@ -10,11 +10,11 @@ import json
 from typing import Any
 
 from src.config import (
-    AZURE_API_KEY,
     AZURE_API_VERSION,
     AZURE_ENDPOINT,
     JUDGE_MODEL,
     azure_available,
+    get_azure_api_key,
 )
 
 
@@ -30,14 +30,14 @@ def _get_ragas_components():
 
     llm = AzureChatOpenAI(
         azure_endpoint=AZURE_ENDPOINT,
-        api_key=AZURE_API_KEY,
+        api_key=get_azure_api_key(),
         api_version=AZURE_API_VERSION,
         azure_deployment=JUDGE_MODEL,
         temperature=0.0,
     )
     emb = AzureOpenAIEmbeddings(
         azure_endpoint=AZURE_ENDPOINT,
-        api_key=AZURE_API_KEY,
+        api_key=get_azure_api_key(),
         api_version=AZURE_API_VERSION,
         azure_deployment=AZURE_DEPLOY_ADA002,
     )
@@ -130,7 +130,7 @@ def judge_safety_modality(question: str, answer: str, contexts: list[str]) -> di
 
     client = AzureOpenAI(
         azure_endpoint=AZURE_ENDPOINT,
-        api_key=AZURE_API_KEY,
+        api_key=get_azure_api_key(),
         api_version=AZURE_API_VERSION,
     )
     prompt = MODALITY_PROMPT.format(

@@ -88,10 +88,17 @@ python scripts/01_ingest.py
 python scripts/02_chunk.py
 ```
 
+Pour ne générer qu'une nouvelle stratégie sans regénérer le reste :
+
+```powershell
+python scripts/02_chunk.py --chunkings markdown-reference-1000-100 --skip-existing
+```
+
 Stratégies par défaut (`src/config.py:CHUNKING_CONFIGS`) :
 - `fixed-256-0`, `fixed-512-64`, `fixed-1024-128` (tailles fixes)
 - `recursive-512-64`, `recursive-1024-128` (LangChain recursive)
 - `markdown-1200-50` (structural, style ScribBERT)
+- `markdown-reference-1000-100` (ton chunker de référence, split/merge du parser PDF historique)
 - `regex-paragraph` (custom)
 - `semantic-mpnet` (rupture sémantique, coûteux)
 
@@ -193,9 +200,9 @@ Tout est dans [src/config.py](src/config.py) :
 ## Notes pratiques
 
 - **Certificats entreprise (Netskope/proxy TLS)** : le projet charge automatiquement
-  `certs/netskope_bundle.pem` si présent et exporte `SSL_CERT_FILE`,
-  `REQUESTS_CA_BUNDLE`, `CURL_CA_BUNDLE`. Tu peux surcharger avec `CUSTOM_CA_BUNDLE`
-  dans `.env`.
+  les certificats `certs/*.crt`, construit `certs/ca-bundle.pem` (base certifi +
+  certs corporate) puis exporte `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`,
+  `CURL_CA_BUNDLE`.
 - **Coût Azure** : RAGAS appelle le LLM-judge plusieurs fois par sample. Sur 150
   questions et 3 configurations, prévoir ~2000 appels. Utilise GPT-3.5-turbo pour
   le juge ou limite le nombre de configs en génération.

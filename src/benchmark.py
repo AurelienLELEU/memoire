@@ -7,6 +7,8 @@ Benchmark orchestrateur :
 from __future__ import annotations
 
 import json
+import socket
+import ssl
 import time
 from itertools import product
 from pathlib import Path
@@ -38,6 +40,17 @@ def _is_embedding_level_error(msg: str) -> bool:
         "No such file or directory",
     )
     return any(p in msg for p in patterns)
+
+
+def _check_hf_reachability(timeout_s: float = 3.0) -> tuple[bool, str]:
+    """Test réseau court vers huggingface.co pour éviter des retries longs et bruyants."""
+    try:
+        ctx = ssl.create_default_context()
+        with socket.create_connection(("huggingface.co", 443), timeout=timeout_s) as sock:
+            with ctx.wrap_socket(sock, server_hostname="huggingface.co"):
+                return True, "ok"
+    except Exception as e:
+        return False, str(e)
 
 
 def load_test_set() -> list[dict]:
@@ -204,10 +217,25 @@ def benchmark_generation(
 ) -> pd.DataFrame:
     test_set = load_test_set()
     ret_lookup = {r.name: r for r in RETRIEVAL_CONFIGS}
+    emb_lookup = {e.name: e for e in EMBEDDING_MODELS}
+    hf_ok, hf_reason = _check_hf_reachability()
 
     all_rows = []
     for cfg in selected_configs:
         ch, emb, ret, gen = cfg["chunking"], cfg["embedding"], cfg["retrieval"], cfg["generation"]
+
+        emb_cfg = emb_lookup.get(emb)
+        model_id = emb_cfg.model_id if emb_cfg is not None else ""
+        if model_id and not model_id.startswith("azure:") and not hf_ok:
+            msg = f"huggingface_unreachable: {hf_reason}"
+            print(f"  ⚠ Config ignorée ({ch} | {emb} | {ret} | {gen}) : {msg}")
+            all_rows.append({
+                **cfg,
+                "n_questions": len(test_set),
+                "error": msg,
+            })
+            continue
+
         ret_cfg = ret_lookup[ret]
         try:
             retriever = build_retriever(ch, emb, ret_cfg)

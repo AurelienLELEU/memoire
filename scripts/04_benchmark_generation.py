@@ -24,13 +24,13 @@ def main():
     selected = [
         {
             "chunking": "markdown-1200-50",
-            "embedding": "e5-large-ml",
+            "embedding": "ada-002",
             "retrieval": "dense-k5-thresh",
             "generation": "azure-gpt35",
         },
         {
             "chunking": "recursive-512-64",
-            "embedding": "bge-m3",
+            "embedding": "ada-002",
             "retrieval": "hybrid-k5",
             "generation": "azure-gpt35",
         },
