@@ -15,6 +15,7 @@ from src.config import (
     DEVICE,
     AZURE_ENDPOINT,
     AZURE_API_VERSION,
+    AZURE_EMB_API_VERSION,
     AZURE_DEPLOY_ADA002,
     AZURE_DEPLOY_EMBED3_LARGE,
     EmbeddingConfig,
@@ -108,7 +109,9 @@ class AzureEmbedder(BaseEmbedder):
         self.client = AzureOpenAI(
             azure_endpoint=AZURE_ENDPOINT,
             api_key=self.api_key,
-            api_version=AZURE_API_VERSION,
+            api_version=AZURE_EMB_API_VERSION,
+            timeout=60.0,
+            max_retries=2,
         )
         # cfg.model_id = "azure:ada-002" -> deployment name
         suffix = cfg.model_id.split(":", 1)[1]
@@ -121,7 +124,13 @@ class AzureEmbedder(BaseEmbedder):
     def _encode(self, texts: list[str], batch_size: int = 16) -> np.ndarray:
         deployments = resolve_embedding_deployments(self.deployment)
         out = []
-        for i in range(0, len(texts), batch_size):
+        n_batches = (len(texts) + batch_size - 1) // batch_size
+        show_bar = len(texts) > batch_size
+        batches = range(0, len(texts), batch_size)
+        if show_bar:
+            from tqdm import tqdm as _tqdm
+            batches = _tqdm(batches, total=n_batches, desc=f"  azure/{self.deployment}", leave=False)
+        for i in batches:
             batch = texts[i:i + batch_size]
             last_error = None
             resp = None
