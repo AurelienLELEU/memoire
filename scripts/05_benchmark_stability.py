@@ -20,7 +20,12 @@ def main():
         "retrieval": "dense-k5-thresh",
         "generation": "azure-gpt35",
     }
-    df = benchmark_stability(config, n_runs=5, use_paraphrases=True)
+    try:
+        df = benchmark_stability(config, n_runs=5, use_paraphrases=True)
+    except RuntimeError as e:
+        print(f"⚠ Benchmark stabilité ignoré : {e}")
+        print("  → Reconnectez-vous avec : az logout && az login --tenant 4a3d9983-e936-4837-9552-9d9126a92eb0")
+        return
     print("\n=== Stabilité (médiane) ===")
     print(df.median(numeric_only=True).to_string())
 

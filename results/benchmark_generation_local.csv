@@ -1,0 +1,3 @@
+n_ctx,t_retrieval_s,t_generation_s,chunking,embedding,retrieval,generation,n_questions
+13.48,0.06436261653900147,37.99245336532593,fixed-256-0,minilm-l6,dense-k5-neigh,local-mistral7b,50
+12.32,0.054953994750976565,35.66838810443878,recursive-512-64,e5-base-ml,dense-k5-neigh,local-mistral7b,50

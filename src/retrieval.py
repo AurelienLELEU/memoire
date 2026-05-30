@@ -13,7 +13,7 @@ import numpy as np
 from tqdm import tqdm
 
 from src.chunking import Chunk, load_chunks
-from src.config import INDEXES_DIR, RetrievalConfig
+from src.config import CHUNKING_CONFIGS, INDEXES_DIR, RetrievalConfig
 from src.embeddings import get_embedder
 
 
@@ -32,10 +32,11 @@ def _collection_name(chunking_name: str, embed_name: str) -> str:
     return f"c_{safe(chunking_name)}__e_{safe(embed_name)}"
 
 
-def build_dense_index(chunking_name: str, embed_name: str, batch_size: int = 64) -> str:
+def build_dense_index(chunking_name: str, embed_name: str, batch_size: int | None = None) -> str:
     """
     Construit (ou réutilise) un index ChromaDB pour un couple (chunking, embedding).
     Retourne le nom de la collection.
+    batch_size : si None, utilise la valeur définie dans EmbeddingConfig (permet de réduire pour les gros modèles).
     """
     import chromadb
     from chromadb.utils.batch_utils import create_batches
@@ -52,8 +53,12 @@ def build_dense_index(chunking_name: str, embed_name: str, batch_size: int = 64)
     existing = {c.name for c in client.list_collections()}
     if coll_name in existing:
         coll = client.get_collection(coll_name)
-        if coll.count() == len(chunks):
+        existing_count = coll.count()
+        if existing_count == len(chunks):
             return coll_name
+        print(
+            f"  ↻ Collection incomplète détectée ({existing_count}/{len(chunks)}), reconstruction: {coll_name}"
+        )
         client.delete_collection(coll_name)
 
     coll = client.create_collection(
@@ -61,6 +66,25 @@ def build_dense_index(chunking_name: str, embed_name: str, batch_size: int = 64)
     )
 
     embedder = get_embedder(embed_name)
+    # Utilise le batch_size du config du modèle si non surchargé (important pour les 7B+)
+    effective_batch_size = batch_size if batch_size is not None else embedder.cfg.batch_size
+
+    # ── Warning troncature ────────────────────────────────────────────────────
+    _chunk_cfg = next((c for c in CHUNKING_CONFIGS if c.name == chunking_name), None)
+    if _chunk_cfg is not None and hasattr(embedder.cfg, "max_seq_length"):
+        _effective_tokens = (
+            _chunk_cfg.chunk_size // 4          # chars → tokens approx
+            if _chunk_cfg.chunk_size_unit == "chars"
+            else _chunk_cfg.chunk_size
+        )
+        if _effective_tokens > embedder.cfg.max_seq_length:
+            print(
+                f"  ⚠ TRONCATURE : {chunking_name} chunk_size={_chunk_cfg.chunk_size}"
+                f" {_chunk_cfg.chunk_size_unit} (≈{_effective_tokens} tokens)"
+                f" > max_seq_length={embedder.cfg.max_seq_length} de {embed_name}."
+                f" Les chunks seront tronqués par sentence-transformers."
+            )
+    # ─────────────────────────────────────────────────────────────────────────
     texts = [c.text for c in chunks]
     ids = [c.chunk_id for c in chunks]
     metadatas = [{
@@ -70,7 +94,7 @@ def build_dense_index(chunking_name: str, embed_name: str, batch_size: int = 64)
         "language": c.metadata.get("language", "unknown"),
     } for c in chunks]
     print(f"  → Embedding {len(texts)} chunks avec {embed_name}...")
-    embs = embedder.encode_passages(texts, batch_size=batch_size)
+    embs = embedder.encode_passages(texts, batch_size=effective_batch_size)
 
     # ChromaDB impose une taille maximale d'insertion par requete.
     for batch_ids, batch_embs, batch_metadatas, batch_documents in create_batches(

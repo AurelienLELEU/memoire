@@ -127,18 +127,19 @@ def split_regex_custom(text: str, size_tokens: int, overlap_tokens: int) -> list
 
 def split_markdown_reference(
     text: str,
-    size_tokens: int,
-    overlap_tokens: int,
+    size_chars: int,
+    overlap_ignored: int,
     min_length: int = 100,
 ) -> list[str]:
     """
     Applique le chunker markdown de référence basé sur le parser PDF historique.
-    size_tokens est réutilisé ici comme longueur max en caractères.
+    size_chars : longueur max en CARACTÈRES (pas en tokens).
+    overlap_ignored : ignoré (le chunker de référence ne gère pas l'overlap).
     """
-    del overlap_tokens
+    del overlap_ignored
     chunks = chunk_markdown_text(
         text,
-        max_chunk_length=size_tokens,
+        max_chunk_length=size_chars,
         min_length=min_length,
     )
     return [chunk["text"] for chunk in chunks if chunk.get("text", "").strip()]
@@ -226,11 +227,18 @@ SPLITTERS: dict[str, Callable[..., list[str]]] = {
 def chunk_corpus(cfg: ChunkingConfig) -> list[Chunk]:
     """Applique une stratégie sur tous les documents extraits."""
     splitter = SPLITTERS[cfg.strategy]
-    kwargs = dict(size_tokens=cfg.chunk_size, overlap_tokens=cfg.chunk_overlap)
-    if cfg.strategy == "semantic":
-        kwargs["embed_model"] = cfg.extra.get("embed_model", "sentence-transformers/all-mpnet-base-v2")
+    # markdown_reference a des noms de paramètres distincts (size_chars, overlap_ignored)
+    # car son unité est explicitement des caractères, pas des tokens.
     if cfg.strategy == "markdown_reference":
-        kwargs["min_length"] = cfg.extra.get("min_length", 100)
+        kwargs: dict = dict(
+            size_chars=cfg.chunk_size,
+            overlap_ignored=cfg.chunk_overlap,
+            min_length=cfg.extra.get("min_length", 100),
+        )
+    else:
+        kwargs = dict(size_tokens=cfg.chunk_size, overlap_tokens=cfg.chunk_overlap)
+        if cfg.strategy == "semantic":
+            kwargs["embed_model"] = cfg.extra.get("embed_model", "sentence-transformers/all-mpnet-base-v2")
 
     all_chunks: list[Chunk] = []
     documents = iter_documents()

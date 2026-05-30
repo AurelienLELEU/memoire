@@ -1,0 +1,4 @@
+n_ctx,t_retrieval_s,t_generation_s,chunking,embedding,retrieval,generation,n_questions
+5.0,0.1285183000564575,6.571572194099426,markdown-1200-50,ada-002,dense-k5-thresh,azure-gpt35,50
+5.0,0.10903178691864014,7.214850926399231,recursive-512-64,ada-002,hybrid-k5,azure-gpt35,50
+13.46,0.14804705142974853,7.329360127449036,markdown-1200-50,ada-002,dense-k5-neigh,azure-gpt35,50

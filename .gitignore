@@ -16,11 +16,9 @@ venv/
 env/
 
 # Data & artifacts
-input/*.pdf
 data/chunks/
 data/indexes/
 data/extracted/
-results/
 logs/
 *.sqlite3
 chroma_db/

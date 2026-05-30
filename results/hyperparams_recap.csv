@@ -1,0 +1,973 @@
+embedding_name,model_id,embed_dim,multilingual,max_seq_length_tokens,embed_batch_size,prefix_query,prefix_passage,chunking_name,chunking_strategy,chunk_size,chunk_size_unit,chunk_size_effective_tokens,chunk_overlap,retrieval_name,retrieval_mode,top_k,score_threshold,rerank,add_neighbors,alpha,ALERTE_troncature
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,OUI (512 > 256)
+minilm-l6,sentence-transformers/all-MiniLM-L6-v2,384,False,256,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,OUI (512 > 256)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,OUI (512 > 384)
+mpnet-base,sentence-transformers/all-mpnet-base-v2,768,False,384,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,OUI (512 > 384)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-small-ml,intfloat/multilingual-e5-small,384,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-base-ml,intfloat/multilingual-e5-base,768,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+e5-large-ml,intfloat/multilingual-e5-large,1024,True,512,64,query: ,passage: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+bge-m3,BAAI/bge-m3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+granite-311m-ml,ibm-granite/granite-embedding-311m-multilingual-r2,768,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v3,jinaai/jina-embeddings-v3,1024,True,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+jina-v2-base-en,jinaai/jina-embeddings-v2-base-en,768,False,8192,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+nomic-v2,nomic-ai/nomic-embed-text-v2-moe,768,True,512,64,search_query: ,search_document: ,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+qwen3-embed-8b,Qwen/Qwen3-Embedding-8B,4096,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+gte-qwen2-7b,Alibaba-NLP/gte-Qwen2-7B-instruct,3584,True,8192,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+nv-embed-v2,nvidia/NV-Embed-v2,4096,True,4096,16,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+camembert-large,dangvantuan/sentence-camembert-large,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+solon-large,OrdalieTech/Solon-embeddings-large-0.1,1024,False,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,OUI (1024 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,OUI (1200 > 512)
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,non
+bilingual-fr-en,Lajavaness/bilingual-embedding-large,1024,True,512,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,non
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+ada-002,azure:ada-002,1536,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5,dense,5,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k10,dense,10,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-256-0,fixed,256,tokens,256,0,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5,dense,5,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k10,dense,10,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-512-64,fixed,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,fixed-1024-128,fixed,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5,dense,5,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k10,dense,10,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-512-64,recursive,512,tokens,512,64,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5,dense,5,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k10,dense,10,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,recursive-1024-128,recursive,1024,tokens,1024,128,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-1200-50,markdown,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5,dense,5,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k10,dense,10,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,markdown-reference-1000-100,markdown_reference,1000,chars,250,0,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5,dense,5,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k10,dense,10,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,regex-paragraph,regex_custom,1200,tokens,1200,50,dense-k20-rerank5,dense,20,,True,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5,dense,5,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k10,dense,10,,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-thresh,dense,5,0.35,False,False,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k5-neigh,dense,5,,False,True,,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,hybrid-k5,hybrid,5,,False,False,0.5,N/A (API)
+embed-3-large,azure:embed-3-large,3072,True,8191,64,,,semantic-mpnet,semantic,512,tokens,512,0,dense-k20-rerank5,dense,20,,True,False,,N/A (API)

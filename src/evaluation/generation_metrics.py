@@ -7,14 +7,18 @@ Utilise le JUDGE_MODEL (Azure OpenAI par défaut) pour évaluation.
 from __future__ import annotations
 
 import json
+import os
 from typing import Any
 
 from src.config import (
     AZURE_API_VERSION,
+    AZURE_EMB_API_VERSION,
     AZURE_ENDPOINT,
     JUDGE_MODEL,
     azure_available,
     get_azure_api_key,
+    resolve_chat_deployments,
+    resolve_embedding_deployments,
 )
 
 
@@ -28,19 +32,53 @@ def _get_ragas_components():
     if not azure_available():
         raise RuntimeError("Azure requis pour RAGAS (LLM-judge). Configure .env.")
 
-    llm = AzureChatOpenAI(
-        azure_endpoint=AZURE_ENDPOINT,
-        api_key=get_azure_api_key(),
-        api_version=AZURE_API_VERSION,
-        azure_deployment=JUDGE_MODEL,
-        temperature=0.0,
-    )
-    emb = AzureOpenAIEmbeddings(
-        azure_endpoint=AZURE_ENDPOINT,
-        api_key=get_azure_api_key(),
-        api_version=AZURE_API_VERSION,
-        azure_deployment=AZURE_DEPLOY_ADA002,
-    )
+    api_key = get_azure_api_key()
+
+    llm = None
+    llm_error: Exception | None = None
+    for deployment in resolve_chat_deployments(JUDGE_MODEL):
+        try:
+            candidate = AzureChatOpenAI(
+                azure_endpoint=AZURE_ENDPOINT,
+                api_key=api_key,
+                api_version=AZURE_API_VERSION,
+                azure_deployment=deployment,
+                temperature=0.0,
+            )
+            # Ping court pour valider que le déploiement existe réellement.
+            candidate.invoke("ping")
+            llm = candidate
+            break
+        except Exception as e:
+            llm_error = e
+
+    if llm is None:
+        if llm_error is not None:
+            raise llm_error
+        raise RuntimeError("Aucun déploiement Azure chat valide pour RAGAS")
+
+    emb = None
+    emb_error: Exception | None = None
+    for deployment in resolve_embedding_deployments(AZURE_DEPLOY_ADA002):
+        try:
+            candidate = AzureOpenAIEmbeddings(
+                azure_endpoint=AZURE_ENDPOINT,
+                api_key=api_key,
+                api_version=AZURE_EMB_API_VERSION,
+                azure_deployment=deployment,
+            )
+            # Ping court pour valider le déploiement embeddings.
+            candidate.embed_query("ping")
+            emb = candidate
+            break
+        except Exception as e:
+            emb_error = e
+
+    if emb is None:
+        if emb_error is not None:
+            raise emb_error
+        raise RuntimeError("Aucun déploiement Azure embeddings valide pour RAGAS")
+
     return LangchainLLMWrapper(llm), LangchainEmbeddingsWrapper(emb)
 
 
@@ -62,6 +100,7 @@ def evaluate_with_ragas(samples: list[dict]) -> dict:
         context_precision,
         context_recall,
     )
+    from ragas.run_config import RunConfig
 
     llm, emb = _get_ragas_components()
 
@@ -80,7 +119,22 @@ def evaluate_with_ragas(samples: list[dict]) -> dict:
     if all(s.get("ground_truth") for s in samples):
         metrics.append(context_recall)
 
-    result = evaluate(ds, metrics=metrics, llm=llm, embeddings=emb, raise_exceptions=False)
+    # Limite le parallélisme pour éviter les 429 Azure OpenAI.
+    run_config = RunConfig(
+        timeout=int(os.getenv("RAGAS_TIMEOUT_S", "240")),
+        max_retries=int(os.getenv("RAGAS_MAX_RETRIES", "20")),
+        max_wait=int(os.getenv("RAGAS_MAX_WAIT_S", "120")),
+        max_workers=int(os.getenv("RAGAS_MAX_WORKERS", "4")),
+    )
+
+    result = evaluate(
+        ds,
+        metrics=metrics,
+        llm=llm,
+        embeddings=emb,
+        run_config=run_config,
+        raise_exceptions=False,
+    )
     return result.to_pandas().to_dict(orient="list")
 
 

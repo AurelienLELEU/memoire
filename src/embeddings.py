@@ -123,7 +123,7 @@ class AzureEmbedder(BaseEmbedder):
 
     def _encode(self, texts: list[str], batch_size: int = 16) -> np.ndarray:
         deployments = resolve_embedding_deployments(self.deployment)
-        out = []
+        out: list[list[float] | None] = []
         n_batches = (len(texts) + batch_size - 1) // batch_size
         show_bar = len(texts) > batch_size
         batches = range(0, len(texts), batch_size)
@@ -131,7 +131,13 @@ class AzureEmbedder(BaseEmbedder):
             from tqdm import tqdm as _tqdm
             batches = _tqdm(batches, total=n_batches, desc=f"  azure/{self.deployment}", leave=False)
         for i in batches:
-            batch = texts[i:i + batch_size]
+            raw_batch = texts[i:i + batch_size]
+            # Azure rejette les strings vides avec 400 $.input invalid — on les filtre
+            non_empty_idx = [j for j, t in enumerate(raw_batch) if t.strip()]
+            batch = [raw_batch[j] for j in non_empty_idx]
+            if not batch:
+                out.extend([None] * len(raw_batch))
+                continue
             last_error = None
             resp = None
             for deployment in deployments:
@@ -152,8 +158,19 @@ class AzureEmbedder(BaseEmbedder):
                 if last_error is not None:
                     raise last_error
                 raise RuntimeError("Erreur inconnue lors de l'appel embeddings Azure")
-            out.extend([d.embedding for d in resp.data])
-        arr = np.asarray(out, dtype=np.float32)
+            embs = [d.embedding for d in resp.data]
+            # Réinjecter dans les bonnes positions ; les slots vides restent None
+            slot: list[list[float] | None] = [None] * len(raw_batch)
+            for k, j in enumerate(non_empty_idx):
+                slot[j] = embs[k]
+            out.extend(slot)
+
+        # Construire la matrice finale : inférer la dim depuis le premier vecteur non-None
+        dim = next((len(v) for v in out if v is not None), self.cfg.dim)
+        arr = np.array(
+            [v if v is not None else [0.0] * dim for v in out],
+            dtype=np.float32,
+        )
         # normalisation L2 (cosinus = dot product)
         norms = np.linalg.norm(arr, axis=1, keepdims=True)
         norms[norms == 0] = 1

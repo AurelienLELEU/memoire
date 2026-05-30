@@ -84,6 +84,16 @@ def get_device() -> str:
 
 DEVICE = get_device()
 
+# Limite la fraction VRAM utilisable (laisser de la marge pour les autres process).
+# Contrôlable via GPU_MEMORY_FRACTION=0.85 (défaut). Mettre 1.0 pour désactiver.
+_GPU_MEMORY_FRACTION = float(os.getenv("GPU_MEMORY_FRACTION", "0.85"))
+if DEVICE == "cuda":
+    try:
+        import torch as _torch
+        _torch.cuda.set_per_process_memory_fraction(_GPU_MEMORY_FRACTION)
+    except Exception:
+        pass
+
 # ============================================================
 # Azure OpenAI
 # ============================================================
@@ -157,6 +167,7 @@ class EmbeddingConfig:
     max_seq_length: int = 512
     prefix_query: str = ""  # ex. "query: " pour e5
     prefix_passage: str = ""  # ex. "passage: " pour e5
+    batch_size: int = 64    # réduire à 4-8 pour les modèles ≥7B (OOM sinon)
 
 EMBEDDING_MODELS: list[EmbeddingConfig] = [
     # Baselines anglophones rapides
@@ -183,9 +194,9 @@ EMBEDDING_MODELS: list[EmbeddingConfig] = [
                     "search_query: ", "search_document: "),
 
     # Modèles volumineux (GPU mémoire élevée recommandée)
-    EmbeddingConfig("qwen3-embed-8b",   "Qwen/Qwen3-Embedding-8B",                     4096, True, 8192),
-    EmbeddingConfig("gte-qwen2-7b",     "Alibaba-NLP/gte-Qwen2-7B-instruct",           3584, True, 8192),
-    EmbeddingConfig("nv-embed-v2",      "nvidia/NV-Embed-v2",                          4096, True, 4096),
+    EmbeddingConfig("qwen3-embed-8b",   "Qwen/Qwen3-Embedding-8B",                     4096, True, 8192, batch_size=16),
+    EmbeddingConfig("gte-qwen2-7b",     "Alibaba-NLP/gte-Qwen2-7B-instruct",           3584, True, 8192, batch_size=16),
+    EmbeddingConfig("nv-embed-v2",      "nvidia/NV-Embed-v2",                          4096, True, 4096, batch_size=16),
 
     # Français spécialisés
     EmbeddingConfig("camembert-large",  "dangvantuan/sentence-camembert-large",         1024, False, 512),
@@ -214,8 +225,9 @@ ChunkingStrategy = Literal[
 class ChunkingConfig:
     name: str
     strategy: ChunkingStrategy
-    chunk_size: int = 512        # en tokens, sauf strategie markdown_reference (caracteres)
+    chunk_size: int = 512
     chunk_overlap: int = 64
+    chunk_size_unit: Literal["tokens", "chars"] = "tokens"  # unité de chunk_size (tokens par défaut)
     extra: dict = field(default_factory=dict)
 
 CHUNKING_CONFIGS: list[ChunkingConfig] = [
@@ -230,6 +242,7 @@ CHUNKING_CONFIGS: list[ChunkingConfig] = [
         "markdown_reference",
         1000,
         0,
+        chunk_size_unit="chars",  # ← caractères (≈250 tokens) : reproduit le chunker ScribBERT
         extra={"min_length": 100},
     ),
     ChunkingConfig("regex-paragraph",   "regex_custom", 1200, 50),

@@ -18,10 +18,20 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--no-ragas", action="store_true")
     p.add_argument("--no-judge", action="store_true")
+    p.add_argument(
+        "--profile",
+        choices=["azure", "local", "all"],
+        default="azure",
+        help="Jeu de configurations a executer",
+    )
+    p.add_argument(
+        "--output",
+        default="results/benchmark_generation.csv",
+        help="Chemin du CSV resume de sortie",
+    )
     args = p.parse_args()
 
-    # Sélection par défaut : 2-3 configurations représentatives
-    selected = [
+    azure_selected = [
         {
             "chunking": "markdown-1200-50",
             "embedding": "ada-002",
@@ -42,10 +52,33 @@ def main():
         },
     ]
 
+    local_selected = [
+        {
+            "chunking": "fixed-256-0",
+            "embedding": "minilm-l6",
+            "retrieval": "dense-k5-neigh",
+            "generation": "local-mistral7b",
+        },
+        {
+            "chunking": "recursive-512-64",
+            "embedding": "e5-base-ml",
+            "retrieval": "dense-k5-neigh",
+            "generation": "local-mistral7b",
+        },
+    ]
+
+    if args.profile == "azure":
+        selected = azure_selected
+    elif args.profile == "local":
+        selected = local_selected
+    else:
+        selected = azure_selected + local_selected
+
     df = benchmark_generation(
         selected_configs=selected,
         use_ragas=not args.no_ragas,
         use_modality_judge=not args.no_judge,
+        output_path=Path(args.output),
     )
     print("\n=== Résumé ===")
     print(df.to_string())

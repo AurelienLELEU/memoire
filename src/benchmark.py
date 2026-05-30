@@ -6,6 +6,7 @@ Benchmark orchestrateur :
 """
 from __future__ import annotations
 
+import gc
 import json
 import socket
 import ssl
@@ -38,6 +39,14 @@ def _is_embedding_level_error(msg: str) -> bool:
         "SentencePieceExtractor requires the SentencePiece library",
         "transformers_modules/jinaai",
         "No such file or directory",
+        # transformers <5.2.0 incompatibility with models using is_causal=False (e.g. gte-qwen2-7b)
+        "'DynamicCache' object has no attribute 'get_usable_length'",
+        "get_usable_length",
+        # transformers >=5.x incompatibility with nv-embed-v2 (NVEmbedModel)
+        "'NVEmbedModel' object has no attribute 'all_tied_weights_keys'",
+        "all_tied_weights_keys",
+        # transformers >=5.x removed transformers.onnx (Lajavaness bilingual-embedding-large)
+        "No module named 'transformers.onnx'",
     )
     return any(p in msg for p in patterns)
 
@@ -83,6 +92,35 @@ def benchmark_retrieval(
     combos = list(product(chunkings, embeddings, retrievals))
     out = output_path or (RESULTS_DIR / "benchmark_retrieval.csv")
 
+    def _row_is_complete_for_resume(row: pd.Series, expected_n_questions: int) -> bool:
+        ch = str(row.get("chunking", "") or "").strip()
+        emb = str(row.get("embedding", "") or "").strip()
+        ret = str(row.get("retrieval", "") or "").strip()
+        if not (ch and emb and ret):
+            return False
+
+        n_q = row.get("n_questions")
+        try:
+            if int(n_q) != int(expected_n_questions):
+                return False
+        except Exception:
+            return False
+
+        err = row.get("error")
+        if pd.notna(err) and str(err).strip():
+            # Les configurations en erreur explicite sont considérées terminées
+            # pour éviter de relancer en boucle les mêmes échecs.
+            return True
+
+        # Sinon on attend au moins une métrique numérique agrégée non nulle.
+        metric_cols = [
+            c for c in ("latency_s", "recall@5", "mrr@5", "ndcg@5", "precision@5", "hit@5")
+            if c in row.index
+        ]
+        if not metric_cols:
+            return False
+        return any(pd.notna(row.get(c)) for c in metric_cols)
+
     existing_rows: list[dict] = []
     completed: set[tuple[str, str, str]] = set()
     if resume and out.exists():
@@ -90,7 +128,7 @@ def benchmark_retrieval(
             prev_df = pd.read_csv(out)
             for _, row in prev_df.iterrows():
                 key = (str(row.get("chunking", "")), str(row.get("embedding", "")), str(row.get("retrieval", "")))
-                if all(key):
+                if _row_is_complete_for_resume(row, len(test_set)):
                     completed.add(key)
                     existing_rows.append(row.to_dict())
             if completed:
@@ -138,6 +176,13 @@ def benchmark_retrieval(
             # On recycle les retrievers entre variantes retrieval d'un même couple
             # (chunking, embedding), puis on les libère quand on passe au couple suivant.
             retriever_cache = {}
+            gc.collect()
+            try:
+                import torch
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+            except ImportError:
+                pass
             current_pair = pair
 
         if ret_cfg.mode == "hybrid":
@@ -214,6 +259,7 @@ def benchmark_generation(
     selected_configs: list[dict],  # [{chunking, embedding, retrieval, generation}, ...]
     use_ragas: bool = True,
     use_modality_judge: bool = True,
+    output_path: Path | None = None,
 ) -> pd.DataFrame:
     test_set = load_test_set()
     ret_lookup = {r.name: r for r in RETRIEVAL_CONFIGS}
@@ -316,7 +362,7 @@ def benchmark_generation(
         df_q.to_csv(detail_path, index=False)
 
     df_summary = pd.DataFrame(all_rows)
-    out = RESULTS_DIR / "benchmark_generation.csv"
+    out = output_path or (RESULTS_DIR / "benchmark_generation.csv")
     df_summary.to_csv(out, index=False)
     print(f"✓ Résultats génération -> {out}")
     return df_summary
