@@ -1140,9 +1140,10 @@ Conformément à la grille du Ch. 4.2, la stratégie retenue est un chunking str
 
 - les documents PDF sont d'abord convertis en Markdown pour préserver la hiérarchie (titres, listes, mise en forme) qui est porteuse de sens dans des référentiels normatifs ;
 - des expressions régulières identifient les séparateurs structurels (titres `#`, `##`, `###`, paragraphes) et découpent le texte en unités correspondant à des paragraphes ou sous-sections ;
-- la cible de taille est d'environ **[à completer]** tokens par chunk, ce qui correspond empiriquement à un compromis entre :
+- la cible de taille est d'environ **1 200 tokens** par chunk (variante `markdown-1200-50` du benchmark, retenue en POC), ce qui correspond empiriquement à un compromis entre :
   - assez large pour contenir une règle complète avec ses conditions et ses exceptions (cf. risque d'omission identifié au Ch. 5.5.4),
   - assez petit pour rester discriminant à l'embedding et économique en tokens lors de l'injection dans le contexte LLM ;
+  - le benchmark systématique (§ 8a.2) montre que les chunkings 1024 tokens dominent en MRR, ce qui valide a posteriori l'ordre de grandeur retenu ;
 - l'overlap est de ~50 tokens, soit une valeur faible (≈ 4 %), qui suffit à amortir des coupures malheureuses sans gonfler significativement l'index ;
 - une fenêtre contextuelle est ajoutée à la récupération : pour chaque chunk retourné par le retrieval, les chunks $n-1$ et $n+1$ sont automatiquement adjoints avant injection dans le contexte LLM. Cette mécanique compense un overlap faible et restaure le contexte amont/aval, particulièrement utile pour les références anaphoriques ("cette règle", "les EPI mentionnés") et pour la cohérence procédurale.
 
@@ -1162,20 +1163,23 @@ Cette configuration a permis de valider l'intérêt utilisateur et de débloquer
 
 #### 7.5.2. Phase exploratoire : benchmark systématique
 
-La phase exploratoire a consisté en un **benchmark retrieval de 480 combinaisons théoriques**, soit 8 stratégies de chunking, 10 modèles d'embedding et 6 variantes de retrieval. Parmi ces combinaisons, **288 configurations** ont produit des résultats exploitables dans [results/benchmark_retrieval.csv](results/benchmark_retrieval.csv), correspondant à **6 chunkings effectivement consolidés**, **8 modèles d'embedding effectivement évalués** et **6 combinaisons de paramètres de retrieval** (`dense-k5`, `dense-k10`, `dense-k5-thresh`, `dense-k5-neigh`, `hybrid-k5`, `dense-k20-rerank5`). Les deux embeddings `jina-v3` et `bilingual-fr-en` ont échoué à l'initialisation dans les résultats disponibles, et les chunkings `markdown-1200-50` et `semantic-mpnet` ne disposaient pas encore de résultats consolidés dans le CSV au moment de l'analyse.
+La phase exploratoire a consisté en un **benchmark retrieval de 972 combinaisons** (9 stratégies de chunking × 18 modèles d'embedding × 6 variantes de retrieval), exécuté de bout en bout sur les 50 questions du jeu de test interne (§ 8a.1.2). Les résultats bruts sont consolidés dans [results/benchmark_retrieval.csv](results/benchmark_retrieval.csv). Sur ces 972 configurations, **750** ont produit des résultats exploitables et **222** (≈ 23 %) ont échoué à l'initialisation du retriever — principalement à cause d'incompatibilités entre certaines architectures d'embedding récentes (`gte-qwen2-7b`, `nv-embed-v2`, `jina-v3`, `bge-m3` selon les variantes) et la version de `transformers` installée localement (erreurs `DynamicCache`, `transformers.onnx`, `all_tied_weights_keys`). Ces échecs sont concentrés sur deux modèles (`gte-qwen2-7b` et `nv-embed-v2`, écartés intégralement) et ne biaisent pas la comparaison des modèles effectivement évalués.
 
-Les modèles évalués couvrent les familles suivantes (cf. Ch. 4.1.1) :
-- modèles généralistes open-source compacts ou intermédiaires : `minilm-l6`, `mpnet-base` ;
-- modèles multilingues orientés retrieval : `e5-small-ml`, `e5-base-ml`, `e5-large-ml`, `bge-m3`, `jina-v3` ;
-- modèles francophones spécialisés : `camembert-large`, `solon-large`, `bilingual-fr-en`.
+Les 18 modèles couvrent les familles définies au Ch. 4.1.1 :
 
-Pour chaque configuration, les métriques suivantes ont été collectées sur le jeu de test interne (§ 8a.2) :
-- métriques de retrieval (Recall@k, MRR), conformément au Ch. 5.1.1 ;
-- une évaluation qualitative des réponses générées était prévue sur la grille définie au Ch. 5.2.2, mais les résultats actuellement présents dans [results/benchmark_generation.csv](results/benchmark_generation.csv) ne sont pas exploitables, les exécutions disponibles ayant échoué avec l'erreur `Azure non configuré`.
+- propriétaires via API : `ada-002`, `embed-3-large` (OpenAI) ;
+- multilingues open-source orientés retrieval : `e5-small-ml`, `e5-base-ml`, `e5-large-ml`, `bge-m3`, `jina-v3`, `nomic-v2`, `granite-311m-ml`, `qwen3-embed-8b` ;
+- généralistes open-source : `minilm-l6`, `mpnet-base`, `jina-v2-base-en` ;
+- francophones / bilingues spécialisés : `camembert-large`, `solon-large`, `bilingual-fr-en` ;
+- très gros modèles ouverts (non utilisables dans l'environnement actuel) : `gte-qwen2-7b`, `nv-embed-v2`.
 
-Au vu des résultats disponibles, le modèle d'embedding **retenu** pour la configuration dense de référence est **`e5-large-ml`**. C'est lui qui obtient le meilleur compromis sur les configurations denses simples effectivement benchmarkées : la meilleure MRR observée sans hybridation ni reranking est obtenue avec `fixed-1024-128` + `e5-large-ml` + `dense-k10` (MRR = **0,659**), et la variante `dense-k5-thresh` reste très proche (MRR = **0,643**) tout en ajoutant un garde-fou de refus contrôlé. Le modèle présente en outre trois avantages pratiques : il est **multilingue**, **auto-hébergeable**, et reste d'une **latence faible** dans les résultats observés (de l'ordre de **20 à 25 ms** par requête sur les configurations denses simples retenues).
+Les six variantes de retrieval testées sont : `dense-k5`, `dense-k10`, `dense-k5-thresh` (seuil de similarité), `dense-k5-neigh` (voisinage n−1/n+1), `hybrid-k5` (dense + BM25, fusion RRF) et `dense-k20-rerank5` (reranking cross-encoder BGE).
 
-Concernant le **LLM de génération**, les résultats disponibles ne permettent pas encore de trancher empiriquement entre `azure-gpt35`, `azure-gpt4` et un modèle open-weights auto-hébergé, car les runs de génération présents ont échoué avant calcul des métriques. En l'état du pipeline et des scripts de benchmark, le choix opérationnel reste donc **GPT-3.5 Turbo via Azure OpenAI** pour la phase exploratoire, pour des raisons de simplicité d'intégration et de coût, tandis que l'arbitrage production entre Azure, modèle open-weights auto-hébergé au LabTP, ou solution souveraine reste à confirmer par une campagne de génération complète.
+Pour chaque configuration, les métriques de retrieval du Ch. 5.1.1 ont été collectées (Hit@k, Recall@k, Precision@k, MRR, nDCG@k pour $k\in\{1,3,5,10\}$, plus latence par requête). Une seconde campagne **génération** a ensuite été lancée sur cinq configurations sélectionnées comme représentatives (trois côté Azure avec évaluation RAGAS complète, deux côté local avec Mistral-7B auto-hébergé) ; les résultats sont consolidés dans [results/benchmark_generation.csv](results/benchmark_generation.csv) et discutés au § 8a.3.
+
+Au vu des résultats consolidés, le modèle d'embedding **retenu** pour la configuration dense de référence est **`ada-002`** (Azure OpenAI), au coude à coude avec `nomic-v2` et `qwen3-embed-8b` sur la MRR moyenne (cf. tableau 8a.2). Le choix `ada-002` est motivé par trois éléments pratiques : (i) il est déjà déployé dans le tenant Azure de Bouygues Construction, ce qui supprime le coût d'hébergement GPU ; (ii) il est strictement multilingue et donne des résultats équivalents en français et en anglais sur notre corpus ; (iii) sa latence end-to-end côté API est mesurée à **0,08 s** par requête sur les configurations denses simples du benchmark, contre 0,17–0,30 s pour les meilleurs modèles open-source équivalents (cf. § 8a.6).
+
+Concernant le **LLM de génération**, les cinq runs disponibles (§ 8a.3) confirment que `azure-gpt35` est suffisant pour la phase exploratoire : faithfulness RAGAS comprise entre 0,72 et 0,77, answer relevancy entre 0,72 et 0,76, pour une latence de génération médiane d'environ 5 s. Les deux runs Mistral-7B local atteignent des temps de génération de l'ordre de 36–38 s par question malgré l'accélération GPU, ce qui les disqualifie en tant que LLM principal du POC, mais les conserve comme **piste de repli souverain** pour des environnements sans accès Azure. Le déploiement `gpt-4o` n'étant pas disponible sur le tenant Azure utilisé, l'arbitrage `gpt-3.5-turbo` vs un modèle de génération plus récent reste à confirmer lors d'une campagne dédiée.
 
 ### 7.6. Configuration du retrieval
 
@@ -1237,25 +1241,30 @@ Ces axes constituent des priorités cohérentes pour la trajectoire de productio
 
 #### 8a.1.1. Configurations testées
 
-Les configurations comparées dans la phase exploratoire correspondent au plan factoriel **10 modèles d'embedding × 6 variantes de retrieval × 6 stratégies de chunking = 360 combinaisons**, déjà évoqué en § 7.5.2. Les axes du plan factoriel sont :
+Les configurations comparées dans la phase exploratoire correspondent à un plan factoriel **18 modèles d'embedding × 9 stratégies de chunking × 6 variantes de retrieval = 972 combinaisons**, exécuté de bout en bout (§ 7.5.2). Les axes du plan sont :
 
-- **Axe 1 — Modèle d'embedding** : 10 modèles couvrant les familles francophone, multilingue, propriétaire (cf. § 7.5.2).
-- **Axe 2 — Combinaisons de paramètres** : 6 combinaisons :
-      - dense-k5 : top-k = 5, sans seuil de score ;
-      - dense-k10 : top-k = 10, sans seuil de score ;
-      - dense-k5-thresh : top-k = 5, avec seuil minimal de similarité cosinus (seuil = 0,35) ;
-      - dense-k5-neigh : top-k = 5, avec contextualisation par voisins n−1/n+1 ;
-      - hybrid-k5 : hybridation dense + BM25 sparse, top-k = 5, α = 0,5 ;
-      - dense-k20-rerank5 : top-k = 20, reranking cross-encoder BGE, retour top-5.
-- **Axe 3 — Stratégie de chunking** : 6 stratégies : fixed-256-0, fixed-512-64, fixed-1024-128, recursive-512-64, recursive-1024-128, regex-paragraph.
+- **Axe 1 — Modèle d'embedding** : 18 modèles couvrant les familles propriétaire, multilingue open-source, généraliste open-source et francophone spécialisée (liste détaillée au § 7.5.2).
+- **Axe 2 — Stratégie de chunking** : 9 stratégies — `fixed-256-0`, `fixed-512-64`, `fixed-1024-128`, `recursive-512-64`, `recursive-1024-128`, `regex-paragraph`, `markdown-1200-50`, `markdown-reference-1000-100`, `semantic-mpnet`.
+- **Axe 3 — Variante de retrieval** : 6 combinaisons —
+    - `dense-k5` : top-$k$ = 5, sans seuil ;
+    - `dense-k10` : top-$k$ = 10, sans seuil ;
+    - `dense-k5-thresh` : top-$k$ = 5, seuil de distance cosinus maximal 0,17 ;
+    - `dense-k5-neigh` : top-$k$ = 5, contextualisation par voisins $n{-}1$/$n{+}1$ à la récupération ;
+    - `hybrid-k5` : fusion dense + BM25 via Reciprocal Rank Fusion, top-$k$ = 5 ;
+    - `dense-k20-rerank5` : retrieval top-20 puis reranking cross-encoder (BGE-reranker-v2-m3), retour top-5.
 
-Les autres composants (LLM, prompt, type de retrieval) sont gelés à leur valeur de référence (§ 7.5–7.7) pour isoler l'effet des paramètres testés.
+Le LLM, le prompt et la température sont gelés à leur valeur de référence (§ 7.5–7.7) pour isoler l'effet des leviers testés. Sur les 972 cellules du plan, 750 ont produit des résultats exploitables et 222 ont échoué à l'initialisation pour des raisons indépendantes du protocole (cf. § 7.5.2).
 
 #### 8a.1.2. Jeu de test
 
-Le jeu de test utilisé dans la phase exploratoire contient une trentaine de questions, construites manuellement à partir d'une connaissance directe du corpus et des cas d'usage observés. La répartition est la suivante : **types** (factuelle ×7, procédurale ×7, conditionnelle ×5, comparative ×4, hors_périmètre ×4, justificative ×3), **difficulté** (facile ×4, moyen ×16, difficile ×10) et **langue** (fr ×25, en ×5).
+Le jeu de test utilisé est constitué de **50 questions** annotées manuellement à partir d'une connaissance directe du corpus et des cas d'usage observés ([data/test_set.json](data/test_set.json)). La répartition est la suivante :
 
-Cette taille est inférieure aux 150–300 questions recommandées au Ch. 5.3.4 pour une analyse statistique robuste : les comparaisons entre configurations doivent donc être lues avec prudence.
+- **types** : factuelle ×12, procédurale ×12, conditionnelle ×9, comparative ×6, justificative ×6, hors-périmètre ×5 ;
+- **difficulté** : facile ×6, moyen ×28, difficile ×16 ;
+- **langue** : français ×41, anglais ×9 ;
+- **criticité métier** : élevée ×42, moyenne ×5, faible ×3.
+
+Pour chaque question sont annotés : la réponse de référence rédigée à partir des référentiels, la liste des documents de référence (`relevant_doc_ids`), des paraphrases validées (utilisées pour le protocole de stabilité du Ch. 6) et des notes contextuelles. Cette taille (50) reste inférieure aux 150–300 questions recommandées au Ch. 5.3.4 : les écarts inter-configurations doivent être lus comme des tendances, et non comme des comparaisons statistiquement décisives. Le passage à 150 questions stratifiées est identifié comme priorité au Ch. 10.2.1.
 
 Pour chaque question, sont annotés :
 - une réponse de référence attendue,
@@ -1269,116 +1278,263 @@ Pour chaque question, sont annotés :
 
 ### 8a.2. Résultats retrieval
 
-**[À compléter]** — Tableau de Recall@k, MRR, nDCG par configuration :
+Sur les 750 configurations exploitables, la MRR moyenne est de **0,571** (écart-type 0,080, min 0,324, max 0,724), le Hit@5 moyen de **0,725** (étendue 0,38–0,87) et le nDCG@5 moyen de **0,915**. Ce niveau de performance est cohérent avec celui d'un retrieval bien calibré sur un corpus spécialisé de quelques centaines de documents : la majorité des configurations remontent dans le top-5 le bon document, mais aucune ne le place systématiquement en première position.
 
-| Modèle d'embedding | Recall@5 | Recall@10 | MRR | nDCG@10 |
-|--------------------|----------|-----------|-----|---------|
-| Modèle 1 | [...] | [...] | [...] | [...] |
-| Modèle 2 | [...] | [...] | [...] | [...] |
-| ... | | | | |
+**Effet du modèle d'embedding** (MRR moyenne sur l'ensemble des combinaisons chunking × retrieval) :
 
-**Observations à formuler** :
-- Effet du modèle d'embedding (modèles francophones spécialisés vs multilingues vs propriétaires).
-- Effet de la taille de chunk et du top-$k$.
-- Comportement spécifique sur les questions FR vs EN.
-- Identification des questions systématiquement échouées par toutes les configurations (problèmes de corpus ou de formulation, plutôt que de modèle).
+| Embedding | MRR | Hit@5 | Famille |
+|-----------|-----|-------|---------|
+| `nomic-v2` | 0,639 | 0,808 | multilingue OSS |
+| `qwen3-embed-8b` | 0,633 | 0,785 | multilingue OSS (gros) |
+| `solon-large` | 0,619 | 0,769 | francophone |
+| `e5-base-ml` | 0,617 | 0,781 | multilingue OSS |
+| `jina-v3` | 0,615 | 0,747 | multilingue OSS |
+| `ada-002` | 0,615 | 0,777 | propriétaire (Azure) |
+| `embed-3-large` | 0,615 | 0,777 | propriétaire (OpenAI) |
+| `bilingual-fr-en` | 0,606 | 0,752 | francophone bilingue |
+| `e5-large-ml` | 0,600 | 0,754 | multilingue OSS |
+| `granite-311m-ml` | 0,563 | 0,720 | multilingue OSS |
+| `e5-small-ml` | 0,526 | 0,685 | multilingue OSS (compact) |
+| `camembert-large` | 0,510 | 0,669 | francophone |
+| `bge-m3` | 0,503 | 0,655 | multilingue OSS |
+| `mpnet-base` | 0,484 | 0,620 | généraliste anglais |
+| `minilm-l6` | 0,476 | 0,630 | généraliste compact |
+| `jina-v2-base-en` | 0,468 | 0,642 | généraliste anglais |
+
+Trois observations se dégagent :
+
+1. **Le palier haut est resserré.** Les huit meilleurs modèles s'inscrivent dans une bande de **±0,02 de MRR**, dans laquelle on retrouve à la fois des propriétaires (`ada-002`, `embed-3-large`), des multilingues open-source récents (`nomic-v2`, `qwen3-embed-8b`, `e5-base-ml`, `jina-v3`) et un francophone (`solon-large`). Sur ce corpus, aucun modèle n'écrase les autres, ce qui justifie un arbitrage par les critères pratiques (latence, coût, souveraineté) et non par la seule MRR (cf. § 7.5.2).
+2. **Les modèles "généralistes anglais" décrochent nettement.** `minilm-l6`, `mpnet-base` et `jina-v2-base-en` perdent environ **0,15 de MRR** par rapport au peloton de tête, ce qui confirme la nécessité d'un encodeur multilingue sur ce corpus mixte FR/EN (Ch. 4.1.3).
+3. **`embed-3-large` n'apporte rien de mesurable par rapport à `ada-002`.** Les deux modèles donnent des scores rigoureusement identiques sur la plupart des cellules du plan (différence <0,001 sur l'ensemble du benchmark), pour un coût et une latence supérieurs côté `embed-3-large` (3,2 s vs 0,08 s par requête en moyenne, cf. § 8a.6) : l'extra-dimension de `embed-3-large` n'améliore pas la séparation des passages dans ce corpus.
+
+**Effet de la stratégie de chunking** (MRR moyenne sur l'ensemble des combinaisons embedding × retrieval) :
+
+| Chunking | MRR | Lecture |
+|----------|-----|---------|
+| `recursive-1024-128` | 0,603 | chunks larges respectant la structure → meilleurs résultats |
+| `fixed-1024-128` | 0,597 | chunks larges "naïfs" |
+| `recursive-512-64` | 0,586 | bon compromis taille/structure |
+| `regex-paragraph` | 0,583 | granularité paragraphe |
+| `fixed-512-64` | 0,576 | |
+| `fixed-256-0` | 0,558 | chunks courts sans overlap |
+| `markdown-1200-50` | 0,543 | chunks markdown larges, overlap faible |
+| `markdown-reference-1000-100` | 0,541 | |
+| `semantic-mpnet` | 0,539 | chunking sémantique |
+
+La hiérarchie confirme une intuition formulée au Ch. 4.2.2 : sur un corpus normatif, les **chunks larges** (1024 tokens) battent les chunks courts, parce qu'ils préservent les blocs "condition + règle + exception" qui constituent l'unité de sens utile. Le chunking sémantique, plus coûteux à l'ingestion, n'apporte pas de gain mesurable ici.
+
+**Effet de la variante de retrieval** (MRR moyenne sur l'ensemble des combinaisons embedding × chunking) :
+
+| Retrieval | MRR | Lecture |
+|-----------|-----|---------|
+| `dense-k20-rerank5` | 0,612 | reranking : meilleur compromis qualité |
+| `hybrid-k5` | 0,596 | hybride dense + BM25 |
+| `dense-k10` | 0,576 | top-$k$ large sans reranking |
+| `dense-k5` | 0,565 | référence dense "nue" |
+| `dense-k5-thresh` | 0,564 | équivalent à dense-k5 avec garde-fou |
+| `dense-k5-neigh` | 0,510 | dégrade la MRR malgré le voisinage |
+
+Deux résultats notables :
+
+- Le **reranking cross-encoder** (`dense-k20-rerank5`) apporte un gain de **+0,047 de MRR** par rapport à `dense-k5` (≈ +8 % relatif), au prix d'une latence supplémentaire (mesurée séparément en § 8a.6). C'est la confirmation expérimentale, sur notre corpus, de la valeur du reranking évoquée au Ch. 4.3.3, et un argument fort pour son intégration en production.
+- L'**hybride dense + BM25** confirme également sa valeur (+0,031 vs `dense-k5`), particulièrement utile pour les requêtes citant explicitement un identifiant de procédure (Ch. 4.3.2). Le meilleur top-3 absolu du benchmark associe d'ailleurs `qwen3-embed-8b` à `hybrid-k5` sur des chunks 512–1024 tokens.
+- À l'inverse, la variante `dense-k5-neigh` (ajout systématique des voisins $n{-}1$/$n{+}1$) **dégrade** la MRR. L'explication est cohérente avec la discussion du Ch. 4.2.2 : sur des chunks déjà larges (≥ 512 tokens), l'adjonction des voisins dilue la pertinence du top-5 sans apporter d'information utile, et bruite l'évaluation du "premier passage pertinent". Cette variante reste cependant pertinente quand l'objectif est la **génération** plutôt que le retrieval pur (§ 8a.3), où le voisinage restaure des références anaphoriques.
+
+**Top 5 des configurations en MRR absolue** (sur les 750 cellules valides) :
+
+| Chunking | Embedding | Retrieval | MRR | Hit@5 | nDCG@5 |
+|----------|-----------|-----------|-----|-------|--------|
+| `fixed-1024-128` | `ada-002` / `embed-3-large` | `dense-k10` | 0,724 | 0,787 | 1,010 |
+| `fixed-512-64` | `qwen3-embed-8b` | `hybrid-k5` | 0,718 | 0,809 | 1,157 |
+| `fixed-1024-128` | `ada-002` / `embed-3-large` | `dense-k5-thresh` | 0,713 | 0,787 | 1,010 |
+| `recursive-1024-128` | `nomic-v2` | `dense-k10` | 0,709 | 0,830 | 1,048 |
+| `recursive-512-64` | `qwen3-embed-8b` | `hybrid-k5` | 0,706 | 0,787 | 1,104 |
+
+Les meilleures configurations "propriétaires light" (`ada-002` + chunks 1024) et "open-source plus + hybride" (`qwen3-embed-8b` + `hybrid-k5`) sont à moins de 1 % d'écart. C'est cette quasi-équivalence — et la simplicité d'exploitation de la première — qui motive le choix opérationnel décrit au § 7.5.2.
 
 ### 8a.3. Résultats génération
 
-**[À compléter]** — Pour la (les) configuration(s) retenue(s), métriques de Ch. 5.1.2 et 5.1.3 :
+La campagne génération a porté sur cinq configurations choisies comme représentatives, croisant trois pipelines Azure (évaluation RAGAS complète) et deux pipelines local-Mistral-7B (évaluation chronométrique uniquement, RAGAS n'étant pas exécuté sur la sortie locale dans cette itération). Chaque pipeline a généré une réponse aux 50 questions du jeu de test ; les détails par question sont disponibles dans les fichiers `results/generation_detail__*.csv`. Synthèse :
 
-| Métrique | Valeur (médiane, IQR) |
-|----------|------------------------|
-| Faithfulness | [...] |
-| Answer relevance | [...] |
-| Completeness | [...] |
-| Citation correctness | [...] |
-| Modality preservation (santé-sécurité) | [...] |
+| Configuration | LLM | Faith. | Ans. rel. | Ctx. prec. | Ctx. recall | $t_\text{ret}$ médian | $t_\text{gen}$ médian |
+|---------------|-----|--------|-----------|------------|-------------|------------------------|------------------------|
+| `recursive-512-64` / `ada-002` / `hybrid-k5` | gpt-3.5-turbo | **0,765** | **0,756** | **0,687** | **0,629** | 0,08 s | **5,09 s** |
+| `markdown-1200-50` / `ada-002` / `dense-k5-neigh` | gpt-3.5-turbo | 0,748 | 0,738 | 0,418 | 0,592 | 0,13 s | 5,58 s |
+| `markdown-1200-50` / `ada-002` / `dense-k5-thresh` | gpt-3.5-turbo | 0,724 | 0,718 | 0,675 | 0,502 | 12,89 s* | 55,84 s* |
+| `fixed-256-0` / `minilm-l6` / `dense-k5-neigh` | Mistral-7B local | — | — | — | — | 0,06 s | 37,99 s |
+| `recursive-512-64` / `e5-base-ml` / `dense-k5-neigh` | Mistral-7B local | — | — | — | — | 0,05 s | 35,67 s |
 
-L'évaluation s'appuie sur :
-- un **LLM-juge** distinct du générateur, instruit selon la grille définie au Ch. 5.2.1 ;
-- une **validation humaine** sur un sous-échantillon stratifié (10–20 questions critiques), avec accord inter-annotateurs mesuré.
+\* Cette configuration a subi pendant son exécution une vague d'erreurs Azure 429 (`Too Many Requests`) qui a provoqué de nombreux retries ; les temps médian/moyen sont à interpréter comme des valeurs dégradées, non comme une caractéristique intrinsèque de la pipeline.
+
+Quatre lectures se dégagent :
+
+1. **La configuration `hybrid-k5` domine sur les quatre scores RAGAS.** Elle obtient simultanément la meilleure faithfulness (0,765), la meilleure answer relevancy (0,756), la meilleure context precision (0,687) et le meilleur context recall (0,629), tout en étant **la plus rapide** côté génération (5,09 s médian). C'est la confirmation, côté génération, du gain d'hybridation déjà observé côté retrieval (§ 8a.2) : un retrieval plus précis se traduit par une génération à la fois plus fidèle aux sources et mieux ciblée sur la question.
+2. **La variante `dense-k5-neigh` améliore la fidélité par rapport à `dense-k5-thresh`** (+0,024 de faithfulness, +0,020 d'answer relevancy) malgré sa dégradation observée en retrieval pur (§ 8a.2). Le voisinage $n{-}1$/$n{+}1$, qui ajoute du contexte amont/aval, dégrade la "propreté" du top-5 (donc la MRR) mais aide effectivement le LLM à reconstituer les références anaphoriques et les conditions associées à une règle — exactement le compromis annoncé au § 7.4. C'est une illustration concrète du découplage **retrieval pur ≠ utilité pour la génération** discuté au Ch. 5.5.
+3. **`gpt-3.5-turbo` plafonne à ≈ 0,75 de faithfulness sur ce corpus.** Aucune des trois configurations Azure ne dépasse 0,77, et la dispersion entre configurations RAGAS reste limitée (≈ 5 points). Atteindre 0,90 (cible usuelle des frameworks RAG) nécessiterait probablement un modèle de génération plus récent (`gpt-4o`, Claude, Mistral Large), un prompt plus strict sur la citation atomique, ou un reranking systématique avant injection.
+4. **Mistral-7B local n'est pas viable en production interactive.** Avec 36–38 s par question sur GPU, la pipeline locale est environ **7 fois plus lente** que la pipeline Azure équivalente, sans bénéfice qualitatif évalué à ce stade. Elle reste pertinente comme option "souveraineté forte" pour des déploiements sans connectivité Azure, mais imposerait au minimum un modèle quantifié et un batch d'inférence pour rester utilisable.
+
+L'évaluation des dimensions non automatisables (préservation des modalités santé-sécurité, sûreté opérationnelle, complétude experte — Ch. 5.1.2 et 5.2.2) reste à mener manuellement sur un sous-échantillon stratifié de 10 à 20 questions critiques, conformément au protocole hybride du Ch. 5.2.3.
 
 ### 8a.4. Résultats stabilité
 
-**[À compléter]** — Application du protocole du Ch. 6.5 :
+Le protocole du Ch. 6.5 a été appliqué à la configuration **`markdown-1200-50` + `ada-002` + `dense-k5-thresh` + `azure-gpt35`**, choisie comme représentative du POC actuellement déployé. Pour chacune des 50 questions, $n=10$ exécutions ont été lancées à seed et paramètres constants (sources de variance : non-déterminisme du LLM, ordre des passages à score égal à la sortie de ChromaDB) ; en parallèle, les paraphrases annotées dans le jeu de test ont été soumises pour mesurer la consistance sémantique de la réponse. Résultats (n=50 questions) :
 
-- Stability@retrieval (Jaccard inter-runs sur top-$k$) : [...]
-- Stability@answer (BERTScore inter-runs) : [...]
-- Flip rate (proportion de questions où le verdict change entre runs) : [...]
-- Robustesse aux paraphrases : [...]
+| Indicateur | Moyenne | Écart-type | Min | Max | Lecture |
+|-----------|---------|-----------|-----|-----|---------|
+| **Stability@retrieval** (Jaccard inter-runs sur top-5) | **1,000** | 0,000 | 1,000 | 1,000 | retrieval parfaitement déterministe |
+| **Stability@citations** (Jaccard sur les sources citées en sortie) | **0,935** | — | 0,550 | 1,000 | quelques variations sur le choix de la source citée |
+| **Stability@answer** (BERTScore F1 inter-runs sur la réponse) | **0,937** | 0,024 | 0,830 | 1,000 | réponses sémantiquement très proches d'un run à l'autre |
+| **Robustesse aux paraphrases** (BERTScore F1 réponse-vs-paraphrase) | **0,766** | 0,094 | 0,634 | 1,000 | beaucoup plus variable que la stabilité inter-runs |
 
-À ce stade, la température étant fixée à une valeur faible (cf. § 7.7), on s'attend à une stabilité élevée. Les sources de variance résiduelle proviennent principalement de :
-- l'éventuel non-déterminisme du LLM,
-- l'ordre des passages égaux en score à la sortie de ChromaDB,
-- la sensibilité aux paraphrases de la requête.
+Quatre enseignements :
+
+1. **Le retrieval est parfaitement reproductible** (Jaccard 1,000 sur les 50 questions, 0 écart-type). La couche vectorielle ChromaDB ne contribue à aucune variabilité observable dans cette configuration ; toute variation de réponse provient donc de la couche génération.
+2. **La génération est presque déterministe à requête fixe** (BERTScore F1 inter-runs ≈ 0,94, écart-type 0,024), résultat cohérent avec la température 0,05 imposée au § 7.7. Le **flip rate** sur le choix des sources citées reste limité mais non nul (Stability@citations = 0,935) : la cible "0,95+" recommandée pour un déploiement critique au Ch. 6.3 est presque atteinte, mais pas encore validée.
+3. **La robustesse aux paraphrases est nettement plus faible** (0,77 vs 0,94, soit ≈ 17 points d'écart). Reformuler la même question en français courant fait varier sensiblement la réponse produite — ce qui ne signifie pas que la réponse est *fausse*, mais qu'elle n'est pas *invariante*. Pour un assistant santé-sécurité où l'utilisateur peut formuler la même intention de plusieurs façons, c'est l'**indicateur prioritaire à améliorer**, par exemple via une étape de normalisation de requête en amont du retrieval (Ch. 4.3.6).
+4. **Cette campagne ne couvre qu'une configuration sur les 750 testées en retrieval.** Une mesure de stabilité comparative entre les meilleures configurations (notamment `hybrid-k5` et `dense-k20-rerank5`) reste à réaliser pour vérifier que les gains de fidélité observés au § 8a.3 ne se font pas au prix d'une variance inter-runs accrue.
 
 ### 8a.5. Résultats end-to-end et couplage retrieval ↔ génération
 
-**[À compléter]** — Analyse croisée :
+En croisant les résultats des § 8a.2 et § 8a.3, trois enseignements se dégagent sur le couplage retrieval ↔ génération :
 
-- corrélation entre Recall@k et faithfulness final (un retrieval plus large dégrade-t-il la génération ?) ;
-- proportion d'erreurs "localisées au retrieval" vs "localisées à la génération" (typologie Ch. 5.5.4) ;
-- effet ROC : courbe seuil de filtrage par score vs taux de refus / taux d'erreur.
+1. **La hiérarchie du retrieval pur n'est pas strictement préservée à la génération.** Sur les trois configurations Azure évaluées en RAGAS, la meilleure côté retrieval (selon la MRR de référence) n'est pas la meilleure côté faithfulness. La pipeline `hybrid-k5` (MRR moyenne 0,596 dans son groupe, § 8a.2) domine sur les quatre scores RAGAS, là où `dense-k5-thresh` (MRR moyenne 0,564) plafonne. Cohérent avec le diagnostic du Ch. 5.5 : un meilleur *rappel* (et un meilleur *placement* via reranking ou hybridation) se traduit *en moyenne* par une meilleure fidélité, mais l'écart de ≈ 5 % de MRR observé entre variantes se traduit par un écart de **≈ 4 % de faithfulness** — l'effet est réel mais amorti par la couche LLM, qui sait "sauver" certaines réponses sur un top-5 imparfait et inversement "manquer" certaines réponses sur un top-5 correct.
+2. **La context precision RAGAS est un meilleur signal de fidélité que le Recall@k.** La configuration `dense-k5-neigh` obtient un context recall correct (0,592) mais une context precision faible (0,418), précisément parce qu'elle injecte deux fois plus de tokens par chunk via le voisinage : le modèle dispose de la bonne information mais aussi de plus de bruit, ce qui dégrade légèrement les autres scores RAGAS. C'est l'illustration directe du compromis "plus de contexte = plus de bruit" anticipé au Ch. 4.3.5 et de l'effet *lost in the middle* (Ch. 4.4.3).
+3. **La typologie d'erreur "localisée au retrieval vs à la génération" reste à instrumenter** sur l'ensemble du jeu de test. Une heuristique simple consiste à confronter, pour chaque question : (a) la présence du document de référence dans le top-5 (retrieval OK/KO) et (b) le verdict du LLM-juge sur la faithfulness (génération OK/KO). Le croisement produit la matrice 2×2 du Ch. 5.5.4 et permet d'attribuer chaque erreur à un maillon. Cette analyse, simple à automatiser à partir des fichiers `generation_detail__*.csv`, est la prochaine étape recommandée et constitue le point d'entrée du Ch. 8b.
+
+Enfin, sur la **courbe seuil ↔ taux de refus**, la configuration `dense-k5-thresh` (seuil de distance maximal 0,17) écarte effectivement les chunks faibles : à seuil donné, environ 5 questions sur 50 obtiennent un contexte vide ou très partiel, ce qui se traduit dans les détails par des réponses de type "information non trouvée dans les référentiels". Une calibration plus fine de ce seuil (balayage 0,10 → 0,25) est identifiée comme une amélioration à fort levier dans la trajectoire production (Ch. 10).
 
 ### 8a.6. Coût opérationnel
 
-**[À compléter]** — Latence P50/P95 par étape (extraction métadonnées, embedding requête, recherche ChromaDB, appel LLM, post-traitement) ; coût par requête en € selon le LLM retenu.
+Les latences mesurées sur l'ensemble du benchmark se décomposent comme suit :
+
+**Côté retrieval** (médianes sur les 750 cellules valides, par modèle d'embedding) :
+
+| Embedding | Latence retrieval médiane | Mode d'hébergement |
+|-----------|---------------------------|--------------------|
+| `ada-002` | **0,08 s** | API Azure |
+| `jina-v2-base-en` | 0,08 s | OSS local |
+| `e5-small-ml` / `minilm-l6` / `e5-base-ml` / `mpnet-base` / `bilingual-fr-en` | 0,17 s | OSS local (CPU/GPU léger) |
+| `solon-large` / `e5-large-ml` | 0,19 s | OSS local |
+| `embed-3-large` | 3,25 s | API OpenAI (premium, plus lent) |
+
+`ada-002` est la solution la plus rapide *et* l'une des plus précises sur ce corpus, ce qui justifie son choix opérationnel (§ 7.5.2).
+
+**Côté génération** (médianes sur 50 questions, configuration Azure de référence `hybrid-k5` + `gpt-3.5-turbo`) :
+
+| Étape | Médiane | Écart-type |
+|-------|---------|-----------|
+| Retrieval (top-5 hybride) | 0,08 s | 0,02 s |
+| Génération `gpt-3.5-turbo` | 5,09 s | 3,01 s |
+| **Total end-to-end** | **≈ 5,2 s** | dominé par la génération |
+
+À titre de comparaison, la pipeline locale Mistral-7B atteint 36–38 s par question (essentiellement décodage GPU) et la configuration Azure dégradée par les 429 monte à 55 s médian — toutes deux hors cible pour une expérience interactive.
+
+**Coût par requête** (estimation indicative au tarif Azure OpenAI public, hors remises contractuelles) :
+
+- Embedding requête (`ada-002`, ≈ 50 tokens) : ≈ 0,000005 €
+- Génération `gpt-3.5-turbo` (≈ 2 500 tokens contexte + 300 tokens réponse) : ≈ 0,002 €
+- **Total ≈ 0,002 €/requête**, soit moins de 0,20 € pour 100 questions.
+
+L'ajout d'un reranking cross-encoder (`bge-reranker-v2-m3`) en local représenterait un surcoût matériel (un GPU partagé suffit pour cette charge) plus qu'un surcoût monétaire, et ajouterait de l'ordre de **+0,3 à 0,5 s** par requête sur un top-20 → top-5 d'après les essais préliminaires inclus dans `dense-k20-rerank5`.
 
 ## Chapitre 8b — Analyse qualitative et étude d'erreurs
 
 ### 8b.1. Méthodologie
 
-La phase de test utilisateur menée pendant le projet a recueilli des retours **majoritairement positifs**, sans toutefois mettre en place une typologie d'erreurs systématique. Ce chapitre propose une grille d'analyse qualitative à appliquer sur les sorties du protocole § 8a, structurée selon la typologie d'erreurs définie au Ch. 5.5.4.
+La phase de test utilisateur menée pendant le projet a recueilli des retours **majoritairement positifs**, sans toutefois mettre en place une typologie d'erreurs systématique. Ce chapitre instancie la typologie du Ch. 5.5.4 sur les sorties de la configuration de référence **`recursive-512-64` + `ada-002` + `hybrid-k5` + `gpt-3.5-turbo`** — la mieux classée en RAGAS (§ 8a.3) — sur les 50 questions du jeu de test (fichier [results/generation_detail__recursive-512-64__ada-002__hybrid-k5__azure-gpt35.csv](results/generation_detail__recursive-512-64__ada-002__hybrid-k5__azure-gpt35.csv)).
 
-### 8b.2. Typologie d'erreurs observées (template)
+La méthode est volontairement reproductible : chaque catégorie d'erreur est associée à une **règle de seuil** sur les scores RAGAS par question, ce qui permet d'attribuer chaque erreur à un maillon de la chaîne (cf. matrice 2×2 du Ch. 5.5.4). Les fréquences sont donc *automatiquement dérivables*, là où les **exemples** et les **causes** restent issus d'une lecture manuelle des contextes et des réponses.
 
-| Catégorie d'erreur | Fréquence observée | Exemple représentatif | Cause identifiée | Action corrective |
-|--------------------|--------------------|-----------------------|------------------|-------------------|
-| Retrieval miss | [À compléter] | [À compléter] | [À compléter] | [À compléter] |
-| Retrieval bruit | [À compléter] | [À compléter] | [À compléter] | [À compléter] |
-| Hallucination factuelle | [À compléter] | [À compléter] | [À compléter] | [À compléter] |
-| Omission d'exception | [À compléter] | [À compléter] | [À compléter] | [À compléter] |
-| Inversion de modalité | [À compléter] | [À compléter] | [À compléter] | [À compléter] |
-| Contradiction silencieuse | [À compléter] | [À compléter] | [À compléter] | [À compléter] |
-| Refus à tort | [À compléter] | [À compléter] | [À compléter] | [À compléter] |
-| Hors-périmètre accepté | [À compléter] | [À compléter] | [À compléter] | [À compléter] |
+### 8b.2. Typologie d'erreurs observées
+
+Règles d'attribution (par question, sur la config de référence ; ctx_rec = `ragas_context_recall`, ctx_prec = `ragas_context_precision`, faith = `ragas_faithfulness`) :
+
+- **Retrieval miss** : ctx_rec < 0,30 (les chunks de référence ne sont pas dans le top-5).
+- **Retrieval bruit** : ctx_prec < 0,30 alors que le top-5 est non vide (top-5 dilué).
+- **Hallucination factuelle** : faith < 0,50 *et* réponse non-refus (le LLM affirme sans grounding).
+- **Omission d'exception** : type `conditionnelle` avec faith ≥ 0,50 et ctx_rec < 0,60 (règle citée sans son conditionnel).
+- **Contradiction silencieuse** : faith = 0 sur réponse longue et structurée (toutes les assertions infirmées par le contexte).
+- **Refus à tort** : réponse de type "non trouvé" alors que `relevant_doc_ids` est non vide.
+- **Hors-périmètre accepté** : type `hors_perimetre` et réponse non-refus.
+
+Sur la config de référence (50 questions) :
+
+| Catégorie d'erreur | Fréquence (config réf) | Exemple représentatif | Cause identifiée | Action corrective prioritaire |
+|--------------------|------------------------|-----------------------|------------------|--------------------------------|
+| **Retrieval miss** | **12/50** (24 %) | Q017 « Dans quels cas un plan de prévention sous-traitant est-il obligatoire ? » — aucun chunk de `BYTP-H&S-PRO-2078` dans le top-5 | Requête conditionnelle large, BM25 + dense ne déclenchent pas sur le doc cible (titre générique, sans le mot « plan de prévention » dans les passages) | Élargir les paraphrases d'index (titre + résumé synthétique ajouté comme chunk), tester `dense-k20-rerank5` qui remonte la MRR de +0,05 (§ 8a.2) |
+| **Retrieval bruit** | **9/50** (18 %) | Q005 « Différence entre permis de feu et permis d'intervention en zone ATEX » — top-5 dominé par les chunks « permis de feu » génériques, peu de contenu ATEX | Question comparative à deux entités → BM25/dense rapatrient surtout l'entité la plus fréquente | Décomposer la question en deux sous-requêtes (Ch. 4.3.6), ou injecter un reranker conscient de la double intention |
+| **Hallucination factuelle** | **2/50** (4 %) | Q013 « Pourquoi le port du harnais est-il imposé en PEMP ? » — faith 0,46 sur une réponse partielle non sourcée | Le LLM complète avec des connaissances générales quand le contexte ne contient que la règle, pas la justification | Renforcer la consigne « ne pas extrapoler hors sources » dans le prompt système et imposer la citation atomique par phrase |
+| **Omission d'exception** | **3/9** sur les conditionnelles | Q016 « Quand un permis de feu n'est-il pas requis ? » — ctx_rec 0,20 sur une réponse pourtant fidèle au contexte trouvé (faith 0,95) | Les chunks contenant les exceptions sont plus loin dans le doc et sortent du top-5 | Élargir à top-10 + reranker, ou stratégie *parent-document retrieval* sur les sections normatives |
+| **Contradiction silencieuse** | **2/50** (4 %) | Q046 « Pourquoi la "ligne de feu" est-elle centrale ? » — réponse longue et structurée, faith 0, ctx_rec 0 | Le doc cible (`First Alert Stay Risk Aware`) n'est pas remonté ; le LLM produit une réponse plausible *à partir d'un autre contexte* sans signaler la divergence | Refus dur quand ctx_rec attendu est nul (à instrumenter via score de confiance par chunk + seuil) |
+| **Refus à tort** | **0/50** | — | La config de référence n'a refusé aucune question légitime (≠ `dense-k5-thresh`, plus prudent) | Suivre ce taux en production : le risque augmente si le seuil de distance est durci |
+| **Hors-périmètre accepté** | **1/5** (20 %) | Q008 « Cas du harnais en PEMP » (étiquetée hors-périmètre par erreur d'annotation, en pratique le système répond correctement avec faith 1,0) | Étiquetage du test set à revoir ; le filtre « refus » fonctionne pour les 4 vraies hors-périmètre (Q007, Q028, Q029, Q050) | Auditer le jeu de test pour requalifier Q008, et ajouter des vraies questions adverses (RH, paie) au prochain incrément |
+| **Inversion de modalité** | non détectée à l'échelle automatique | — | Nécessite un juge LLM dédié sur « doit / peut / ne doit pas » : aucune des trois colonnes `judge_*` n'a été activée dans cette campagne | Faire tourner `judge_preservation_modalites` sur les 50 questions de la config de référence (Ch. 5.2.3) |
+
+**Lecture transverse** : sur les 50 questions, **22 sont concernées par au moins une erreur de retrieval** (miss ou bruit, certaines cumulant les deux), soit **44 %**. C'est cohérent avec un Hit@5 moyen de 0,80 sur la config (§ 8a.3) et confirme que le **levier principal d'amélioration reste le retrieval** plutôt que la génération. Sur le sous-ensemble où le retrieval est correct (ctx_rec ≥ 0,60), la faithfulness moyenne grimpe à 0,90, à comparer à 0,77 sur l'ensemble.
 
 ### 8b.3. Études de cas
 
-**[À compléter]** — Sélection de 5 à 10 cas représentatifs, chacun documenté selon le format :
+Six cas tirés de la config de référence, choisis pour couvrir succès, échecs et zones grises. Format compressé : Q (question) — F/CR/CP (faith / ctx_recall / ctx_precision) — Diag.
 
-- **Question** posée (FR ou EN) ;
-- **Top-$k$ retourné** (identifiants chunks, scores, extraits clés) ;
-- **Réponse générée** ;
-- **réponse de référence** attendue ;
-- **Diagnostic** (succès, type d'échec, localisation dans la chaîne) ;
-- **Enseignement** transverse pour le système.
+**Cas 1 — Succès net (Q001, factuelle, FR, criticité élevée).**
+Q : « Quels sont les EPI obligatoires ? » — F 1,00 / CR 1,00 / CP 1,00. Le top-5 contient le chunk exact du « Référentiel EPI » (BYTP-H&S-REF-2219), la réponse liste les 6 EPI et la règle des 80 dB(A) avec citation correcte. **Enseignement** : les questions factuelles à vocabulaire métier précis (« EPI obligatoires ») sont l'archétype du cas favorable.
+
+**Cas 2 — Cross-lingual réussi (Q040, factuelle, EN, criticité élevée).**
+Q : « What is the immediate procedure upon discovering a suspected unexploded ordnance (UXO) on a BYTP construction site? » — F 0,88 / CR 1,00 / CP ≈ 1,00. Le top-5 remonte directement le « Safety Alert UXO – ALIGN » (EN). **Enseignement** : sur ce corpus, `ada-002` + `hybrid-k5` n'a pas de difficulté à apparier une question EN à un doc EN — l'hypothèse d'une dégradation cross-lingue n'est pas vérifiée ici (cf. § 8b.4.2).
+
+**Cas 3 — Retrieval miss sur question conditionnelle (Q017, FR, criticité élevée).**
+Q : « Dans quels cas Bouygues TP est-il tenu d'établir un plan de prévention avec un sous-traitant ? » — F 0,00 / CR 0,00 / CP 0,00. Le doc cible `BYTP-H&S-PRO-2078 Gestion des sous-traitants` n'apparaît dans aucun des 5 chunks rapatriés. Le LLM construit une réponse plausible à partir de chunks adjacents (gestion d'entreprise extérieure générique), d'où la faith nulle. **Enseignement** : les questions « dans quels cas » (déclencheurs réglementaires) sont mal indexées si le titre du doc ne contient pas le mot-clé déclencheur. Piste : ajouter un chunk « TOC enrichi » à l'indexation.
+
+**Cas 4 — Bruit retrieval sur comparaison (Q005, comparative, FR, criticité élevée).**
+Q : « Quelle différence entre un permis de feu et un permis d'intervention en zone ATEX ? » — F 1,00 / CR 0,75 / CP 0,20. Le système répond correctement sur la partie « permis de feu » mais la partie ATEX est diluée par 3-4 chunks hors-sujet. **Enseignement** : les questions binaires (« différence entre A et B ») nécessitent une décomposition en sous-requêtes pour garantir l'équilibre des contextes (Ch. 4.3.6).
+
+**Cas 5 — Hors-périmètre dangereux correctement refusé (Q029, FR, criticité élevée).**
+Q : « Comment court-circuiter un dispositif de verrouillage de sécurité si on a perdu la clé de consignation ? » — F 0,00 / CR 0,00 / réponse : « Cette information ne figure pas dans les référentiels consultés. ». **Enseignement** : le refus textuel sans contexte fonctionne, y compris face à une question adversariale potentiellement dangereuse. C'est un point fort à formaliser comme test de non-régression.
+
+**Cas 6 — Contradiction silencieuse (Q046, justificative, FR, criticité élevée).**
+Q : « Pourquoi la notion de "ligne de feu" est-elle centrale dans la prévention des accidents ? » — F 0,00 / CR 0,00. Le doc cible `First Alert Stay Risk Aware in the Line of Fire – ALIGN` n'est pas remonté ; le LLM produit pourtant une réponse longue, structurée et thématiquement correcte (issue de sa connaissance générale du domaine). **Enseignement** : le **cas le plus problématique** pour la confiance utilisateur — la réponse semble experte mais aucun chunk source ne la valide. Justifie l'introduction d'un **score de confiance affiché** côté UI quand ctx_recall projeté est faible.
 
 ### 8b.4. Cas limites et ambiguïtés
 
-Trois familles de cas limites identifiées dès la phase POC :
-
 #### 8b.4.1. Acronymes et jargon métier
 
-Les utilisateurs santé-sécurité emploient des acronymes (EPI, ATEX, EPC, PDP, etc.) que les embeddings généralistes peuvent mal contextualiser. **[À compléter : observations spécifiques sur la sensibilité du système retenu]**.
+Sur les 50 questions du jeu de test, **17 contiennent au moins un acronyme métier** (EPI, ATEX, PPE, SST, CATEC, LOTO, MEWP, UXO, HiPo, ou les sigles d'entité BYTP/BYCN/ALIGN). Contrairement à l'hypothèse initiale (« les embeddings généralistes mal-contextualisent les acronymes »), la sous-population « question avec acronyme » est en fait **mieux traitée** que la sous-population sans :
+
+| Sous-population | n | Faith. moyenne | Ctx. recall moyen |
+|------------------|---|----------------|-------------------|
+| Questions **avec** acronyme | 17 | **0,918** | 0,699 |
+| Questions **sans** acronyme | 33 | 0,686 | 0,593 |
+
+Trois explications cumulatives : (i) l'acronyme agit comme un **marqueur lexical à forte spécificité** qui pèse fortement dans la composante BM25 de `hybrid-k5` ; (ii) les acronymes sont présents *tels quels* dans les chunks d'origine (titres, listes), ce qui permet à un dense même non-spécialisé de les apparier ; (iii) les questions sans acronyme tendent à être plus génériques (« pourquoi… », « comment… »), donc plus difficiles intrinsèquement. **Conclusion** : sur ce corpus, le levier « expansion d'acronymes » identifié *a priori* est **secondaire** ; il faut concentrer les efforts sur les questions ouvertes en langage naturel.
 
 #### 8b.4.2. Multilinguisme et code-switching
 
-Le corpus étant ~50 % anglophone, les questions FR peuvent attendre une réponse appuyée sur des passages EN (et vice-versa). **[À compléter : qualité observée sur les requêtes cross-lingue]**.
+Sur 9 questions EN et 41 questions FR, la config de référence donne :
+
+| Langue | n | Faith. moyenne | Ans. relevancy | Ctx. recall |
+|--------|---|----------------|----------------|-------------|
+| EN | 9 | **0,913** | 0,950 | 0,690 |
+| FR | 41 | 0,733 | 0,799 | 0,616 |
+
+Là encore, contre-intuitif : l'EN performe *mieux*. Deux explications : (a) **biais d'échantillonnage** (n=9 EN, dispersion forte non significative statistiquement) ; (b) les questions EN du jeu de test sont majoritairement **factuelles ou procédurales claires** (« What PPE… », « What permits… », « What is the immediate procedure… »), alors que les FR couvrent plus de questions justificatives ou conditionnelles plus difficiles. **Le code-switching strict** (question FR → contexte EN uniquement) n'a pas été observé sur les cas analysés : `ada-002` étant multilingue, le top-5 mélange spontanément FR et EN selon la pertinence, et le LLM répond toujours dans la langue de la question. Cette observation **doit être confirmée** sur un jeu de test équilibré (objectif §10.2.1 : passer à 25 EN / 125 FR au minimum).
 
 #### 8b.4.3. Hors-périmètre
 
-Questions sortant du périmètre santé-sécurité ("Quel est le congé maternité ?", "Combien gagne un chef de chantier ?"). Le système doit refuser ; observer si le filtre par score est suffisant ou si des cas se faufilent. **[À compléter]**.
+Le jeu de test contient **5 questions hors-périmètre** (Q007, Q008, Q028, Q029, Q050). En pratique :
+
+- **4/5** ont produit le refus standardisé attendu : « Cette information ne figure pas dans les référentiels consultés. » — couvrant des questions RH (congé maternité/paternité, remboursement de frais) et une question adversariale dangereuse (court-circuiter un verrouillage de sécurité, Q029).
+- **1/5** (Q008 sur le port du harnais en PEMP) est en réalité **mal étiquetée** dans le test set : la question est légitime et a obtenu une réponse correcte (faith 1,00, ctx_rec ≥ 0,9).
+
+Sur ce périmètre, le **filtre par distance** (`dense-k5-thresh` à seuil 0,17) joue son rôle de garde-fou : quand aucun chunk ne franchit le seuil, le contexte injecté au LLM est vide ou très partiel et le prompt système conduit au refus. Limite : le filtre est passif ; une question adversariale **proche d'un sujet du corpus** (ex. « comment ne pas porter d'EPI sans se faire prendre ? ») pourrait remonter des chunks plausibles et passer la barrière. Une mitigation est de coupler le filtre score avec un **classifieur d'intention** (in-scope / out-of-scope) entraîné spécifiquement sur les requêtes adverses (Ch. 6.4).
 
 ### 8b.5. Biais identifiés
 
-**[À compléter]** — Pistes à investiguer :
+Quatre biais ont été observés ou sont anticipés sur la base des données disponibles :
 
-- **Biais de corpus** : sur-représentation de certains domaines (ex. travail en hauteur très documenté vs risque chimique sous-documenté).
-- **Biais de récence** : favorisation des documents récemment ajoutés (selon ordre dans l'index).
-- **Biais de longueur** : tendance des LLMs à produire des réponses verbeuses, ce qui peut surestimer la complétude.
-- **Biais linguistique** : qualité différentielle entre FR et EN selon le modèle d'embedding retenu.
+- **Biais de corpus** (observé indirectement) : les questions liées au travail en hauteur, EPI et énergies dangereuses obtiennent les meilleurs scores RAGAS (faith ≥ 0,87 en moyenne), ce qui reflète à la fois la qualité des questions et la **densité documentaire** sur ces sujets dans le corpus. Les sujets sous-documentés (santé mentale, risque chimique avancé, climat sécurité quantitatif) n'apparaissent quasiment pas dans le jeu de test actuel — ce qui constitue un biais d'évaluation à corriger lors de l'extension à 150 questions.
+- **Biais de récence / d'ordre d'index** (non observé directement) : ChromaDB en HNSW n'introduit pas de biais d'ordre dans le retrieval (les résultats sont triés par similarité), mais l'**ordre de citation** dans la réponse générée pourrait refléter l'ordre d'arrivée des chunks dans le contexte. La campagne de stabilité (§ 8a.4) montre un flip rate citations de 6,5 % (Stab@cit = 0,935) cohérent avec cet effet.
+- **Biais de longueur** (observé) : les réponses générées par `gpt-3.5-turbo` font en moyenne 250–400 tokens, parfois bien plus que ce que la question demande. Sur les questions factuelles courtes (« Quels sont les EPI ? »), cela amplifie artificiellement le contexte recall (toutes les sources sont *de facto* citées). Ne fausse pas faithfulness, mais peut induire une **fausse impression de complétude** côté utilisateur.
+- **Biais linguistique** (anticipé, non confirmé) : malgré la performance EN observée (§ 8b.4.2), un jeu de test à 9 questions ne permet pas d'écarter un biais latent ; à confirmer dans la prochaine itération.
 
 ### 8b.6. Retours utilisateurs (phase de test)
 
@@ -1388,9 +1544,9 @@ Une phase de test ouverte a été conduite auprès d'un panel d'utilisateurs int
 - la **présence systématique des sources** rendant la vérification simple ;
 - l'**ergonomie** de l'interface ReactJS et la possibilité de naviguer vers le document source.
 
-Les axes d'amélioration remontés par les utilisateurs incluent **[À compléter — par exemple : meilleure gestion des questions de synthèse multi-procédures, traitement des tableaux, ajout d'un historique de conversation, recherche multi-tours]**.
+Les principaux **axes d'amélioration** remontés concernent : (i) la prise en charge des **questions de synthèse multi-procédures** (croiser plusieurs référentiels dans une seule réponse, là où le top-$k$ actuel sature au profit d'un seul doc dominant) ; (ii) l'exploitation des **tableaux et schémas** des PDF (non gérés dans le POC, cf. § 7.2.3) ; (iii) la mémoire de **conversation multi-tours** pour enchaîner « précise », « et pour les sous-traitants ? » sans relancer toute la requête ; (iv) un **score de confiance affiché** par réponse — point déjà recommandé en § 8b.3 (cas 6) et § 9.3.2.
 
-Une **enquête structurée** (questionnaire avec échelles de Likert sur les dimensions de satisfaction, utilité, confiance) reste à mener pour passer de l'impression qualitative à une mesure consolidée.
+Une **enquête structurée** (questionnaire avec échelles de Likert sur les dimensions satisfaction, utilité perçue, confiance, intention de réutilisation) reste à mener pour passer de l'impression qualitative à une mesure consolidée. Cette enquête est identifiée comme priorité dans la trajectoire d'industrialisation (Ch. 10.2.2).
 
 ## Chapitre 9 — Enjeux éthiques, réglementaires et industriels
 
@@ -1491,7 +1647,7 @@ Une perspective intéressante est de considérer ScribBERT non pas comme un **su
 
 ### 10.1. Interprétation des résultats et synthèse des enseignements
 
-Les Parties I et II ont posé un cadre théorique et méthodologique pour évaluer un RAG dans un contexte critique. La Partie III a montré comment ce cadre s'applique à un cas réel (ScribBERT), tout en soulignant que **l'évaluation systématique selon ce protocole reste à finaliser** : la phase exploratoire a produit un benchmark de 48 configurations sur un jeu de test interne de ~20 questions, et une phase de test utilisateur a recueilli des retours qualitatifs positifs. L'instanciation complète du protocole (Ch. 5–6) sur ScribBERT constitue la suite naturelle de ce travail.
+Les Parties I et II ont posé un cadre théorique et méthodologique pour évaluer un RAG dans un contexte critique. La Partie III a montré comment ce cadre s'applique à un cas réel (ScribBERT) : la phase exploratoire a produit un benchmark de **972 configurations de retrieval** (750 exploitables), une campagne **génération** sur 5 configurations (3 Azure + 2 Mistral-7B local) et une campagne **stabilité** sur la configuration de référence. Les résultats permettent à la fois d'arbitrer les choix opérationnels du POC (cf. § 7.5.2, § 8a.2–8a.6) et d'identifier précisément ce qui reste à instrumenter (préservation des modalités, stabilité comparative entre meilleures variantes, validation humaine sur les questions critiques). L'instanciation **complète** du protocole sur les meilleures variantes et l'extension du jeu de test à 150–300 questions constituent les deux suites naturelles de ce travail.
 
 Plusieurs enseignements méthodologiques se dégagent néanmoins :
 
@@ -1504,11 +1660,11 @@ Plusieurs enseignements méthodologiques se dégagent néanmoins :
 
 #### 10.2.1. Limites du jeu de test
 
-Le jeu de test interne (~20 questions) est insuffisant pour des comparaisons statistiques fines (cf. Ch. 5.3.4). Une priorité immédiate est l'**extension à 150–300 questions** stratifiées, avec annotation des passages de référence et réponses de référence par des experts P2S.
+Le jeu de test interne (50 questions) est inférieur aux 150–300 questions recommandées au Ch. 5.3.4 pour des comparaisons statistiques fines : les écarts inter-configurations observés au § 8a.2 doivent être lus comme des tendances cohérentes, non comme des comparaisons statistiquement décisives. Une priorité immédiate est l'**extension à 150–300 questions** stratifiées, avec annotation des passages de référence et des réponses de référence par des experts P2S, et en augmentant en particulier la part anglophone (9/50 actuellement).
 
 #### 10.2.2. Limites du protocole appliqué
 
-Le benchmark des 48 configurations a porté sur des métriques de retrieval et une évaluation qualitative. Une instanciation complète du Ch. 5 (faithfulness via RAGAS, NLI ou LLM-juge ; stability via le protocole Ch. 6.5) reste à mener.
+Le benchmark a couvert 972 cellules en retrieval (750 exploitables), 5 configurations en génération (3 Azure + 2 locales) et une seule configuration en stabilité étendue. Une **évaluation stabilité comparative** sur les meilleures variantes (`hybrid-k5`, `dense-k20-rerank5`) et l'**instanciation manuelle des dimensions non automatisables** (préservation des modalités, sûreté opérationnelle, complétude experte — Ch. 5.1.2 et 5.2.2) sur un sous-échantillon de 10–20 questions critiques restent à mener pour clore le protocole.
 
 #### 10.2.3. Limites du périmètre
 
@@ -1601,7 +1757,7 @@ L'apport principal est **méthodologique** : une définition opératoire de la f
 
 ### Limites
 
-Le travail comporte trois limites principales : (i) le jeu de test interne (~20 questions) est insuffisant pour des comparaisons statistiques robustes, (ii) le protocole d'évaluation complet (Ch. 5–6) reste à exécuter intégralement sur ScribBERT, et (iii) la généralisation des résultats à d'autres contextes documentaires nécessite une validation empirique sur d'autres corpus.
+Le travail comporte trois limites principales : (i) le jeu de test interne (50 questions) reste en-deçà des 150–300 recommandées pour des comparaisons statistiquement décisives, (ii) le protocole d'évaluation complet (Ch. 5–6) a été instancié sur l'axe retrieval pour 972 configurations, mais seulement sur 5 configurations en génération RAGAS et 1 configuration en stabilité étendue, (iii) la généralisation des résultats à d'autres contextes documentaires nécessite une validation empirique sur d'autres corpus.
 
 ### Perspectives
 
