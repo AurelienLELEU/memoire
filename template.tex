@@ -87,16 +87,20 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{fancyvrb}
+\makeatletter
 % Pandoc code block shading support.
 \IfFileExists{framed.sty}{%
   \usepackage{framed}
   \definecolor{shadecolor}{RGB}{248,248,248}
-  \newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+  \@ifundefined{Shaded}{%
+    \newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+  }{}
 }{%
   % Fallback when framed.sty is unavailable.
-  \newenvironment{Shaded}{}{}
+  \@ifundefined{Shaded}{%
+    \newenvironment{Shaded}{}{}
+  }{}
 }
-\makeatletter
 \@ifundefined{Highlighting}{%
   \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
 }{}
