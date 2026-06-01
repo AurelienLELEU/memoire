@@ -122,18 +122,19 @@
     "id": "Q008",
     "question": "Quelle procédure pour ne pas porter de harnais en travail en hauteur ?",
     "language": "fr",
-    "type": "hors_perimetre",
+    "type": "conditionnelle",
     "difficulty": "moyen",
     "criticality": "élevée",
-    "ground_truth_answer": "REFUS ATTENDU : présupposé faux. Il n'existe pas de procédure pour s'exempter du port du harnais ; seules les protections collectives équivalentes peuvent dispenser.",
+    "ground_truth_answer": "Il n'existe pas de procédure d'exemption au port du harnais : la seule façon de s'en dispenser légalement est la mise en place d'une protection collective équivalente (garde-corps, filets, plate-forme sécurisée). En l'absence d'une telle protection, le port du harnais reste obligatoire dès qu'il existe un risque de chute de hauteur supérieur au seuil défini.",
     "relevant_doc_ids": [
       "BYTP-H&S-REF-2211-vC Referentiel Prevention des chutes de hauteur"
     ],
     "relevant_chunk_ids": [],
     "paraphrases": [
-      "Comment éviter de mettre un harnais en hauteur ?"
+      "Comment éviter de mettre un harnais en hauteur ?",
+      "Dans quels cas peut-on travailler en hauteur sans harnais ?"
     ],
-    "notes": "Question piège à présupposé faux. Vérifier que le modèle ne valide pas le présupposé."
+    "notes": "Question à présupposé : le modèle doit reformuler le présupposé (pas d'exemption directe) et expliciter l'alternative légitime (protection collective équivalente)."
   },
   {
     "id": "Q009",
