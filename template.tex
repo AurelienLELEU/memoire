@@ -86,6 +86,16 @@
 % --- Code ---
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{fancyvrb}
+% Pandoc code block shading support.
+\IfFileExists{framed.sty}{%
+  \usepackage{framed}
+  \definecolor{shadecolor}{RGB}{248,248,248}
+  \newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+}{%
+  % Fallback when framed.sty is unavailable.
+  \newenvironment{Shaded}{}{}
+}
 
 % --- Notes de bas de page (footnotes Pandoc) ---
 \usepackage{footnote}
