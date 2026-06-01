@@ -84,13 +84,15 @@
 \usepackage[colorlinks=true, linkcolor=blue!60!black, citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
 
 % --- Code ---
+% Build uses pandoc --no-highlight, so we provide minimal Shaded / Highlighting
+% environments ourselves (pandoc still wraps code blocks in them).
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{fancyvrb}
-% Note: the Shaded / Highlighting environments are injected by Pandoc via
-% $highlighting-macros$ below (when --highlight-style is active). Do not
-% redefine them here, otherwise LaTeX errors with "Command \Shaded already
-% defined".
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
 
 % --- Notes de bas de page (footnotes Pandoc) ---
 \usepackage{footnote}

@@ -34,6 +34,7 @@ jobs:
           pandoc memoire_complet.md \
             --template=template.tex \
             --pdf-engine=xelatex \
+            --no-highlight \
             --citeproc \
             --bibliography=references.bib \
             --csl=chicago-note.csl \
@@ -49,6 +50,7 @@ jobs:
           pandoc memoire_complet.md \
             --template=template.tex \
             --standalone \
+            --no-highlight \
             --citeproc \
             --bibliography=references.bib \
             --csl=chicago-note.csl \
