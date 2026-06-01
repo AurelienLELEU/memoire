@@ -1163,23 +1163,26 @@ Cette configuration a permis de valider l'intérêt utilisateur et de débloquer
 
 #### 7.5.2. Phase exploratoire : benchmark systématique
 
-La phase exploratoire a consisté en un **benchmark retrieval de 972 combinaisons** (9 stratégies de chunking × 18 modèles d'embedding × 6 variantes de retrieval), exécuté de bout en bout sur les 50 questions du jeu de test interne (§ 8a.1.2). Les résultats bruts sont consolidés dans [results/benchmark_retrieval.csv](results/benchmark_retrieval.csv). Sur ces 972 configurations, **750** ont produit des résultats exploitables et **222** (≈ 23 %) ont échoué à l'initialisation du retriever — principalement à cause d'incompatibilités entre certaines architectures d'embedding récentes (`gte-qwen2-7b`, `nv-embed-v2`, `jina-v3`, `bge-m3` selon les variantes) et la version de `transformers` installée localement (erreurs `DynamicCache`, `transformers.onnx`, `all_tied_weights_keys`). Ces échecs sont concentrés sur deux modèles (`gte-qwen2-7b` et `nv-embed-v2`, écartés intégralement) et ne biaisent pas la comparaison des modèles effectivement évalués.
+La phase exploratoire a consisté en un **benchmark retrieval de 864 combinaisons** (9 stratégies de chunking × 16 modèles d'embedding × 6 variantes de retrieval), exécuté de bout en bout sur les 50 questions du jeu de test interne (§ 8a.1.2). Les résultats bruts sont consolidés dans [results/benchmark_retrieval.csv](results/benchmark_retrieval.csv). Deux modèles initialement prévus (`gte-qwen2-7b` et `nv-embed-v2`) ont été écartés intégralement du périmètre, faute d'avoir pu être initialisés dans l'environnement local (incompatibilités avec la version de `transformers` installée) ; ils ne sont pas comptabilisés dans la suite. J'ai constaté en pratique que mettre à jour la librairie pour débloquer ces deux modèles cassait à l'inverse plusieurs autres modèles déjà fonctionnels : un arbitrage propre sur le couple `transformers` / `sentence-transformers` (et plus largement sur l'épinglage des versions de l'écosystème HuggingFace) sera nécessaire à terme, mais j'ai privilégié ici la voie la plus rapide consistant à figer un environnement compatible avec le plus grand nombre de modèles disponibles. Sur les 864 cellules retenues, **750** ont produit des résultats exploitables, les autres correspondant à des échecs partiels résiduels sur quelques variantes (notamment `jina-v2-base-en` et `jina-v3`).
 
-Les 18 modèles couvrent les familles définies au Ch. 4.1.1 :
+Les 16 modèles retenus couvrent les familles définies au Ch. 4.1.1 :
 
 - propriétaires via API : `ada-002`, `embed-3-large` (OpenAI) ;
 - multilingues open-source orientés retrieval : `e5-small-ml`, `e5-base-ml`, `e5-large-ml`, `bge-m3`, `jina-v3`, `nomic-v2`, `granite-311m-ml`, `qwen3-embed-8b` ;
 - généralistes open-source : `minilm-l6`, `mpnet-base`, `jina-v2-base-en` ;
-- francophones / bilingues spécialisés : `camembert-large`, `solon-large`, `bilingual-fr-en` ;
-- très gros modèles ouverts (non utilisables dans l'environnement actuel) : `gte-qwen2-7b`, `nv-embed-v2`.
+- francophones / bilingues spécialisés : `camembert-large`, `solon-large`, `bilingual-fr-en`.
 
 Les six variantes de retrieval testées sont : `dense-k5`, `dense-k10`, `dense-k5-thresh` (seuil de similarité), `dense-k5-neigh` (voisinage n−1/n+1), `hybrid-k5` (dense + BM25, fusion RRF) et `dense-k20-rerank5` (reranking cross-encoder BGE).
 
 Pour chaque configuration, les métriques de retrieval du Ch. 5.1.1 ont été collectées (Hit@k, Recall@k, Precision@k, MRR, nDCG@k pour $k\in\{1,3,5,10\}$, plus latence par requête). Une seconde campagne **génération** a ensuite été lancée sur cinq configurations sélectionnées comme représentatives (trois côté Azure avec évaluation RAGAS complète, deux côté local avec Mistral-7B auto-hébergé) ; les résultats sont consolidés dans [results/benchmark_generation.csv](results/benchmark_generation.csv) et discutés au § 8a.3.
 
-Au vu des résultats consolidés, le modèle d'embedding **retenu** pour la configuration dense de référence est **`ada-002`** (Azure OpenAI), au coude à coude avec `nomic-v2` et `qwen3-embed-8b` sur la MRR moyenne (cf. tableau 8a.2). Le choix `ada-002` est motivé par trois éléments pratiques : (i) il est déjà déployé dans le tenant Azure de Bouygues Construction, ce qui supprime le coût d'hébergement GPU ; (ii) il est strictement multilingue et donne des résultats équivalents en français et en anglais sur notre corpus ; (iii) sa latence end-to-end côté API est mesurée à **0,08 s** par requête sur les configurations denses simples du benchmark, contre 0,17–0,30 s pour les meilleurs modèles open-source équivalents (cf. § 8a.6).
+Au vu des résultats consolidés, le modèle d'embedding **retenu** pour la configuration dense de référence est **`ada-002`** (Azure OpenAI), au coude à coude avec `nomic-v2` et `qwen3-embed-8b` sur la MRR moyenne (cf. tableau 8a.2). Le choix `ada-002` est motivé par trois éléments pratiques : 
+1. Il est déjà déployé et disponible dans le tenant Azure de Bouygues Construction, ce qui supprime le coût d'hébergement GPU, et le temps de mise en place d'une architecture côté Bouygues.
+2. Il est en principe totalement multilingue et donne des résultats similaires en français et en anglais sur notre corpus.
+3. Sa latence par requête reste compatible avec un usage interactif "instantané". La métrique `latency_s` que j'enregistre correspond au temps mesuré *côté Python* autour de l'appel d'embedding seul, c'est-à-dire l'intervalle complet entre l'envoi de la requête depuis ma machine de développement vers l'endpoint Azure de la région configurée et la réception du vecteur en retour (donc aller-retour réseau inclus), hors retrieval ChromaDB et hors appel LLM. \
+Les conditions expérimentales sont par ailleurs favorables et stables : la machine de développement est un Dell Pro Max GB10 (CPU 20 cœurs Arm, GPU Blackwell intégré, 128 Go de LPDDR5X unifiée), raccordée en Ethernet filaire (cordon < 20 cm jusqu'au routeur) sur une liaison fibre optique 1 Gbit/s symétrique. Sur cette configuration, on observe une latence médiane de ~80 ms par requête pour `ada-002`, contre 5–25 ms pour la plupart des modèles open-source légers exécutés localement sur GPU (`minilm-l6`, `e5-*`, `mpnet-base`, `bge-m3`, `nomic-v2`, `solon-large`, etc.), ~260 ms pour `qwen3-embed-8b` et jusqu'à ~3 300 ms pour `embed-3-large`. Autrement dit `ada-002` n'est pas le plus rapide en latence brute d'embedding, mais il évite l'hébergement GPU et reste largement en-dessous des modèles propriétaires lourds et des très gros open-source ; sa latence est donc négligeable devant celle de la génération LLM (~5 000 ms côté Azure, cf. ci-dessous).
 
-Concernant le **LLM de génération**, les cinq runs disponibles (§ 8a.3) confirment que `azure-gpt35` est suffisant pour la phase exploratoire : faithfulness RAGAS comprise entre 0,72 et 0,77, answer relevancy entre 0,72 et 0,76, pour une latence de génération médiane d'environ 5 s. Les deux runs Mistral-7B local atteignent des temps de génération de l'ordre de 36–38 s par question malgré l'accélération GPU, ce qui les disqualifie en tant que LLM principal du POC, mais les conserve comme **piste de repli souverain** pour des environnements sans accès Azure. Le déploiement `gpt-4o` n'étant pas disponible sur le tenant Azure utilisé, l'arbitrage `gpt-3.5-turbo` vs un modèle de génération plus récent reste à confirmer lors d'une campagne dédiée.
+Concernant ls modèles de génération de texte, les cinq runs disponibles (§ 8a.3) confirment que `azure-gpt35` est suffisant pour la phase exploratoire : faithfulness RAGAS comprise entre 0,72 et 0,77, answer relevancy entre 0,72 et 0,76, pour une latence de génération médiane d'environ 5 s (ou 5 000 ms pour rester rigoureux sur les unités). Les deux runs Mistral-7B local atteignent des temps de génération de l'ordre de 36 à 38 s par question malgré l'accélération GPU, ce qui les disqualifie en tant que LLM principal du POC, mais les conserve comme piste de repli souverain pour des environnements sans accès Azure (typiquement des chantiers comme des sites militaires ou installations nucléaires) sur lesquels Bouygues Construction doit parfois opérer en infrastructure totalement isolée d'Internet, ce qui exclut d'entrée de jeu tout appel API externe et impose une chaîne RAG 100 % auto-hébergée. En pratique, la cible pour la mise en production est d'utiliser des modèles quasi état-de-l'art côté OpenAI (typiquement `gpt-4o` ou `gpt-4.1`), Anthropic (`claude-sonnet-4` / `claude-opus-4`) et Mistral (`mistral-large` ou successeurs), selon ce qui sera disponible et les coûts de run associés, avec à la clé un gain attendu sur la faithfulness et la answer relevancy, mais un coût par requête à reventiler.
 
 ### 7.6. Configuration du retrieval
 
@@ -1190,7 +1193,7 @@ Concernant le **LLM de génération**, les cinq runs disponibles (§ 8a.3) confi
 | Similarité | Cosinus (espace HNSW configuré sur cosine dans ChromaDB) | Ch. 4.3.1 |
 | Top-$k$ | 10 | Ch. 4.3.5 |
 | Filtre par score | Filtrage par distance avec seuil maximal 0,17. Les chunks avec distance >= 0,17 sont écartés | Ch. 5.1.2 (lutte anti-hallucination par grounding faible) |
-| Reranking | Non-existant sur le POC présent dans le cahier des charged pour l'industrialisation | Ch. 4.3.3 |
+| Reranking | Non-existant sur le POC présent dans le cahier des charges pour l'industrialisation | Ch. 4.3.3 |
 | Filtres métadonnées | Filtrage retrieval actif sur `doc_name` (liste d’inclusions) ; les filtres `client`/`langue` sont d'abord traduits en mapping de `doc_name` concernés, puis appliqués sur ces `doc_name` directement | Ch. 4.3.4 |
 | Contextualisation | Contextualisation par concaténation du chunk précédent, courant et suivant (n-1, n, n+1) lors de l’indexation, avec garde-fou sur ruptures de chapitre | § 7.4 |
 
@@ -1241,9 +1244,9 @@ Ces axes constituent des priorités cohérentes pour la trajectoire de productio
 
 #### 8a.1.1. Configurations testées
 
-Les configurations comparées dans la phase exploratoire correspondent à un plan factoriel **18 modèles d'embedding × 9 stratégies de chunking × 6 variantes de retrieval = 972 combinaisons**, exécuté de bout en bout (§ 7.5.2). Les axes du plan sont :
+Les configurations comparées dans la phase exploratoire correspondent à un plan factoriel **16 modèles d'embedding × 9 stratégies de chunking × 6 variantes de retrieval = 864 combinaisons**, exécuté de bout en bout (§ 7.5.2). Les axes du plan sont :
 
-- **Axe 1 — Modèle d'embedding** : 18 modèles couvrant les familles propriétaire, multilingue open-source, généraliste open-source et francophone spécialisée (liste détaillée au § 7.5.2).
+- **Axe 1 — Modèle d'embedding** : 16 modèles couvrant les familles propriétaire, multilingue open-source, généraliste open-source et francophone spécialisée (liste détaillée au § 7.5.2).
 - **Axe 2 — Stratégie de chunking** : 9 stratégies — `fixed-256-0`, `fixed-512-64`, `fixed-1024-128`, `recursive-512-64`, `recursive-1024-128`, `regex-paragraph`, `markdown-1200-50`, `markdown-reference-1000-100`, `semantic-mpnet`.
 - **Axe 3 — Variante de retrieval** : 6 combinaisons —
     - `dense-k5` : top-$k$ = 5, sans seuil ;
@@ -1253,7 +1256,7 @@ Les configurations comparées dans la phase exploratoire correspondent à un pla
     - `hybrid-k5` : fusion dense + BM25 via Reciprocal Rank Fusion, top-$k$ = 5 ;
     - `dense-k20-rerank5` : retrieval top-20 puis reranking cross-encoder (BGE-reranker-v2-m3), retour top-5.
 
-Le LLM, le prompt et la température sont gelés à leur valeur de référence (§ 7.5–7.7) pour isoler l'effet des leviers testés. Sur les 972 cellules du plan, 750 ont produit des résultats exploitables et 222 ont échoué à l'initialisation pour des raisons indépendantes du protocole (cf. § 7.5.2).
+Le LLM, le prompt et la température sont gelés à leur valeur de référence (§ 7.5–7.7) pour isoler l'effet des leviers testés. Sur les 864 cellules du plan, 750 sont exploitables (cf. § 7.5.2).
 
 #### 8a.1.2. Jeu de test
 
@@ -1264,12 +1267,7 @@ Le jeu de test utilisé est constitué de **50 questions** annotées manuellemen
 - **langue** : français ×41, anglais ×9 ;
 - **criticité métier** : élevée ×42, moyenne ×5, faible ×3.
 
-Pour chaque question sont annotés : la réponse de référence rédigée à partir des référentiels, la liste des documents de référence (`relevant_doc_ids`), des paraphrases validées (utilisées pour le protocole de stabilité du Ch. 6) et des notes contextuelles. Cette taille (50) reste inférieure aux 150–300 questions recommandées au Ch. 5.3.4 : les écarts inter-configurations doivent être lus comme des tendances, et non comme des comparaisons statistiquement décisives. Le passage à 150 questions stratifiées est identifié comme priorité au Ch. 10.2.1.
-
-Pour chaque question, sont annotés :
-- une réponse de référence attendue,
-- les documents de référence (contenant l'information nécessaire),
-- la difficulté estimée et le type de question.
+Pour chaque question sont annotés : une réponse de référence rédigée à partir des référentiels, la liste des documents de référence (`relevant_doc_ids`), des paraphrases validées (utilisées pour le protocole de stabilité du Ch. 6) et des notes contextuelles. Cette taille (50) reste inférieure aux 150–300 questions recommandées au Ch. 5.3.4 : les écarts inter-configurations doivent être lus comme des tendances, et non comme des comparaisons statistiquement décisives. Le passage à 150 questions stratifiées est identifié comme priorité au Ch. 10.2.1.
 
 #### 8a.1.3. Conditions d'exécution
 
@@ -1278,9 +1276,9 @@ Pour chaque question, sont annotés :
 
 ### 8a.2. Résultats retrieval
 
-Sur les 750 configurations exploitables, la MRR moyenne est de **0,571** (écart-type 0,080, min 0,324, max 0,724), le Hit@5 moyen de **0,725** (étendue 0,38–0,87) et le nDCG@5 moyen de **0,915**. Ce niveau de performance est cohérent avec celui d'un retrieval bien calibré sur un corpus spécialisé de quelques centaines de documents : la majorité des configurations remontent dans le top-5 le bon document, mais aucune ne le place systématiquement en première position.
+Sur les 750 configurations exploitables, la MRR moyenne est de 0,571 (écart-type 0,080, min 0,324, max 0,724), le Hit@5 moyen de 0,725 (étendue 0,38–0,87) et le nDCG@5 moyen de 0,915. Ce niveau de performance est cohérent avec celui d'un retrieval bien calibré sur un corpus spécialisé de quelques centaines de documents : la majorité des configurations remontent dans le top-5 le bon document, mais aucune ne le place systématiquement en première position.
 
-**Effet du modèle d'embedding** (MRR moyenne sur l'ensemble des combinaisons chunking × retrieval) :
+Effet du modèle d'embedding (MRR moyenne sur l'ensemble des combinaisons chunking × retrieval) :
 
 | Embedding | MRR | Hit@5 | Famille |
 |-----------|-----|-------|---------|
@@ -1289,8 +1287,8 @@ Sur les 750 configurations exploitables, la MRR moyenne est de **0,571** (écart
 | `solon-large` | 0,619 | 0,769 | francophone |
 | `e5-base-ml` | 0,617 | 0,781 | multilingue OSS |
 | `jina-v3` | 0,615 | 0,747 | multilingue OSS |
-| `ada-002` | 0,615 | 0,777 | propriétaire (Azure) |
-| `embed-3-large` | 0,615 | 0,777 | propriétaire (OpenAI) |
+| `ada-002` | 0,615 | 0,777 | OpenAI (via Azure OpenAI Service) |
+| `embed-3-large` | 0,615 | 0,777 | OpenAI (via Azure OpenAI Service) |
 | `bilingual-fr-en` | 0,606 | 0,752 | francophone bilingue |
 | `e5-large-ml` | 0,600 | 0,754 | multilingue OSS |
 | `granite-311m-ml` | 0,563 | 0,720 | multilingue OSS |
@@ -1303,11 +1301,11 @@ Sur les 750 configurations exploitables, la MRR moyenne est de **0,571** (écart
 
 Trois observations se dégagent :
 
-1. **Le palier haut est resserré.** Les huit meilleurs modèles s'inscrivent dans une bande de **±0,02 de MRR**, dans laquelle on retrouve à la fois des propriétaires (`ada-002`, `embed-3-large`), des multilingues open-source récents (`nomic-v2`, `qwen3-embed-8b`, `e5-base-ml`, `jina-v3`) et un francophone (`solon-large`). Sur ce corpus, aucun modèle n'écrase les autres, ce qui justifie un arbitrage par les critères pratiques (latence, coût, souveraineté) et non par la seule MRR (cf. § 7.5.2).
-2. **Les modèles "généralistes anglais" décrochent nettement.** `minilm-l6`, `mpnet-base` et `jina-v2-base-en` perdent environ **0,15 de MRR** par rapport au peloton de tête, ce qui confirme la nécessité d'un encodeur multilingue sur ce corpus mixte FR/EN (Ch. 4.1.3).
-3. **`embed-3-large` n'apporte rien de mesurable par rapport à `ada-002`.** Les deux modèles donnent des scores rigoureusement identiques sur la plupart des cellules du plan (différence <0,001 sur l'ensemble du benchmark), pour un coût et une latence supérieurs côté `embed-3-large` (3,2 s vs 0,08 s par requête en moyenne, cf. § 8a.6) : l'extra-dimension de `embed-3-large` n'améliore pas la séparation des passages dans ce corpus.
+1. Les huit meilleurs modèles s'inscrivent dans une bande de plus ou moins 0,03 de MRR, dans laquelle on retrouve à la fois des propriétaires (`ada-002`, `embed-3-large`), des multilingues open-source récents (`nomic-v2`, `qwen3-embed-8b`, `e5-base-ml`, `jina-v3`) et un francophone (`solon-large`). Sur ce corpus, aucun modèle n'écrase les autres, ce qui justifie un arbitrage par les critères pratiques (latence, coût, souveraineté) et non par la seule MRR (cf. § 7.5.2).
+2. Les modèles "généralistes anglais" décrochent nettement. `minilm-l6`, `mpnet-base` et `jina-v2-base-en` perdent environ 0,15 de MRR par rapport au peloton de tête, ce qui confirme la nécessité d'un encodeur multilingue sur ce corpus mixte FR/EN (Ch. 4.1.3).
+3. `embed-3-large` n'apporte rien de mesurable par rapport à `ada-002`. Les deux modèles donnent des scores rigoureusement identiques sur la plupart des cellules du plan (différence <0,001 sur l'ensemble du benchmark), pour un coût et une latence supérieurs côté `embed-3-large` (~3 300 ms vs ~80 ms par appel d'embedding, cf. § 8a.6) : l'extra-dimension de `embed-3-large` n'améliore pas la séparation des passages dans ce corpus.
 
-**Effet de la stratégie de chunking** (MRR moyenne sur l'ensemble des combinaisons embedding × retrieval) :
+Effet de la stratégie de chunking (MRR moyenne sur l'ensemble des combinaisons embedding × retrieval) :
 
 | Chunking | MRR | Lecture |
 |----------|-----|---------|
@@ -1405,25 +1403,27 @@ Enfin, sur la **courbe seuil ↔ taux de refus**, la configuration `dense-k5-thr
 
 ### 8a.6. Coût opérationnel
 
-Les latences mesurées sur l'ensemble du benchmark se décomposent comme suit :
+Les latences mesurées sur l'ensemble du benchmark se décomposent comme suit. **Précision méthodologique** : la colonne `latency_s` du benchmark mesure uniquement l'appel d'*embedding* de la requête (et l'aller-retour HTTP pour les modèles API), instrumenté côté Python depuis ma machine de développement vers l'endpoint configuré — elle n'inclut ni la recherche ChromaDB elle-même (négligeable sur un index de cette taille), ni l'appel au LLM de génération.
 
-**Côté retrieval** (médianes sur les 750 cellules valides, par modèle d'embedding) :
+**Côté retrieval** (médianes par modèle d'embedding sur les configurations `dense-k5` valides) :
 
-| Embedding | Latence retrieval médiane | Mode d'hébergement |
+| Embedding | Latence embedding médiane | Mode d'hébergement |
 |-----------|---------------------------|--------------------|
-| `ada-002` | **0,08 s** | API Azure |
-| `jina-v2-base-en` | 0,08 s | OSS local |
-| `e5-small-ml` / `minilm-l6` / `e5-base-ml` / `mpnet-base` / `bilingual-fr-en` | 0,17 s | OSS local (CPU/GPU léger) |
-| `solon-large` / `e5-large-ml` | 0,19 s | OSS local |
-| `embed-3-large` | 3,25 s | API OpenAI (premium, plus lent) |
+| `minilm-l6` / `e5-small-ml` | ~5–7 ms | OSS local (GPU) |
+| `e5-base-ml` / `mpnet-base` | ~11 ms | OSS local (GPU) |
+| `granite-311m-ml` / `jina-v2-base-en` / `jina-v3` | ~15 ms | OSS local (GPU) |
+| `bilingual-fr-en` / `camembert-large` / `solon-large` / `e5-large-ml` / `bge-m3` / `nomic-v2` | ~23–25 ms | OSS local (GPU) |
+| **`ada-002`** | **~80 ms** | **API Azure** |
+| `qwen3-embed-8b` | ~260 ms | OSS local (GPU, modèle 8B) |
+| `embed-3-large` | ~3 300 ms | API OpenAI (premium) |
 
-`ada-002` est la solution la plus rapide *et* l'une des plus précises sur ce corpus, ce qui justifie son choix opérationnel (§ 7.5.2).
+`ada-002` est donc nettement plus lent en latence brute d'embedding que la majorité des modèles open-source légers exécutés en local sur GPU (le surcoût vient de l'aller-retour réseau vers l'endpoint Azure), mais reste très en-deçà des autres modèles propriétaires (`embed-3-large`) et des très gros open-source (`qwen3-embed-8b`). Son choix opérationnel (§ 7.5.2) ne se justifie donc pas par la latence d'embedding — elle est négligeable devant la génération LLM dans tous les cas — mais par la combinaison qualité de retrieval / absence d'hébergement GPU côté Bouygues.
 
 **Côté génération** (médianes sur 50 questions, configuration Azure de référence `hybrid-k5` + `gpt-3.5-turbo`) :
 
 | Étape | Médiane | Écart-type |
 |-------|---------|-----------|
-| Retrieval (top-5 hybride) | 0,08 s | 0,02 s |
+| Embedding requête (`ada-002`) | ~0,08 s | ~0,02 s |
 | Génération `gpt-3.5-turbo` | 5,09 s | 3,01 s |
 | **Total end-to-end** | **≈ 5,2 s** | dominé par la génération |
 
@@ -1647,7 +1647,7 @@ Une perspective intéressante est de considérer ScribBERT non pas comme un **su
 
 ### 10.1. Interprétation des résultats et synthèse des enseignements
 
-Les Parties I et II ont posé un cadre théorique et méthodologique pour évaluer un RAG dans un contexte critique. La Partie III a montré comment ce cadre s'applique à un cas réel (ScribBERT) : la phase exploratoire a produit un benchmark de **972 configurations de retrieval** (750 exploitables), une campagne **génération** sur 5 configurations (3 Azure + 2 Mistral-7B local) et une campagne **stabilité** sur la configuration de référence. Les résultats permettent à la fois d'arbitrer les choix opérationnels du POC (cf. § 7.5.2, § 8a.2–8a.6) et d'identifier précisément ce qui reste à instrumenter (préservation des modalités, stabilité comparative entre meilleures variantes, validation humaine sur les questions critiques). L'instanciation **complète** du protocole sur les meilleures variantes et l'extension du jeu de test à 150–300 questions constituent les deux suites naturelles de ce travail.
+Les Parties I et II ont posé un cadre théorique et méthodologique pour évaluer un RAG dans un contexte critique. La Partie III a montré comment ce cadre s'applique à un cas réel (ScribBERT) : la phase exploratoire a produit un benchmark de **864 configurations de retrieval** (750 exploitables), une campagne **génération** sur 5 configurations (3 Azure + 2 Mistral-7B local) et une campagne **stabilité** sur la configuration de référence. Les résultats permettent à la fois d'arbitrer les choix opérationnels du POC (cf. § 7.5.2, § 8a.2–8a.6) et d'identifier précisément ce qui reste à instrumenter (préservation des modalités, stabilité comparative entre meilleures variantes, validation humaine sur les questions critiques). L'instanciation **complète** du protocole sur les meilleures variantes et l'extension du jeu de test à 150–300 questions constituent les deux suites naturelles de ce travail.
 
 Plusieurs enseignements méthodologiques se dégagent néanmoins :
 
@@ -1664,7 +1664,7 @@ Le jeu de test interne (50 questions) est inférieur aux 150–300 questions rec
 
 #### 10.2.2. Limites du protocole appliqué
 
-Le benchmark a couvert 972 cellules en retrieval (750 exploitables), 5 configurations en génération (3 Azure + 2 locales) et une seule configuration en stabilité étendue. Une **évaluation stabilité comparative** sur les meilleures variantes (`hybrid-k5`, `dense-k20-rerank5`) et l'**instanciation manuelle des dimensions non automatisables** (préservation des modalités, sûreté opérationnelle, complétude experte — Ch. 5.1.2 et 5.2.2) sur un sous-échantillon de 10–20 questions critiques restent à mener pour clore le protocole.
+Le benchmark a couvert 864 cellules en retrieval (750 exploitables), 5 configurations en génération (3 Azure + 2 locales) et une seule configuration en stabilité étendue. Une **évaluation stabilité comparative** sur les meilleures variantes (`hybrid-k5`, `dense-k20-rerank5`) et l'**instanciation manuelle des dimensions non automatisables** (préservation des modalités, sûreté opérationnelle, complétude experte — Ch. 5.1.2 et 5.2.2) sur un sous-échantillon de 10–20 questions critiques restent à mener pour clore le protocole.
 
 #### 10.2.3. Limites du périmètre
 
@@ -1757,7 +1757,7 @@ L'apport principal est **méthodologique** : une définition opératoire de la f
 
 ### Limites
 
-Le travail comporte trois limites principales : (i) le jeu de test interne (50 questions) reste en-deçà des 150–300 recommandées pour des comparaisons statistiquement décisives, (ii) le protocole d'évaluation complet (Ch. 5–6) a été instancié sur l'axe retrieval pour 972 configurations, mais seulement sur 5 configurations en génération RAGAS et 1 configuration en stabilité étendue, (iii) la généralisation des résultats à d'autres contextes documentaires nécessite une validation empirique sur d'autres corpus.
+Le travail comporte trois limites principales : (i) le jeu de test interne (50 questions) reste en-deçà des 150–300 recommandées pour des comparaisons statistiquement décisives, (ii) le protocole d'évaluation complet (Ch. 5–6) a été instancié sur l'axe retrieval pour 864 configurations, mais seulement sur 5 configurations en génération RAGAS et 1 configuration en stabilité étendue, (iii) la généralisation des résultats à d'autres contextes documentaires nécessite une validation empirique sur d'autres corpus.
 
 ### Perspectives
 

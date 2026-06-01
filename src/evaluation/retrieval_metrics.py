@@ -16,42 +16,49 @@ def _to_doc_ids(chunk_ids: Sequence[str]) -> list[str]:
     return [cid.split("__")[0] for cid in chunk_ids]
 
 
+def _project(ids: Sequence[str], level: str) -> list[str]:
+    return _to_doc_ids(ids) if level == "doc" else list(ids)
+
+
+def _dedupe_keep_order(ids: Sequence[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for x in ids:
+        if x not in seen:
+            seen.add(x)
+            out.append(x)
+    return out
+
+
 def hit_at_k(retrieved_ids: list[str], relevant_ids: list[str], k: int, level: str = "chunk") -> float:
     if not relevant_ids:
         return float("nan")
-    top = retrieved_ids[:k]
-    if level == "doc":
-        top, relevant_ids = _to_doc_ids(top), _to_doc_ids(relevant_ids)
-    return 1.0 if any(r in set(relevant_ids) for r in top) else 0.0
+    top = _dedupe_keep_order(_project(retrieved_ids, level))[:k]
+    rel = set(_project(relevant_ids, level))
+    return 1.0 if any(r in rel for r in top) else 0.0
 
 
 def recall_at_k(retrieved_ids: list[str], relevant_ids: list[str], k: int, level: str = "chunk") -> float:
     if not relevant_ids:
         return float("nan")
-    top = retrieved_ids[:k]
-    if level == "doc":
-        top, relevant_ids = _to_doc_ids(top), _to_doc_ids(relevant_ids)
-    rel = set(relevant_ids)
+    top = _dedupe_keep_order(_project(retrieved_ids, level))[:k]
+    rel = set(_project(relevant_ids, level))
     return len([r for r in top if r in rel]) / len(rel)
 
 
 def precision_at_k(retrieved_ids: list[str], relevant_ids: list[str], k: int, level: str = "chunk") -> float:
     if not relevant_ids or k == 0:
         return float("nan")
-    top = retrieved_ids[:k]
-    if level == "doc":
-        top, relevant_ids = _to_doc_ids(top), _to_doc_ids(relevant_ids)
-    rel = set(relevant_ids)
+    top = _dedupe_keep_order(_project(retrieved_ids, level))[:k]
+    rel = set(_project(relevant_ids, level))
     return len([r for r in top if r in rel]) / k
 
 
 def mrr(retrieved_ids: list[str], relevant_ids: list[str], level: str = "chunk") -> float:
     if not relevant_ids:
         return float("nan")
-    ret = retrieved_ids
-    if level == "doc":
-        ret, relevant_ids = _to_doc_ids(ret), _to_doc_ids(relevant_ids)
-    rel = set(relevant_ids)
+    ret = _dedupe_keep_order(_project(retrieved_ids, level))
+    rel = set(_project(relevant_ids, level))
     for i, r in enumerate(ret, 1):
         if r in rel:
             return 1.0 / i
@@ -61,10 +68,8 @@ def mrr(retrieved_ids: list[str], relevant_ids: list[str], level: str = "chunk")
 def ndcg_at_k(retrieved_ids: list[str], relevant_ids: list[str], k: int, level: str = "chunk") -> float:
     if not relevant_ids:
         return float("nan")
-    top = retrieved_ids[:k]
-    if level == "doc":
-        top, relevant_ids = _to_doc_ids(top), _to_doc_ids(relevant_ids)
-    rel = set(relevant_ids)
+    top = _dedupe_keep_order(_project(retrieved_ids, level))[:k]
+    rel = set(_project(relevant_ids, level))
     dcg = sum((1.0 if r in rel else 0.0) / math.log2(i + 2) for i, r in enumerate(top))
     ideal_hits = min(len(rel), k)
     idcg = sum(1.0 / math.log2(i + 2) for i in range(ideal_hits))
