@@ -96,6 +96,11 @@
   % Fallback when framed.sty is unavailable.
   \newenvironment{Shaded}{}{}
 }
+\makeatletter
+\@ifundefined{Highlighting}{%
+  \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+}{}
+\makeatother
 
 % --- Notes de bas de page (footnotes Pandoc) ---
 \usepackage{footnote}
@@ -120,6 +125,11 @@
 % --- Pandoc tight list fix ---
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% --- Pandoc syntax highlighting macros ---
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
 
 % --- CSL refs (Pandoc --citeproc) ---
 $if(csl-refs)$
