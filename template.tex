@@ -87,24 +87,10 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{fancyvrb}
-\makeatletter
-% Pandoc code block shading support.
-\IfFileExists{framed.sty}{%
-  \usepackage{framed}
-  \definecolor{shadecolor}{RGB}{248,248,248}
-  \@ifundefined{Shaded}{%
-    \newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
-  }{}
-}{%
-  % Fallback when framed.sty is unavailable.
-  \@ifundefined{Shaded}{%
-    \newenvironment{Shaded}{}{}
-  }{}
-}
-\@ifundefined{Highlighting}{%
-  \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
-}{}
-\makeatother
+% Note: the Shaded / Highlighting environments are injected by Pandoc via
+% $highlighting-macros$ below (when --highlight-style is active). Do not
+% redefine them here, otherwise LaTeX errors with "Command \Shaded already
+% defined".
 
 % --- Notes de bas de page (footnotes Pandoc) ---
 \usepackage{footnote}
