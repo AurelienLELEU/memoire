@@ -1,4 +1,4 @@
-﻿## Introduction {-}
+## Introduction {-}
 
 Les modèles de langage ont profondément changé notre rapport à l'information. En l'espace de quelques années, le monde de l'informatique est passé de systèmes incapables de produire une phrase cohérente à des modèles qui rédigent avec une aisance parfois troublante (assistants conversationnels, génération de contenu, recherche d'information intelligente). Le "boom de l'IA" n'est pas qu'un effet de mode : il transforme concrètement la manière dont les êtres humains produisent, partagent et exploitent la connaissance dans les organisations.
 
@@ -91,9 +91,9 @@ Deux constats structurent cette partie :
 1. Un RAG n'est pas "un LLM + des documents". C'est une **chaîne de décision** (découpage, indexation, recherche, assemblage du contexte, génération) dont les erreurs/imprécisions s'additionnent parfois.
 2. Les critères d'évaluation de l'IR (recherche d'information) classique et ceux des LLMs ne se recouvrent pas. Un excellent score de *retrieval* est tout à fait compatible avec une réponse finale fausse.
 
-## Chapitre 1 - De la recherche documentaire à la recherche sémantique
+## De la recherche documentaire à la recherche sémantique
 
-### 1.1. Brève histoire de la recherche d'information : du lexical au probabiliste
+### Brève histoire de la recherche d'information : du lexical au probabiliste
 
 Avant de parler de RAG, il faut comprendre d'où vient la recherche d'information, parce que les systèmes RAG en héritent grandement, y compris dans leurs limites.
 
@@ -140,7 +140,7 @@ Les systèmes IR peuvent aussi reformuler la requête pour améliorer les résul
 
 En parallèle, le ***learning-to-rank*** a permis d'apprendre des fonctions de classement à partir de données (clics, jugements), avec des approches *pointwise*, *pairwise* et *listwise*.[@Liu2009LTR] Les systèmes industriels combinent aujourd'hui un *retrieval* rapide, un *reranking* plus coûteux (souvent *cross-encoder*) et des signaux métier (popularité, fraîcheur). Le RAG s'insère dans cette logique multi-étage.
 
-### 1.2. Limites du matching lexical
+### Limites du matching lexical
 
 Les méthodes lexicales (booléen, TF-IDF, BM25) reposent sur une hypothèse forte : la pertinence est principalement capturable par la co-occurrence de termes entre requête et document. En pratique, cette hypothèse se heurte à des problèmes bien documentés, que j'ai pu observer directement lors des premières itérations de ScribBERT :
 
@@ -156,7 +156,7 @@ Deux compléments sont importants pour comprendre pourquoi ces limites deviennen
 - **Rappel vs précision** : un moteur lexical peut être très précis (peu de bruit) mais rater des passages formulés différemment ; inversement, il peut être avoir un bon rappel mais ramener trop de textes "proches" sans être applicables. Le RAG transforme ce compromis en risque de génération : un passage légèrement hors-sujet peut suffire à entraîner une réponse erronée.
 - **Correspondance d'intention** : la requête utilisateur exprime souvent une tâche (ex. "quels EPI obligatoires ?", "quelle procédure avant intervention ?"), et pas seulement un thème. Or les signaux lexicaux capturent mal la structure de tâche (conditions, exceptions, étapes).
 
-### 1.3. Vers la recherche sémantique : représentations distribuées et *embeddings*
+### Vers la recherche sémantique : représentations distribuées et *embeddings*
 
 L'idée de dépasser le matching lexical n'est pas nouvelle. Dès les années 1990, l'**indexation sémantique latente** (LSI/LSA) projetait termes et documents dans un espace de dimension réduite via factorisation matricielle (SVD), dans l'espoir de capturer des corrélations entre termes et de réduire les problèmes de synonymie.[@Deerwester1990]
 
@@ -170,7 +170,7 @@ Dans la pratique, l'usage IR/RAG requiert surtout des **embeddings de phrases/pa
 
 Enfin, des architectures intermédiaires (*late interaction*) comme **ColBERT** cherchent à concilier précision (interactions fines) et efficacité (indexation) via des représentations token-level compressées.[@KhattabZaharia2020]
 
-### 1.4. Sparse, dense et hybride : familles de *retrieval*
+### Sparse, dense et hybride : familles de *retrieval*
 
 En pratique, les systèmes de *retrieval* se rangent en trois grandes familles. Le *sparse retrieval* (BM25, TF-IDF), qui représente les documents dans un espace de très grande dimension. C'est rapide, et ça marche remarquablement bien sur des requêtes contenant des identifiants précis (numéros de procédure, références normatives). Le *dense retrieval* projette tout dans un espace compact d'*embeddings*, plus apte à capturer synonymie et paraphrase, mais plus "opaque". Et l'*hybride* combine les deux, ce qui est souvent la meilleure option quand le corpus mélange des requêtes techniques et des questions en langage naturel.
 
@@ -184,7 +184,7 @@ Cette approximation a une conséquence méthodologique : la performance de *retr
 - **erreur d'indexation** (approximation ANN),
 - **erreur de formulation de requête** (*query rewriting* absent ou mal calibré).
 
-### 1.5. Problématiques spécifiques à la sémantique en contexte technique
+### Problématiques spécifiques à la sémantique en contexte technique
 
 Tout ce qui précède s'applique à la recherche sémantique en général. Mais un corpus santé-sécurité pose des problèmes supplémentaires qui méritent d'être explicités.
 
@@ -194,19 +194,19 @@ Il faut ajouter des phénomènes fréquents dans les corpus internes et que les 
 
 Tout cela fait que l'évaluation d'un RAG en contexte santé-sécurité ne peut pas se limiter à la proximité sémantique.
 
-### 1.6. Limites des approches traditionnelles face aux LLMs
+### Limites des approches traditionnelles face aux LLMs
 
 L'émergence des LLMs change la donne, et pas seulement du côté de la génération. Elle change aussi la nature des requêtes. L'utilisateur qui interroge un assistant comme ScribBERT n'écrit plus des mots-clés : il pose une question complète, souvent complexe et implicitement située dans un contexte ("que dois-je vérifier avant de commencer un travail en hauteur sur un échafaudage roulant ?"). Le système doit donc gérer des **intentions** (besoin d'explication, de comparaison, de décision) et pas seulement une adéquation thématique.
 
 L'autre problème, plus piègeux, est celui de l'**hallucination**. Les LLMs peuvent produire des textes *cohérents sur la forme* tout en étant incorrects sur le fond.[@Maynez2020; @Ji2023] En contexte santé-sécurité, ce phénomène devient un risque opérationnel à part entière. C'est cette tension entre qualité apparente et fiabilité réelle qui justifie l'existence du RAG, et la nécessité de l'évaluer.
 
-### 1.7. Neural IR et *dense retrieval*
+### Neural IR et *dense retrieval*
 
 Avec les modèles Transformers, le ***dense retrieval*** a pris son essor. L'idée est d'encoder requêtes et passages avec un bi-encodeur (deux BERT indépendants) et de les comparer par similarité vectorielle. DPR (Karpukhin et al., 2020) a montré que cette approche pouvait surpasser BM25 sur des *benchmarks* de QA (*Question/Answer*) ouverts.[@Karpukhin2020] Les gains suivants ont surtout été obtenus via des stratégies d'entraînement avec *hard negatives* et des travaux comme ORQA[@Lee2019ORQA] et ANCE[@Xiong2020ANCE], que je ne détaille pas ici.
 
 La question pratique pour un cas comme ScribBERT est directe : **un modèle entraîné sur des données web généralistes est-il adapté à un vocabulaire métier ?** Le *benchmark* BEIR a montré une dégradation significative des performances hors domaine d'entraînement.[@Thakur2021BEIR] Cette question sera traitée en Partie II.
 
-### 1.8. Du *dense retrieval* au RAG : la convergence historique
+### Du *dense retrieval* au RAG : la convergence historique
 
 La trajectoire décrite dans ce chapitre, du lexical aux *embeddings* puis au *dense retrieval*, mène à l'idée de coupler un *retriever* dense à un modèle génératif. Sur le moment, chaque étape a nécessité des contributions distinctes, et ce n'est qu'à partir de 2020 que la filiation devient explicite.
 
@@ -214,9 +214,9 @@ Le paradigme *retriever-reader* a d'abord été popularisé par **DrQA** (Chen e
 
 Le RAG n'est pas une invention isolée mais l'aboutissement d'une lignée de recherche en IR.
 
-## Chapitre 2 - Les fondements du RAG (Retrieval-Augmented Generation)
+## Les fondements du RAG (Retrieval-Augmented Generation)
 
-### 2.1. Principe général : génération augmentée par récupération
+### Principe général : génération augmentée par récupération
 
 Le RAG, dans son principe, est assez intuitif : au lieu de laisser un modèle de langage répondre "de tête", des documents pertinents lui sont fournis et il lui est demandé de s'en servir. Autrement dit, il est mis au travail comme le ferait un bon préventeur, en consultant la documentation avant de répondre.
 
@@ -241,7 +241,7 @@ La formule se lit ainsi : pour obtenir une réponse $y$ à la question $x$, la s
 
 En pratique, parcourir tous les passages du corpus est impossible : cette somme est approximée en ne retenant qu'un petit nombre de passages (le top-$k$). C'est ce qui rend les choix de *retrieval* si importants : si le "bon" passage n'apparaît pas parmi les $k$ retenus, le modèle génère sa réponse sans l'information nécessaire.
 
-### 2.2. RAG vs *fine-tuning* : choix méthodologiques
+### RAG vs *fine-tuning* : choix méthodologiques
 
 La question "pourquoi un RAG plutôt qu'un *fine-tuning* ?" est revenue plusieurs fois dans les discussions autour de ScribBERT, et le choix s'est fait assez naturellement, mais il mérite d'être explicité.
 
@@ -251,7 +251,7 @@ Le **RAG**, à l'inverse, conserve un modèle généraliste et injecte du contex
 
 Cela dit, le RAG ne nous interdit pas de faire du *fine-tuning*. Un *fine-tuning* léger peut servir à calibrer le ton, tandis que le RAG gère l'accès aux connaissances. La littérature récente insiste d'ailleurs sur cette complémentarité.[@Gao2024RAGSurvey]
 
-### 2.3. Architecture type d'une *pipeline* RAG
+### Architecture type d'une *pipeline* RAG
 
 Une *pipeline* RAG se décompose généralement en cinq étapes :
 
@@ -279,13 +279,13 @@ Le *chunking* influence directement :
 
 Ces aspects seront étudiés dans la PARTIE III (comparaisons de *chunking*).
 
-### 2.4. Les avantages du RAG
+### Les avantages du RAG
 
 Le premier bénéfice est la réduction des hallucinations : en fournissant au modèle des passages explicites, sa génération est contrainte et les inventions sont limitées. En pratique, c'est plus nuancé (le modèle peut toujours halluciner malgré le contexte), mais le gain est réel. Surtout, le RAG rend la réponse traçable : un retour aux passages utilisés reste possible, et c'est cette auditabilité qui fait la différence dans un cadre industriel.
 
 Les autres avantages sont plus opérationnels : les connaissances peuvent être mises à jour sans réentraîner le modèle (les documents modifiés sont simplement réindexés), le corpus interne reste privé (pas besoin de l'envoyer dans un service cloud pour du *fine-tuning*), et le coût global est moindre qu'un entraînement dédié.
 
-### 2.5. Les défis du RAG : bruit, contradictions et cohérence
+### Les défis du RAG : bruit, contradictions et cohérence
 
 Pour autant, le RAG n'est pas une solution magique. Il introduit ses propres difficultés :
 
@@ -303,23 +303,23 @@ Plusieurs variantes architecturales cherchent à répondre à ces défis : le RA
 
 En pratique, les systèmes robustes adoptent une architecture *multi-stage* qui répond directement à ce dilemme : un **retrieval large** (top-$k$ élevé) maximise le rappel, un ***reranking*** par *cross-encoder* augmente ensuite la précision sur ce petit ensemble candidat[@NogueiraCho2019], et une **sélection/assemblage** finale respecte la limite de contexte du générateur. Chaque étage a un effet direct sur la fidélité : un *retrieval* trop large sans *reranking* augmente le bruit, un *reranking* mal calibré peut favoriser des passages "proches" mais moins normatifs, et une sélection trop agressive peut écarter des passages qui auraient été utiles.
 
-### 2.6. "*Grounding*", citations et attribution : de la preuve à la confiance
+### "*Grounding*", citations et attribution : de la preuve à la confiance
 
 Citer une source ne suffit pas. En testant ScribBERT, j'ai vu des cas où le système citait un document qui n'avait qu'un rapport lointain avec la question et c'est pire que l'absence de citation, car ça donne une illusion de rigueur. La littérature formalise cette intuition en distinguant trois dimensions : la *context relevance* (le contexte récupéré est-il utile ?), l'*answer relevance* (la réponse traite-t-elle la question ?) et la *faithfulness* (la réponse est-elle supportée par le contexte ?). Ces trois dimensions ne se recouvrent pas, et c'est précisément ce qui rend l'évaluation complexe.
 
-### 2.7. RAG et mémoire : connaissances paramétriques vs non-paramétriques
+### RAG et mémoire : connaissances paramétriques vs non-paramétriques
 
 Deux types de mémoire se distinguent : la "mémoire paramétrique" d'un LLM (ses poids) et la "mémoire non-paramétrique" (une base documentaire externe, interrogée à la volée). Un modèle assez gros peut stocker beaucoup de faits dans ses paramètres[@Roberts2020], mais avec des limites évidentes en mise à jour et vérifiabilité (expliquées plus tôt). Pour ScribBERT, la mémoire non-paramétrique est préférée parce qu'elle est auditable : les documents consultés sont identifiables, et leur mise à jour ne touche pas au modèle.
 
-### 2.8. Pourquoi la notion de "source" est centrale en contexte santé-sécurité
+### Pourquoi la notion de "source" est centrale en contexte santé-sécurité
 
 Dans une application santé-sécurité, une réponse "créative" est indésirable : la réponse attendue est normative ou procédurale, fondée sur les bons documents. La qualité tient alors à des questions très concrètes : le système distingue-t-il une procédure groupe validée d'une note informelle ? Respecte-t-il la différence entre "doit" et "devrait" ? Mentionne-t-il les exceptions ? Ces exigences, bien plus strictes que dans un agent conversationnel grand public, imposent de centrer l'évaluation sur la fidélité aux sources, ce qui sera l'objet de la Partie II.
 
-## Chapitre 3 - La question de la "pertinence" et de la "cohérence"
+## La question de la "pertinence" et de la "cohérence"
 
 Les mots "pertinence" et "cohérence" reviennent constamment aussi bien dans ce mémoire que dans les discussions sur la qualité d'un RAG, mais ils recouvrent des réalités assez différentes selon les interlocuteurs. Ce chapitre tente de les clarifier, non pas par amour pour la taxonomie, mais plutôt parce que la qualité d'un protocole d'évaluation dépend directement des attentes qui lui sont fixées.
 
-### 3.1. Définir la pertinence : une notion multi-dimensionnelle
+### Définir la pertinence : une notion multi-dimensionnelle
 
 En recherche d'information, la pertinence est un mélange entre un besoin, un utilisateur, un contexte et un document, à un moment donné. La littérature académique insiste depuis longtemps sur cette complexité et sur l'écart entre ce qu'un système juge pertinent et ce que l'utilisateur considère comme pertinent.[@Saracevic1996; @Mizzaro1997] Pour un RAG, plusieurs dimensions s'ajoutent à la simple adéquation thématique.
 
@@ -329,7 +329,7 @@ L'**actualité** et l'**autorité de la source** sont deux dimensions souvent n�
 
 Enfin, les évaluations purement offline ignorent souvent la **pertinence interactive** : l'utilisateur reformule, lit les sources, change de stratégie, et l'utilité dépend de ce processus.[@IngwersenJarvelin2005; @Borlund2003] Pour ScribBERT, cela suggère de compléter les métriques automatiques par des signaux d'usage : taux de reformulation, temps pour obtenir une réponse utile, cas où l'utilisateur doit escalader vers un expert.
 
-### 3.2. Définir la cohérence : du texte à la fidélité aux sources
+### Définir la cohérence : du texte à la fidélité aux sources
 
 Dans le contexte des LLMs, la cohérence est souvent abordée sous l'angle de la fluidité textuelle. Pour un RAG, cette définition est insuffisante : une réponse peut être très fluide mais fausse.
 
@@ -341,7 +341,7 @@ La **stabilité / reproductibilité** est un enjeu à la fois opérationnel et m
 
 La **cohérence terminologique et réglementaire** complète ce tableau : la réponse doit utiliser un vocabulaire métier stable, éviter les formulations ambiguës, et respecter les contraintes réglementaires et internes sans inventer des obligations.
 
-### 3.3. Définir la fiabilité : une synthèse opératoire
+### Définir la fiabilité : une synthèse opératoire
 
 Le titre de ce mémoire associe "cohérence" et "fiabilité". La cohérence a été définie ci-dessus. Mais la fiabilité est un concept plus englobant : c'est la propriété d'un système à produire de manière constante des réponses dignes de confiance. Un système peut donner une excellente réponse un jour et une réponse médiocre le lendemain sur la même question : il est ponctuellement bon mais pas fiable.
 
@@ -355,7 +355,7 @@ Cette définition présente trois intérêts :
 2. Elle **distingue la cohérence (propriété intrinsèque d'une réponse) de la fiabilité (propriété systémique)** : une réponse peut être cohérente une fois et incohérente la suivante ; un système n'est fiable que si ses réponses sont cohérentes de manière répétée.
 3. Elle **inclut explicitement la traçabilité**, dimension non couverte par les métriques classiques mais essentielle (auditabilité, conformité).
 
-### 3.4. Pertinence perçue vs pertinence mesurée
+### Pertinence perçue vs pertinence mesurée
 
 Il y a un écart, parfois considérable, entre ce que les métriques disent et ce que l'utilisateur ressent. Parfois, des configurations avec de "bons" scores de *retrieval* produisaient des réponses qui parfois étaient trop vagues ou mal ciblées. Et inversement, des réponses jugées utiles ne correspondaient pas toujours à un Recall@k élevé.
 
@@ -363,7 +363,7 @@ Ce décalage impose de travailler sur les deux fronts : les **mesures automatiqu
 
 Sur le plan méthodologique, cela rejoint l'idée de séparer **évaluation intrinsèque** (mesurer des propriétés internes) et **évaluation extrinsèque** (mesurer l'effet sur la tâche finale).
 
-### 3.5. Travaux récents sur l'évaluation des RAG et LLMs augmentés
+### Travaux récents sur l'évaluation des RAG et LLMs augmentés
 
 L'évaluation des systèmes RAG s'est structurée autour de plusieurs axes :
 
@@ -412,7 +412,7 @@ Ces métriques sont au cœur de l'IR évaluative moderne.[@JarvelinKekalainen200
 
 L'intérêt pour le RAG est de relier ces scores à la qualité finale : par exemple, un Recall@k faible limite mécaniquement la fidélité, car la preuve n'entre jamais dans le contexte.
 
-### 3.6. Positionnement de la contribution du mémoire
+### Positionnement de la contribution du mémoire
 
 Ce que ce mémoire cherche à apporter, concrètement, c'est un cadre d'évaluation qui permette de :
 
@@ -439,7 +439,7 @@ Trois questions structurent cette partie :
 
 L'ambition est de proposer un cadre transférable, pas spécifique à ScribBERT, mais qui sera instancié sur ce cas en Partie III.
 
-## Chapitre 4 - Modèles et paramètres influençant la performance
+## Modèles et paramètres influençant la performance
 
 Un système RAG n'est pas une boîte noire à un seul bouton. C'est un assemblage de composants, chacun avec ses propres réglages, et la qualité finale dépend de l'ensemble. Le problème (et je l'ai vécu de façon assez directe), c'est que modifier un paramètre peut améliorer certains cas et en dégrader d'autres. Pour sortir du tâtonnement, il faut d'abord cartographier ces leviers et comprendre comment ils interagissent.
 
@@ -450,7 +450,7 @@ Ce chapitre passe en revue quatre familles :
 3. les **stratégies de retrieval** (modes de récupération et de classement des passages candidats),
 4. la **composante de génération** (le LLM, le *prompt* et les paramètres associés).
 
-### 4.1. Les modèles d'*embedding*
+### Les modèles d'*embedding*
 
 Le modèle d'*embedding* est la base d'un RAG dense. C'est lui qui détermine la géométrie de l'espace dans lequel requêtes et passages sont comparés, et si cette géométrie est mal adaptée au domaine, aucune astuce en aval ne pourra compenser.
 
@@ -508,7 +508,7 @@ En contexte d'entreprise, le choix d'un modèle d'*embedding* ne se résume pas 
 
 Pour le POC ScribBERT, ces critères se sont arbitrés assez vite en faveur de `text-embedding-ada-002` d'OpenAI. La raison principale n'est pas la qualité intrinsèque (c'est un modèle déjà ancien, et le *benchmark* de la Partie III montre qu'il fait jeu égal avec plusieurs alternatives *open-source*) mais le fait qu'il était déjà exposé dans notre *tenant* Azure OpenAI : pas de modèle à héberger, pas d'architecture GPU à monter, un coût par appel très bas, et la même entête de confidentialité que celle déjà négociée par le groupe pour les LLMs. C'est typiquement le genre de décision où le "meilleur sur MTEB" est moins important que "déployable demain matin". Pour le passage en production, un *embedding* plus récent (bilingue, dimension ajustable) sera évalué à la lumière des résultats du Ch. 8a.
 
-### 4.2. Le rôle du *chunking* et du prétraitement textuel
+### Le rôle du *chunking* et du prétraitement textuel
 
 Le *chunking* est probablement le sujet sur lequel j'ai passé le plus de temps à tâtonner : plusieurs jours, voire semaines, passés à *benchmarker* des algorithmes différents sur le même corpus avant de trancher. Il est souvent présenté comme un "détail d'ingestion" dans les tutoriels, mais c'est en réalité un choix de modélisation à part entière, et ses effets se propagent à toute la chaîne. Ce que j'ai fini par retenir pour ScribBERT c'est qu'une fois les PDF convertis en Markdown pour préserver la structure (titres, listes, tableaux), un *chunking* par regex sur les marqueurs structurels donne le meilleur compromis : nos référentiels ont tous la même charte de mise en forme, donc une regex bien ciblée récupère proprement les titres, les numérotations, les paragraphes. Ça a aussi l'avantage d'être à la fois plus rapide à exécuter et plus prévisible qu'un *chunking* sémantique ou à longueur fixe pure.
 
@@ -554,7 +554,7 @@ Le prétraitement comprend :
 
 Un point souvent négligé : les **tableaux** et les **schémas**. Linéariser un tableau en texte brut détruit sa structure. Des stratégies plus avancées (extraction structurée, légendes générées par un VLM (*Vision Language Model*), tableaux convertis en markdown) peuvent être étudiées.
 
-### 4.3. Les stratégies de *retrieval*
+### Les stratégies de *retrieval*
 
 Une fois l'index constitué, le *retrieval* comporte plusieurs leviers : choix de la similarité, hybridation sparse/dense, *reranking*, filtrage, expansion de requête, valeur de $k$.
 
@@ -625,7 +625,7 @@ Plusieurs techniques visent à enrichir ou reformuler la requête :
 
 Ces techniques améliorent généralement le rappel mais ajoutent de la latence, augmentent les coûts et peuvent introduire une **dérive sémantique** (la reformulation s'éloigne de l'intention initiale). Un protocole d'évaluation rigoureux doit mesurer le gain net.
 
-### 4.4. La composante de génération
+### La composante de génération
 
 Une fois les passages sélectionnés, la génération transforme le contexte en réponse. Plusieurs leviers conditionnent la qualité.
 
@@ -670,7 +670,7 @@ En contexte critique, il faut prévoir des garde-fous explicites. Le plus import
 
 C'est un point sur lequel j'ai dû itérer concrètement. Ma première version de *prompt* système était beaucoup trop permissive : sur des questions qui n'avaient rien à voir avec la santé-sécurité, le modèle sortait des recettes de cookies, répondait à partir de sa connaissance générale, et oubliait de citer ses sources. J'ai dû durcir progressivement les instructions : cadrer explicitement le domaine, exiger une citation, autoriser et même encourager le "je ne sais pas" lorsque le contexte ne contient pas l'information. C'est en partie ce qui m'a fait comprendre que le *prompt* fait autant partie de l'évaluation que le modèle ou l'*embedding*.
 
-### 4.5. Synthèse des leviers et matrice d'expérimentation
+### Synthèse des leviers et matrice d'expérimentation
 
 L'ensemble des leviers présentés peut être résumé dans une matrice qui guidera la conception du protocole expérimental (Chapitre 5) :
 
@@ -689,7 +689,7 @@ L'expérimentation menée en Partie III ne pourra pas tester toutes les combinai
 
 Le Chapitre 5 présente le protocole d'évaluation lui-même : jeux de test, métriques, conditions d'expérimentation.
 
-## Chapitre 5 - Construction d'un protocole d'évaluation
+## Construction d'un protocole d'évaluation
 
 Le Chapitre 4 a inventorié les différents leviers actionnables. Reste la question fondamentale : **comment mesurer leur effet ?** Sans un protocole d'évaluation structuré, le tâtonnement décrit plus haut s'impose à nouveau : un paramètre est modifié, trois questions sont posées, et reste l'"impression" que c'est mieux ou moins bien, sans pouvoir trancher. C'est une leçon qui m'a été répétée par Julien dans l'équipe : moi j'avais tendance à me fier à la fiabilité perçue, en posant moi-même quelques questions et en jugeant les réponses. Lui ne jure que par les métriques, et il a passé du temps à me détailler les différentes familles (Recall, MRR, *faithfulness*…), leurs limites individuelles, et l'intérêt d'en croiser plusieurs. Ce chapitre est en grande partie la formalisation de ces échanges.
 
@@ -697,7 +697,7 @@ Ce que je cherche ici, c'est un protocole qui produise des mesures reproductible
 
 Ce chapitre s'organise en cinq sections : les critères d'évaluation (§ 5.1), les approches (automatique, humaine, hybride) (§ 5.2), la construction du jeu de test (§ 5.3), les conditions expérimentales (§ 5.4), et les méthodes d'analyse (§ 5.5).
 
-### 5.1. Cinq dimensions pour mesurer la fiabilité
+### Cinq dimensions pour mesurer la fiabilité
 
 Le Chapitre 3.3 a défini la fiabilité opérationnellement comme la conjonction de cinq propriétés. Plutôt que de dresser une liste plate de métriques, j'organise ici l'évaluation autour de ces cinq dimensions : pour chacune, le **type d'échec** à détecter est précisé, puis les métriques candidates, en privilégiant celles qui sont effectivement utilisables dans un cadre industriel.
 
@@ -767,7 +767,7 @@ Ces cinq dimensions décrivent la qualité du système. En production, s'y ajout
 - **Coût par requête** si le LLM ou le modèle de vectorisation est facturé à l'usage.
 - **Taux de refus** : proportion de requêtes pour lesquelles le système répond "je ne sais pas" faute de sources suffisantes. C'est une métrique à double lecture : un taux trop bas suggère que le système improvise (hallucine), un taux trop élevé indique une expérience utilisateur dégradée.
 
-### 5.2. Approches d'évaluation : automatique, humaine, hybride
+### Approches d'évaluation : automatique, humaine, hybride
 
 #### 5.2.1. Évaluation automatique
 
@@ -826,7 +826,7 @@ L'idée est d'articuler les deux approches pour que chacune compense les limites
 3. **Calibration** : l'échantillon annoté manuellement sert à corriger les biais identifiés dans le *LLM-juge* et à mieux interpréter ses scores sur le reste du jeu de test.
 4. **Triangulation** : une conclusion n'est retenue qu'en cas de convergence des deux approches. Les divergences ne sont pas écartées : elles constituent souvent les cas les plus instructifs à analyser.
 
-### 5.3. Construction du jeu de test
+### Construction du jeu de test
 
 La qualité du jeu de test conditionne la validité de toute l'évaluation. Cette section décrit la démarche méthodologique générique. L'instanciation pour ScribBERT figurera en Partie III.
 
@@ -891,7 +891,7 @@ Le jeu de test évolue (corrections, ajouts, retraits). Le versionnage porte sur
 - le corpus de référence (documents, *chunks*, *embeddings*) : un jeu de test n'a de sens que pour une version donnée du corpus,
 - les annotations (qui, quand, sur quelle base).
 
-### 5.4. Conditions expérimentales et reproductibilité
+### Conditions expérimentales et reproductibilité
 
 #### 5.4.1. Isolation des facteurs
 
@@ -926,7 +926,7 @@ Pour qu'une expérience soit reproductible :
 
 Lorsque la reproductibilité parfaite est impossible (LLM propriétaires non déterministes), des **distributions** sont rapportées sur $n$ runs (médiane et IQR) plutôt que des valeurs ponctuelles.
 
-### 5.5. Méthodes d'analyse
+### Méthodes d'analyse
 
 #### 5.5.1. Statistiques descriptives
 
@@ -962,15 +962,15 @@ Pour les cas d'échec, une **typologie d'erreurs** raffinée est construite à p
 Cette typologie sert de grille pour l'analyse qualitative en Partie III et oriente les améliorations.
 
 
-### 5.6. Synthèse
+### Synthèse
 
 Le protocole proposé articule cinq dimensions de la fiabilité (*retrieval*, fidélité, pertinence, stabilité et traçabilité) avec trois approches d'évaluation (automatique, humaine, hybride), appliquées sur un jeu de test stratifié dans des conditions expérimentales reproductibles, et analysées avec des outils statistiques adaptés.
 
 Le Chapitre 6 approfondit la dimension **stabilité**, qui mérite un traitement spécifique car elle est sous-traitée par les *frameworks* usuels et particulièrement critique pour un système RAG en production sur un sujet sensible.
 
-## Chapitre 6 - Évaluation de la stabilité et de la répétabilité
+## Évaluation de la stabilité et de la répétabilité
 
-### 6.1. Pourquoi la stabilité est une dimension distincte de la fiabilité
+### Pourquoi la stabilité est une dimension distincte de la fiabilité
 
 Les métriques classiques d'évaluation d'un RAG évoquées plus tôt sont calculées sur une exécution unique d'une requête. Elles décrivent la qualité moyenne d'une réponse à un instant t, mais ne disent rien sur ce qui se passe lorsque la même requête est rejouée ou que l'utilisateur formule légèrement différemment sa question.
 
@@ -984,7 +984,7 @@ Pour un système d'aide à la décision en santé-sécurité, la **variabilité*
 
 Cette dimension est aussi un enjeu méthodologique : si la variance au sein d'une même configuration est élevée, comparer deux configurations sur une exécution unique n'a pas de sens, le bruit de mesure dépasse l'effet à mesurer. L'évaluation de la stabilité conditionne donc la robustesse statistique des comparaisons du Chapitre 5.
 
-### 6.2. Sources de variance dans un RAG
+### Sources de variance dans un RAG
 
 Je n'ai pas eu le temps de tester systématiquement ces sources de variance sur ScribBERT (cf. limites, Ch. 10). La cartographie ci-dessous reste donc en partie théorique, fondée sur la littérature et sur quelques observations ponctuelles pendant le développement.
 
@@ -994,13 +994,13 @@ Côté **formulation utilisateur**, deux requêtes sémantiquement équivalentes
 
 Enfin, à plus long terme, une **dérive temporelle** s'installe : mise à jour silencieuse des modèles propriétaires (un `gpt-4o-2024-08-06` peut être déprécié et remplacé), évolution du corpus (ajouts, retraits, révisions de procédures), et dérive de l'index dès que la stratégie de *chunking* ou d'*embedding* est modifiée.
 
-### 6.3. Métriques de stabilité
+### Métriques de stabilité
 
 Le cas le plus simple est la **stabilité inter-runs** : à requête et configuration constantes, le système est exécuté $n$ fois (typiquement $n \in [5, 20]$) et le recouvrement des sorties est mesuré. Côté *retrieval*, un **Stability@retrieval** est calculé comme indice de Jaccard moyen des ensembles de *chunks* récupérés entre paires de runs. Le Jaccard mesure le recouvrement entre deux ensembles, défini comme le rapport entre la taille de leur intersection et celle de leur union : $\mathrm{J}(A_i, A_j) = |A_i \cap A_j| / |A_i \cup A_j|$. Il vaut 1 si les deux runs retournent exactement les mêmes *chunks*, 0 s'ils sont disjoints. La même mesure peut être restreinte aux *chunks* effectivement **cités** dans la réponse (et non simplement récupérés), ce qui est souvent plus informatif sur la fidélité perçue. Côté génération, un **BERTScore moyen** entre paires de réponses donne une stabilité sémantique, complétée par l'écart-type inter-runs des métriques de qualité (*faithfulness*, Recall@k…) et par un ***flip rate*** : taux de questions pour lesquelles le verdict (réponse acceptable / inacceptable) change entre runs. Dans le cas binaire correct/incorrect, le résumé se fait par la proportion de runs corrects ; les questions dont ce taux se situe entre 30 % et 70 % sont flaguées comme "instables".
 
 Cette stabilité à requête identique ne suffit pas : un système peut être stable inter-runs et fragile aux **paraphrases**. Pour chaque requête, $m$ reformulations sont donc générées et les mêmes métriques sont appliquées entre la requête originale et ses variantes, en confiant à un *LLM-juge* la vérification que les réponses véhiculent bien la même information factuelle au-delà des différences de surface. Dans le même esprit, la **robustesse à l'ordre des passages** (sensibilité au *lost in the middle*) peut être testée en permutant l'ordre des *chunks* injectés dans le contexte : un système robuste produit des réponses sémantiquement équivalentes quel que soit l'ordre.
 
-### 6.4. Sensibilité aux paramètres et aux variations adverses
+### Sensibilité aux paramètres et aux variations adverses
 
 Au-delà des variations classiques, un bon protocole de stabilité teste aussi des perturbations contrôlées :
 
@@ -1012,11 +1012,11 @@ Au-delà des variations classiques, un bon protocole de stabilité teste aussi d
 
 Ces tests adversariaux ne sont pas des cas usuels mais des sortes de tests de résistance : ils caractérisent les limites de notre système et orientent les garde-fous (même si en principe, ces cas extrêmes ne devraient pas se présenter si notre *retrieval* est bien fait).
 
-### 6.5. Protocole de test de stabilité
+### Protocole de test de stabilité
 
 Un protocole opérationnel pour évaluer la stabilité d'un RAG peut s'organiser en cinq temps. La première étape consiste à sélectionner un sous-jeu de questions critiques, classées par niveau de criticité. Des tests inter-runs sont ensuite réalisés : pour chaque question, le système est exécuté $n=10$ fois à seed et configuration constants, afin de calculer Stability@*retrieval*, Stability@citations, Stability@answer ainsi que le *flip rate*. Le protocole est ensuite complété par des tests de paraphrase : chaque question est reformulée en $m=5$ paraphrases, validées par un expert pour garantir la conservation de l'intention, puis exécutées une fois chacune afin de mesurer la consistance sémantique des réponses. À cela s'ajoutent des tests adversariaux, menés sur un sous-ensemble de 10 à 20 questions, en appliquant des perturbations contrôlées telles que des fautes, des reformulations ou des questions pièges. Enfin, l'ensemble des résultats est synthétisé dans un tableau de bord par configuration, agrégeant la qualité moyenne présentée au Chapitre 5 et les indicateurs de stabilité de ce chapitre. Une configuration ne devrait être retenue que si elle dépasse des seuils minimaux sur **les deux dimensions**.
 
-### 6.6. Stabilité et confiance utilisateur
+### Stabilité et confiance utilisateur
 
 La stabilité a aussi une dimension psychologique. Cela a déjà été évoqué plus haut, mais un utilisateur perçoit l'instabilité comme un signe d'incompétence/incertitude du système, même si la réponse moyenne est correcte. Inversement, un système stable mais subtilement biaisé peut générer une fausse confiance. L'utilisateur a confiance dans le systeme, même si il est stable dans l'échec.
 
@@ -1025,7 +1025,7 @@ Deux pratiques permettent de réconcilier ces enjeux :
 - Exposer l'incertitude : afficher un score de confiance, ou indiquer explicitement "plusieurs réponses possibles selon le contexte de chantier".
 - Stabiliser les éléments critiques sans figer les éléments stylistiques : la liste d'EPI doit être identique, mais la formulation peut varier.
 
-### 6.7. Synthèse de la Partie II
+### Synthèse de la Partie II
 
 Les chapitres 4 à 6 ont défini un cadre méthodologique complet :
 
@@ -1051,9 +1051,9 @@ La structure est la suivante :
 - **Ch. 9** : enjeux éthiques, réglementaires et industriels.
 - **Ch. 10** : discussion et perspectives.
 
-## Chapitre 7 - Mise en œuvre du système RAG ScribBERT
+## Mise en œuvre du système RAG ScribBERT
 
-### 7.1. Contexte et historique du projet
+### Contexte et historique du projet
 
 Le projet ScribBERT a été initié en deuxième année d'alternance, après une première année consacrée à l'immersion métier au sein du département P2S et à la cartographie des usages documentaires. Cette première année m'a également permis de me familiariser avec plusieurs outils internes de pilotage, tels que QuickConnect, Power BI, Heures Travaillées et Cority, et de reprendre à partir d'une page blanche le système d'indicateurs existant sous Power BI afin de le fiabiliser, de l'améliorer et de poser les bases de son fonctionnement actuel. Les développements autour de ScribBERT se sont étalés sur environ un an et demi, en deux phases :
 
@@ -1062,7 +1062,7 @@ Le projet ScribBERT a été initié en deuxième année d'alternance, après une
 
 Ce mémoire documente principalement la phase exploratoire, qui constitue le terrain d'application du protocole d'évaluation, et donc de ce mémoire.
 
-### 7.2. Architecture déployée
+### Architecture déployée
 
 #### 7.2.1. Vue d'ensemble
 
@@ -1123,7 +1123,7 @@ L'interface ReactJS expose :
 - la **réponse générée** avec citations cliquables, le nom du document avec la (ou les) page(s) utilisée(s) pour la réponse, et la possibilité de télécharger le PDF d'origine ;
 - un **avertissement permanent** rappelant que la réponse n'engage pas la responsabilité du système et que l'utilisateur reste tenu de vérifier les sources citées (cf. § 9.3).
 
-### 7.3. Description du corpus
+### Description du corpus
 
 | Caractéristique | Valeur |
 |-----------------|--------|
@@ -1138,7 +1138,7 @@ Cette taille reste modeste à l'échelle d'un *benchmark* IR (Information *Retri
 
 À noter : à terme, l'extension envisagée couvre les référentiels santé-sécurité de l'ensemble des filiales et chantiers du groupe Bouygues Construction, ce qui multiplierait le volume par un ordre de grandeur et ferait apparaître des problématiques nouvelles (variantes locales, contradictions inter-entités, multilinguisme étendu).
 
-### 7.4. Choix de *chunking* et prétraitement
+### Choix de *chunking* et prétraitement
 
 Conformément à la grille du Ch. 4.2, la stratégie retenue est un *chunking* structurel sur mesure, justifié comme suit :
 
@@ -1153,7 +1153,7 @@ Conformément à la grille du Ch. 4.2, la stratégie retenue est un *chunking* s
 
 Les métadonnées attachées à chaque *chunk* sont actuellement : `nom_document`, `entité_émettrice`, `langue`, `date du document`.
 
-### 7.5. Choix d'*embedding* et de LLM
+### Choix d'*embedding* et de LLM
 
 #### 7.5.1. Phase POC
 
@@ -1189,7 +1189,7 @@ Les conditions expérimentales sont par ailleurs favorables et stables : la mach
 
 Concernant les modèles de génération de texte, les cinq runs disponibles (§ 8a.3) confirment que `azure-gpt35` est suffisant pour la phase exploratoire : *faithfulness* RAGAS comprise entre 0,72 et 0,77, *answer relevancy* entre 0,72 et 0,76, pour une latence de génération médiane d'environ 5 s (ou 5 000 ms pour rester rigoureux sur les unités). Les deux runs Mistral-7B local atteignent des temps de génération de l'ordre de 36 à 38 s par question malgré l'accélération GPU et une *faithfulness* en retrait (0,61 à 0,68 selon la combinaison *chunker*/modèle de vectorisation), ce qui les disqualifie en tant que LLM principal du POC, mais les conserve comme piste de repli souverain pour des environnements sans accès Azure (typiquement des chantiers comme des sites militaires ou installations nucléaires) sur lesquels Bouygues Construction doit parfois opérer en infrastructure totalement isolée d'Internet, ce qui exclut d'entrée de jeu tout appel API externe et impose une chaîne RAG 100 % auto-hébergée. En pratique, la cible pour la mise en production est d'utiliser des modèles quasi état-de-l'art côté OpenAI (typiquement `gpt-4o` ou `gpt-4.1`), Anthropic (`claude-sonnet-4` / `claude-opus-4`) et Mistral (`mistral-large` ou successeurs), selon ce qui sera disponible et les coûts de run associés, avec à la clé un gain attendu sur la *faithfulness* et la *answer relevancy*, mais un coût par requête à reventiler.
 
-### 7.6. Configuration du *retrieval*
+### Configuration du *retrieval*
 
 | Paramètre | Valeur retenue | Renvoi théorique |
 |-----------|----------------|------------------|
@@ -1206,7 +1206,7 @@ Le choix d'un dense pur s'explique par la simplicité d'implémentation au POC e
 
 Le filtrage actuellement implémenté repose sur une distance maximale. En pratique, les *chunks* au-delà du seuil sont exclus (cf. Ch. 5.1.2). En revanche, le refus contrôlé strict n'est pas totalement verrouillé dans la version actuelle : quand aucun *chunk* pertinent n'est retenu, un message de contexte indique qu'aucun document n'a été trouvé, mais le modèle peut encore s'appuyer sur l'historique de conversation, ce qui rappelle la nécessité d'un garde-fou plus strict comme discuté au Ch. 4.4.6 et au Ch. 6.
 
-### 7.7. Configuration de la génération
+### Configuration de la génération
 
 ***Prompt*** : structure conforme aux principes énoncés au Ch. 4.4.2 :
 
@@ -1234,7 +1234,7 @@ return (
 
 **Citations** : la mécanique implémentée dans le POC n'est pas un format strict [n] avec bibliographie finale. Le *backend* pousse plutôt une citation textuelle du document + page utilisée, puis enrichit la réponse avec le blobid (permettant de construire le lien de visualisation/téléchargement). Le *frontend* transforme ces blobid en boutons cliquables ouvrant la source (et la page quand disponible).
 
-### 7.8. Synthèse des choix et limites assumées du POC
+### Synthèse des choix et limites assumées du POC
 
 Le POC ScribBERT, dans sa version actuelle, présente au moins ces limites structurantes pour un passage en production :
 
@@ -1245,7 +1245,7 @@ Le POC ScribBERT, dans sa version actuelle, présente au moins ces limites struc
 
 Ces axes constituent des priorités cohérentes pour la trajectoire de production et seront discutés en perspective au Ch. 10.
 
-## Chapitre 8a - Résultats quantitatifs
+## Résultats quantitatifs
 
 ### 8a.1. Protocole expérimental instancié
 
@@ -1444,7 +1444,7 @@ Ce niveau de coût montre qu'un balayage exploratoire de cette ampleur reste lar
 
 L'ajout d'un *reranking* *cross-encoder* (`bge-reranker-v2-m3`) en local représenterait un surcoût matériel plus qu'un surcoût monétaire, et ajouterait de l'ordre de 0,3 à 0,5 s par requête (temps nécessaire au *reranker* pour re-scorer les 20 *chunks* issus du *retrieval* initial et n'en conserver que les 5 meilleurs), d'après les essais préliminaires inclus dans `dense-k20-rerank5`.
 
-## Chapitre 8b - Analyse qualitative et étude d'erreurs
+## Analyse qualitative et étude d'erreurs
 
 ### 8b.1. Méthodologie
 
@@ -1569,11 +1569,11 @@ Les principaux axes d'amélioration remontés concernent :
 
 Une enquête structurée reste à mener pour passer de l'impression qualitative à une mesure consolidée. Cette enquête est identifiée comme priorité dans la trajectoire d'industrialisation (Ch. 10.2.2). Au-delà de la mesure, la formation et l'accompagnement des utilisateurs finaux (bonnes pratiques de formulation des requêtes, lecture critique des réponses, vérification systématique des sources citées) constituent un axe tout aussi prioritaire : l'adoption d'un outil de RAG en contexte santé-sécurité dépend autant de la maîtrise utilisateur que de la performance technique.
 
-## Chapitre 9 - Enjeux éthiques, réglementaires et industriels
+## Enjeux éthiques, réglementaires et industriels
 
 L'industrialisation d'un RAG dans un domaine critique comme la santé-sécurité soulève des questions qui dépassent la performance technique : conformité réglementaire, responsabilité, gouvernance, acceptabilité. Ce chapitre les traite spécifiquement, ce qui était demandé par la nature du sujet et la maturité croissante du cadre européen sur l'IA.
 
-### 9.1. Le cadre réglementaire européen : l'AI Act
+### Le cadre réglementaire européen : l'AI Act
 
 #### 9.1.1. Classification du système
 
@@ -1605,7 +1605,7 @@ ScribBERT relève également d'autres cadres susceptibles de s'appliquer :
 - Norme ISO/IEC 23894 sur la gestion des risques en IA ;
 - Recommandations CNIL sur l'IA (cycle 2023-2024) pour la partie données personnelles éventuelles, ce qui me permet de faire le lien avec la partie suivante :
 
-### 9.2. RGPD et données internes
+### RGPD et données internes
 
 Bien que ScribBERT ne traite pas de données personnelles dans son corpus (référentiels de procédures), trois points RGPD méritent une attention particulière :
 
@@ -1613,7 +1613,7 @@ Bien que ScribBERT ne traite pas de données personnelles dans son corpus (réf�
 2. Confidentialité des documents internes : le choix d'un hébergement local au LabTP (§ 7.2.2) garantit la non-exposition à des fournisseurs cloud externes pour le POC. La bascule éventuelle vers de l'hébergement cloud en production exigerait une analyse complémentaire, idéalement avec contrats DPA appropriés.
 3. Traçabilité des décisions : si une décision opérationnelle (ex. report d'une intervention) s'appuie sur une réponse de ScribBERT, la trace doit être conservée, avec la version du modèle, la version du corpus et la réponse exacte, pour permettre une analyse à posteriori.
 
-### 9.3. Responsabilité en contexte santé-sécurité
+### Responsabilité en contexte santé-sécurité
 
 #### 9.3.1. La question de la responsabilité
 
@@ -1644,7 +1644,7 @@ Le principe de *human-in-the-loop* est central pour les systèmes IA en domaine 
 - Procédure d'escalade : un canal pour signaler une réponse erronée, avec mise à jour du corpus ou du système ;
 - Validation experte des évolutions majeures (changement de modèle, mise à jour massive du corpus) avant déploiement.
 
-### 9.4. Gouvernance d'un RAG d'entreprise
+### Gouvernance d'un RAG d'entreprise
 
 L'industrialisation impose une discipline de gouvernance que le POC peut tolérer, mais que la production exige :
 
@@ -1654,7 +1654,7 @@ L'industrialisation impose une discipline de gouvernance que le POC peut tolére
 - Plan de gestion de l'obsolescence : les modèles propriétaires sont régulièrement dépréciés.Un plan de migration doit exister.
 - Politique de mise à jour du corpus : *workflow* de validation pour l'ajout / la modification d'un document, avec reconstruction de l'index.
 
-### 9.5. Acceptabilité et conduite du changement
+### Acceptabilité et conduite du changement
 
 La meilleure technologie échoue si les utilisateurs ne l'adoptent pas. Trois facteurs ont été identifiés comme déterminants pour ScribBERT :
 
@@ -1664,9 +1664,9 @@ La meilleure technologie échoue si les utilisateurs ne l'adoptent pas. Trois fa
 
 Une perspective intéressante est de considérer ScribBERT non pas comme un substitut à l'expert santé-sécurité, mais comme plutôt un amplificateur/facilitateur.
 
-## Chapitre 10 - Discussion et perspectives
+## Discussion et perspectives
 
-### 10.1. Interprétation des résultats et synthèse des enseignements
+### Interprétation des résultats et synthèse des enseignements
 
 Les Parties I et II ont posé un cadre théorique et méthodologique pour évaluer un RAG dans un contexte critique. La Partie III a montré comment ce cadre s'applique à un cas réel (ScribBERT) : la phase exploratoire a produit un *benchmark* de 750 configurations exploitables de *retrieval*, une campagne génération sur 5 configurations (3 Azure + 2 locales) et une campagne stabilité sur la configuration de référence. Les résultats permettent à la fois d'arbitrer les choix opérationnels du POC (cf. § 7.5.2, § 8a.2-8a.6) et d'identifier précisément ce qui reste à instrumenter (préservation des modalités, stabilité comparative entre meilleures variantes, validation humaine sur les questions critiques). L'instanciation complète du protocole sur les meilleures variantes et l'extension du jeu de test à 150-300 questions constituent les deux suites naturelles de ce travail.
 
@@ -1677,7 +1677,7 @@ Plusieurs enseignements méthodologiques se dégagent néanmoins :
 3. La stabilité est sous-évaluée dans les *frameworks* usuels : pour un système en production sur un sujet critique, la variance inter-runs et la robustesse aux paraphrases méritent un protocole dédié (Ch. 6).
 4. La traçabilité est à la fois un critère technique et un enjeu de confiance : citer les sources de manière vérifiable est probablement le facteur le plus fort d'acceptabilité utilisateur observé.
 
-### 10.2. Limites méthodologiques
+### Limites méthodologiques
 
 #### 10.2.1. Limites du jeu de test
 
@@ -1698,7 +1698,7 @@ Le corpus actuel se limite aux documents du siège, en français et anglais et d
 
 Les retours utilisateurs positifs de la phase de test sont un signal important mais ne se substituent pas à une évaluation systématique. L'effet de nouveauté et l'enthousiasme métier peuvent biaiser les retours initiaux. Une évaluation à 6 et 12 mois post-déploiement serait nécessaire pour mesurer l'usage sur la durée.
 
-### 10.3. Apports du travail
+### Apports du travail
 
 #### 10.3.1. Apports théoriques
 
@@ -1717,7 +1717,7 @@ Les retours utilisateurs positifs de la phase de test sont un signal important m
 - Une architecture RAG fonctionnelle et adaptée aux contraintes de Bouygues TP (souveraineté des données, multilinguisme FR/EN, corpus normatif).
 - Une identification claire des limites du POC (hybridation, *reranking*, gestion des tableaux et images) et un plan d'amélioration priorisé.
 
-### 10.4. Recommandations pour évaluer un RAG en contexte critique
+### Recommandations pour évaluer un RAG en contexte critique
 
 Synthèse des bonnes pratiques pour un futur projet :
 
@@ -1730,7 +1730,7 @@ Synthèse des bonnes pratiques pour un futur projet :
 7. Versionner et *journaliser* tout, dès le POC : ce qui n'est pas tracé ne peut être ni reproduit ni réutilisé.
 8. Anticiper la conformité AI Act et les enjeux de responsabilité dès la conception, pas après le déploiement.
 
-### 10.5. Perspectives
+### Perspectives
 
 #### 10.5.1. Améliorations techniques court terme (ScribBERT)
 
