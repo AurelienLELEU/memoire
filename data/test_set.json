@@ -292,16 +292,14 @@
     "type": "conditionnelle",
     "difficulty": "moyen",
     "criticality": "élevée",
-    "ground_truth_answer": "Un plan de prévention est obligatoire dès lors que les travaux confiés représentent plus de 400 heures par an ou comportent des travaux dangereux listés par décret (travaux en hauteur, en milieu confiné, avec risque chimique, à proximité de réseaux, etc.), conformément à la réglementation française relative aux entreprises extérieures.",
-    "relevant_doc_ids": [
-      "BYTP-H&S-PRO-2078-vA Gestion des sous-traitants"
-    ],
+    "ground_truth_answer": "Cette information ne figure pas dans les référentiels santé-sécurité internes consultés (le seuil réglementaire de 400 h/an et la liste des travaux dangereux relèvent du Code du travail, non repris textuellement dans le corpus). Le système doit produire un refus explicite plutôt qu'une réponse fabriquée.",
+    "relevant_doc_ids": [],
     "relevant_chunk_ids": [],
     "paraphrases": [
       "Faut-il un plan de prévention pour une intervention ponctuelle d'un sous-traitant ?",
       "Quand le plan de prévention est-il obligatoire avec une entreprise extérieure ?"
     ],
-    "notes": "Vérifier la mention du seuil légal (400h) et de la liste des travaux dangereux. Question testant la connaissance réglementaire ancrée dans le document."
+    "notes": "Cas révélé par l'évaluation manuelle : la règle réglementaire (seuil 400 h, travaux dangereux) n'est pas présente dans le corpus interne, contrairement à l'annotation initiale qui pointait BYTP-H&S-PRO-2078. La réponse attendue est désormais un refus explicite. Permet de tester le comportement face à une information absente du corpus."
   },
   {
     "id": "Q018",

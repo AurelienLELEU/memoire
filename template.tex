@@ -1,4 +1,4 @@
-\documentclass[12pt, a4paper]{report}
+\documentclass[11pt, a4paper]{report}
 
 % --- Encodage et langue ---
 % Compatible pdflatex / xelatex / lualatex.
@@ -35,9 +35,10 @@
 \else
   \usepackage{fontspec}
   \defaultfontfeatures{Ligatures=TeX}
-  \setmainfont{Latin Modern Roman}
-  \setsansfont{Latin Modern Sans}
-  \setmonofont{Latin Modern Mono}
+  % « Arial » (équivalent libre métrique-compatible fourni par texlive-fonts-recommended).
+  \setmainfont{TeX Gyre Heros}
+  \setsansfont{TeX Gyre Heros}
+  \setmonofont{TeX Gyre Cursor}
 \fi
 \usepackage[french]{babel}
 
@@ -69,7 +70,7 @@
 % --- Mise en page ---
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{setspace}
-\onehalfspacing
+\setstretch{1.15}
 
 % --- Maths ---
 \usepackage{amsmath, amssymb, amsfonts}
