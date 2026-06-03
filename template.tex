@@ -72,6 +72,32 @@
 \usepackage{setspace}
 \setstretch{1.15}
 
+% --- Anti-débordement (inline code, longs identifiants, URLs) ---
+% Pandoc convertit `code` en \texttt{...}. Par défaut, la fonte monospace
+% interdit toute coupure : les identifiants type « recursive-1024-128 »
+% débordent dans les colonnes de tableau et en marge.
+% Stratégie en trois temps :
+%   (a) on donne à LaTeX une marge d'élasticité d'urgence + \sloppy,
+%   (b) on réactive la coupure aux tirets dans la fonte monospace,
+%   (c) on enveloppe \texttt avec \seqsplit, qui autorise une coupure
+%       après chaque caractère du contenu (sans changer le rendu si
+%       le mot tient sur la ligne).
+\setlength{\emergencystretch}{3em}
+\usepackage{seqsplit}
+
+\makeatletter
+% Active la coupure aux tirets « - » dans la fonte monospace
+\renewcommand\ttfamily{%
+  \not@math@alphabet\ttfamily\mathtt
+  \fontfamily\ttdefault\selectfont
+  \hyphenchar\font=`\-\relax}
+
+% Redéfinit \texttt : conserve le rendu mono et autorise les coupures
+% à n'importe quelle position si nécessaire.
+\let\PandocOrigTexttt\texttt
+\renewcommand{\texttt}[1]{\PandocOrigTexttt{\seqsplit{#1}}}
+\makeatother
+
 % --- Maths ---
 \usepackage{amsmath, amssymb, amsfonts}
 

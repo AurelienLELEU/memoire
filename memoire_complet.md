@@ -71,14 +71,14 @@ Techniquement, ScribBERT repose sur une architecture **RAG** (Retrieval-Augmente
 - **Confidentialité** : hébergement et traitement compatibles avec la sensibilité des documents internes ;
 - **Évaluabilité** : conception du système pensée pour être mesurable, ce qui constitue précisément l'objet de ce mémoire.
 
-Le projet a été développé dans le cadre des deux dernières années de mon alternance qui s'est déroulée sur trois ans au sein du département P2S. La supervision a été assurée conjointement par **Flavien Martin** (tuteur métier, santé-sécurité) et **Julien Larseneur** (tuteur technique, équipe Data/IA Bouygues TP). Cette complémentarité s'est révélée précieuse : Flavien formulait les besoins métier, Julien m'aidait à les théoriser et à les traduire en choix d'architecture. Le périmètre fonctionnel initial couvre l'ensemble des référentiels santé-sécurité du siège de Bouygues TP, soit environ 130 documents PDF internes. Ce chiffre monte à 190–200 documents en intégrant les référentiels clients et réglementaires (ENBRIDGE, PAS 91, OSHA, etc.) (cf. Ch. 7).
+Le projet a été développé dans le cadre des deux dernières années de mon alternance qui s'est déroulée sur trois ans au sein du département P2S. La supervision a été assurée conjointement par **Flavien Martin** (tuteur métier, santé-sécurité) et **Julien Larseneur** (tuteur technique, équipe Data/IA Bouygues TP). Cette complémentarité s'est révélée précieuse : Flavien formulait les besoins métier, Julien m'aidait à les théoriser et à les traduire en choix d'architecture. Le périmètre fonctionnel initial couvre l'ensemble des référentiels santé-sécurité du siège de Bouygues TP, soit environ 130 documents PDF internes. Ce chiffre monte à 190-200 documents en intégrant les référentiels clients et réglementaires (ENBRIDGE, PAS 91, OSHA, etc.) (cf. Ch. 7).
 
 ### Implications pour ce mémoire
 
 La nature de l'entreprise et du département a directement influencé la problématique d'évaluation traitée ici. Quelques points méritent d'être soulignés car ils reviennent constamment dans la suite :
 
 - La criticité métier impose des exigences de fiabilité importantes. Un assistant marketing/communication qui se trompe, c'est gênant ; un assistant santé-sécurité qui se trompe, c'est potentiellement dangereux.
-- L'hétérogénéité documentaire rend les *benchmarks* publics insuffisants. ScribBERT ne peut pas être évalué avec les jeux de données académiques classiques . Il a fallu construire un corpus de test interne.
+- L'hétérogénéité documentaire rend les *benchmarks* publics insuffisants. ScribBERT ne peut pas être évalué avec les jeux de données académiques classiques. Il a fallu construire un corpus de test interne.
 - Les contraintes de confidentialité orientent les choix techniques (préférence pour des modèles hébergeables en interne, ou disponible en espace sécurisé).
 - Le caractère opérationnel du déploiement (avec des utilisateurs réels, dont certains enthousiastes et d'autres méfiants vis-à-vis de l'IA) impose de considérer non seulement la performance moyenne mais aussi la stabilité et la gestion des cas limites. Les premiers retours utilisateurs ont d'ailleurs confirmé ce point : tout le monde reconnaît l'intérêt de la solution, mais la peur de l'erreur reste présente, et légitime : en phase de POC (*Proof Of Concept*), certaines réponses se sont avérées incorrectes ou incomplètes, ce qui a renforcé la nécessité d'un cadre d'évaluation solide avant tout déploiement élargi.
 
@@ -246,7 +246,7 @@ En pratique, parcourir tous les passages du corpus est impossible : cette somme 
 
 La question "pourquoi un RAG plutôt qu'un *fine-tuning* ?" est revenue plusieurs fois dans les discussions autour de ScribBERT, et le choix s'est fait assez naturellement, mais il mérite d'être explicité.
 
-Le *fine-tuning* consiste à adapter les poids d'un modèle sur des données spécifiques. Le modèle obtenu "sait" les choses directement, sans avoir besoin de consulter des documents au moment de la requête. En théorie cela semble convainquant. En pratique, dans un contexte comme le nôtre, c'est difficilement tenable : nos procédures évoluent régulièrement, et réentraîner un modèle à chaque mise à jour documentaire serait trop coûteux et non traçable (les sources mobilisées par le modèle pour répondre resteraient inconnues).
+Le *fine-tuning* consiste à adapter les poids d'un modèle sur des données spécifiques. Le modèle obtenu "sait" les choses directement, sans avoir besoin de consulter des documents au moment de la requête. En théorie cela semble convaincant. En pratique, dans un contexte comme le nôtre, c'est difficilement tenable : nos procédures évoluent régulièrement, et réentraîner un modèle à chaque mise à jour documentaire serait trop coûteux et non traçable (les sources mobilisées par le modèle pour répondre resteraient inconnues).
 
 Le **RAG**, à l'inverse, conserve un modèle généraliste et injecte du contexte documentaire à la volée. Pour mettre à jour un document, il "suffit" de réindexer. Et pour savoir d'où vient une réponse, il "suffit" d'inspecter les passages récupérés. 
 
@@ -530,7 +530,7 @@ Pour un corpus santé-sécurité, les stratégies structurelle, récursive et su
 Deux paramètres clés interagissent :
 
 - **Taille du chunk** ($T$, en *tokens*) : trop petit ⇒ perte de contexte, ambiguïté, perte de l'antécédent ("il", "cette règle") ; trop grand ⇒ dilution sémantique, *embedding* moins discriminant, contexte LLM saturé.
-- ***Overlap*** ($O$, généralement 10–20 % de $T$) : permet d'amortir les coupures malheureuses au prix d'une redondance dans l'index.
+- ***Overlap*** ($O$, généralement 10-20 % de $T$) : permet d'amortir les coupures malheureuses au prix d'une redondance dans l'index.
 
 L'optimum dépend du type de question : les questions factuelles courtes tolèrent des *chunks* petits, tandis que les questions procédurales ("comment faire X ?") requièrent souvent des *chunks* plus larges qui capturent une séquence d'étapes. C'est ce genre de tension que j'ai observée lors du développement : en réduisant la taille des *chunks*, je gagnais en précision sur certaines questions, mais je cassais la cohérence des réponses sur d'autres. Un protocole rigoureux **teste plusieurs configurations** ($T \in \{256, 512, 1024\}$, $O \in \{0, 64, 128\}$) et mesure l'impact *end-to-end*. C'est ce que nous ferons en Partie III.
 
@@ -588,8 +588,8 @@ Le *reranking* consiste à appliquer un modèle plus précis (et plus coûteux) 
 
 *Pipeline* typique :
 
-1. *Retrieval* initial → top-100 candidats (rapide, $O(\log N)$ sur HNSW),
-2. *Reranking* → top-10 (lent : 100 inférences *cross-encoder*, $\sim$ 100–500 ms),
+1. *Retrieval* initial pour obtenir le top-100 des candidats (rapide, $O(\log N)$ sur HNSW),
+2. *Reranking* pour ne conserver que le top-10 (lent : 100 inférences *cross-encoder*, $\sim$ 100-500 ms),
 3. Génération sur top-10 (ou top-5).
 
 Le gain de qualité est souvent **substantiel** mais le coût en latence est non négligeable. Le compromis dépend de la criticité de l'application.
@@ -621,7 +621,7 @@ Plusieurs techniques visent à enrichir ou reformuler la requête :
 - **HyDE** (*Hypothetical Document Embeddings*) : faire générer par un LLM une réponse hypothétique à la requête, puis utiliser son *embedding* pour la recherche. Améliore le rappel sur des questions complexes.
 - ***Multi-query*** : générer plusieurs reformulations de la requête, lancer plusieurs recherches, fusionner les résultats.
 - ***Step-back prompting*** : reformuler la requête en une question plus générale, qui peut mieux correspondre à des passages introductifs.
-- **Query rewriting via LLM** : corriger les fautes, expanser les acronymes ("EPI" → "équipement de protection individuelle"), normaliser le vocabulaire.
+- **Query rewriting via LLM** : corriger les fautes, expanser les acronymes ("EPI" en "équipement de protection individuelle"), normaliser le vocabulaire.
 
 Ces techniques améliorent généralement le rappel mais ajoutent de la latence, augmentent les coûts et peuvent introduire une **dérive sémantique** (la reformulation s'éloigne de l'intention initiale). Un protocole d'évaluation rigoureux doit mesurer le gain net.
 
@@ -651,7 +651,7 @@ Le budget de *tokens* est une contrainte structurante. Avec 10 passages de 500 *
 
 #### 4.4.4. Paramètres de décodage
 
-- **Température** : 0 pour la reproductibilité (cas critiques santé-sécurité), 0.2–0.5 pour un compromis qualité/diversité, ≥ 0.7 pour la créativité (peu pertinent ici).
+- **Température** : 0 pour la reproductibilité (cas critiques santé-sécurité), 0.2-0.5 pour un compromis qualité/diversité, ≥ 0.7 pour la créativité (peu pertinent ici).
 - **Top-p / *top-k* sampling** : alternative à la température, plus rarement utilisée en RAG.
 - **Max tokens** : borne haute pour éviter les réponses interminables.
 - **Repetition / presence penalty** : utile si le modèle "bégaie" sur des termes techniques.
@@ -801,15 +801,15 @@ Constitue le ***gold standard***, particulièrement pour les dimensions difficil
 
 | Critère | Échelle | Définition |
 |---------|---------|------------|
-| Pertinence | 0–3 | 0 = hors-sujet, 3 = répond exactement à la question |
-| Fidélité aux sources | 0–3 | 0 = invente, 3 = parfaitement supporté par les sources fournies |
-| Complétude | 0–3 | 0 = manquements importants, 3 = couvre toutes les exceptions |
-| Modalité (santé-sécurité) | 0–2 | 0 = transforme une obligation en recommandation ou inverse, 2 = modalité conservée |
-| Sûreté opérationnelle | 0–3 | 0 = induirait un comportement dangereux, 3 = aligné avec les bonnes pratiques |
-| Citations | 0–2 | 0 = aucune ou erronée, 2 = chaque affirmation citée correctement |
+| Pertinence | 0-3 | 0 = hors-sujet, 3 = répond exactement à la question |
+| Fidélité aux sources | 0-3 | 0 = invente, 3 = parfaitement supporté par les sources fournies |
+| Complétude | 0-3 | 0 = manquements importants, 3 = couvre toutes les exceptions |
+| Modalité (santé-sécurité) | 0-2 | 0 = transforme une obligation en recommandation ou inverse, 2 = modalité conservée |
+| Sûreté opérationnelle | 0-3 | 0 = induirait un comportement dangereux, 3 = aligné avec les bonnes pratiques |
+| Citations | 0-2 | 0 = aucune ou erronée, 2 = chaque affirmation citée correctement |
 
 **Bonnes pratiques** :
-- **Plusieurs annotateurs** par item (idéalement 2–3) pour mesurer l'accord inter-annotateurs (Kappa de Cohen, $\alpha$ de Krippendorff).
+- **Plusieurs annotateurs** par item (idéalement 2-3) pour mesurer l'accord inter-annotateurs (Kappa de Cohen, $\alpha$ de Krippendorff).
 - **Annotation à l'aveugle** sur la configuration testée (l'annotateur ne sait pas quel système a produit la réponse).
 - **Profil mixte** d'annotateurs : experts métiers et utilisateurs cibles, pour capturer expertise et utilisabilité.
 - **Charte d'annotation** documentée et exemples gold pour calibrer.
@@ -852,7 +852,7 @@ Pour un protocole diagnostique, il est convenu de stratifies le jeu de test selo
 
 **Par niveau de difficulté** :
 - **Facile** : la réponse est dans un seul passage explicite.
-- **Moyen** : nécessite 2–3 passages.
+- **Moyen** : nécessite 2-3 passages.
 - **Difficile** : exception ou condition à identifier, modalité subtile ou contradiction apparente à arbitrer.
 
 **Par criticité métier** :
@@ -1096,7 +1096,7 @@ Ce choix d'une *stack* majoritairement *open-source* et auto-hébergée répond 
 
 Le *pipeline* d'ingestion transforme un PDF source en *chunks* indexés. Étapes :
 
-1. **Extraction** : conversion PDF → Markdown via fitz (PyMuPDF), ce qui permet de conserver au mieux la mise en forme (titres, listes, tableaux), tout en disposant de texte facile à *parser*.
+1. **Extraction** : conversion du PDF en Markdown via fitz (PyMuPDF), ce qui permet de conserver au mieux la mise en forme (titres, listes, tableaux), tout en disposant de texte facile à *parser*.
 2. **Nettoyage** : suppression des en-têtes/pieds de page répétitifs, normalisation des caractères spéciaux.
 3. ***Chunking*** : découpage par regex sur les marqueurs structurels (titres Markdown `#`, `##`, séparateurs de paragraphes), avec contrainte de taille cible (~1200 *tokens*) et *overlap* (~50 *tokens*). Détails en § 7.4.
 4. **Enrichissement métadonnées** : ajout pour chaque *chunk* de : `nom_document`, `entité_émettrice`, `langue`, `position_dans_doc`.
@@ -1174,9 +1174,9 @@ Au vu des résultats consolidés, le modèle d'*embedding* **retenu** pour la co
 1. Il est déjà déployé et disponible dans le *tenant* Azure de Bouygues Construction, ce qui supprime le coût d'hébergement GPU, et le temps de mise en place d'une architecture côté Bouygues.
 2. Il est en principe totalement multilingue et donne des résultats similaires en français et en anglais sur notre corpus.
 3. Sa latence par requête reste compatible avec un usage interactif "instantané". La métrique `latency_s` que j'enregistre correspond au temps mesuré *côté Python* autour de l'appel d'*embedding* seul, c'est-à-dire l'intervalle complet entre l'envoi de la requête depuis ma machine de développement vers l'*endpoint* Azure de la région configurée et la réception du vecteur en retour (donc aller-retour réseau inclus), hors *retrieval* ChromaDB et hors appel LLM.
-Les conditions expérimentales sont par ailleurs favorables et stables : la machine de développement est un Dell Pro Max GB10 (CPU 20 cœurs Arm, GPU Blackwell intégré, 128 Go de LPDDR5X unifiée), raccordée en Ethernet filaire (cordon < 20 cm jusqu'au routeur) sur une liaison fibre optique 1 Gbit/s symétrique. Sur cette configuration, la latence médiane observée est de ~80 ms par requête pour `ada-002`, contre 5–25 ms pour la plupart des modèles *open-source* légers exécutés localement sur GPU (`minilm-l6`, `e5-*`, `mpnet-base`, `bge-m3`, `nomic-v2`, `solon-large`, etc.), ~260 ms pour `qwen3-embed-8b` et jusqu'à ~3 300 ms pour `embed-3-large`. Autrement dit `ada-002` n'est pas le plus rapide en latence brute d'*embedding*, mais il évite l'hébergement GPU et reste largement en-dessous des modèles propriétaires lourds et des très gros *open-source* ; sa latence est donc négligeable devant celle de la génération LLM (~5 000 ms côté Azure, cf. ci-dessous).
+Les conditions expérimentales sont par ailleurs favorables et stables : la machine de développement est un Dell Pro Max GB10 (CPU 20 cœurs Arm, GPU Blackwell intégré, 128 Go de LPDDR5X unifiée), raccordée en Ethernet filaire (cordon < 20 cm jusqu'au routeur) sur une liaison fibre optique 1 Gbit/s symétrique. Sur cette configuration, la latence médiane observée est de ~80 ms par requête pour `ada-002`, contre 5-25 ms pour la plupart des modèles *open-source* légers exécutés localement sur GPU (`minilm-l6`, `e5-*`, `mpnet-base`, `bge-m3`, `nomic-v2`, `solon-large`, etc.), ~260 ms pour `qwen3-embed-8b` et jusqu'à ~3 300 ms pour `embed-3-large`. Autrement dit `ada-002` n'est pas le plus rapide en latence brute d'*embedding*, mais il évite l'hébergement GPU et reste largement en-dessous des modèles propriétaires lourds et des très gros *open-source* ; sa latence est donc négligeable devant celle de la génération LLM (~5 000 ms côté Azure, cf. ci-dessous).
 
-Concernant ls modèles de génération de texte, les cinq runs disponibles (§ 8a.3) confirment que `azure-gpt35` est suffisant pour la phase exploratoire : *faithfulness* RAGAS comprise entre 0,72 et 0,77, *answer relevancy* entre 0,72 et 0,76, pour une latence de génération médiane d'environ 5 s (ou 5 000 ms pour rester rigoureux sur les unités). Les deux runs Mistral-7B local atteignent des temps de génération de l'ordre de 36 à 38 s par question malgré l'accélération GPU et une *faithfulness* en retrait (0,61 à 0,68 selon la combinaison *chunker*/modèle de vectorisation), ce qui les disqualifie en tant que LLM principal du POC, mais les conserve comme piste de repli souverain pour des environnements sans accès Azure (typiquement des chantiers comme des sites militaires ou installations nucléaires) sur lesquels Bouygues Construction doit parfois opérer en infrastructure totalement isolée d'Internet, ce qui exclut d'entrée de jeu tout appel API externe et impose une chaîne RAG 100 % auto-hébergée. En pratique, la cible pour la mise en production est d'utiliser des modèles quasi état-de-l'art côté OpenAI (typiquement `gpt-4o` ou `gpt-4.1`), Anthropic (`claude-sonnet-4` / `claude-opus-4`) et Mistral (`mistral-large` ou successeurs), selon ce qui sera disponible et les coûts de run associés, avec à la clé un gain attendu sur la *faithfulness* et la *answer relevancy*, mais un coût par requête à reventiler.
+Concernant les modèles de génération de texte, les cinq runs disponibles (§ 8a.3) confirment que `azure-gpt35` est suffisant pour la phase exploratoire : *faithfulness* RAGAS comprise entre 0,72 et 0,77, *answer relevancy* entre 0,72 et 0,76, pour une latence de génération médiane d'environ 5 s (ou 5 000 ms pour rester rigoureux sur les unités). Les deux runs Mistral-7B local atteignent des temps de génération de l'ordre de 36 à 38 s par question malgré l'accélération GPU et une *faithfulness* en retrait (0,61 à 0,68 selon la combinaison *chunker*/modèle de vectorisation), ce qui les disqualifie en tant que LLM principal du POC, mais les conserve comme piste de repli souverain pour des environnements sans accès Azure (typiquement des chantiers comme des sites militaires ou installations nucléaires) sur lesquels Bouygues Construction doit parfois opérer en infrastructure totalement isolée d'Internet, ce qui exclut d'entrée de jeu tout appel API externe et impose une chaîne RAG 100 % auto-hébergée. En pratique, la cible pour la mise en production est d'utiliser des modèles quasi état-de-l'art côté OpenAI (typiquement `gpt-4o` ou `gpt-4.1`), Anthropic (`claude-sonnet-4` / `claude-opus-4`) et Mistral (`mistral-large` ou successeurs), selon ce qui sera disponible et les coûts de run associés, avec à la clé un gain attendu sur la *faithfulness* et la *answer relevancy*, mais un coût par requête à reventiler.
 
 ### 7.6. Configuration du *retrieval*
 
@@ -1217,7 +1217,7 @@ return (
 **Paramètres de décodage** :
 - **Température** : **0,05** (réglage effectif de la route de génération principale, cohérent avec la recommandation de stabilité formulée plus haut en Ch. 4.4.4 et au Ch. 6) ;
 - **Max tokens** : non fixé explicitement, pas de plafond applicatif dédié dans cette couche ;
-- **Seed** : non fixée à ce stade: la génération est globalement stable grâce à une température basse, mais la reproductibilité stricte d’un run à l’autre n’est pas garantie.
+- **Seed** : non fixée à ce stade : la génération est globalement stable grâce à une température basse, mais la reproductibilité stricte d’un run à l’autre n’est pas garantie.
 
 **Citations** : la mécanique implémentée dans le POC n'est pas un format strict [n] avec bibliographie finale. Le *backend* pousse plutôt une citation textuelle du document + page utilisée, puis enrichit la réponse avec le blobid (permettant de construire le lien de visualisation/téléchargement). Le *frontend* transforme ces blobid en boutons cliquables ouvrant la source (et la page quand disponible).
 
@@ -1250,7 +1250,7 @@ Les configurations comparées dans la phase exploratoire correspondent à un pla
     - `hybrid-k5` : fusion dense + BM25 via *Reciprocal Rank Fusion*, top-$k$ = 5 ;
     - `dense-k20-rerank5` : *retrieval* top-20 puis *reranking* *cross-encoder* (BGE-reranker-v2-m3), retour top-5.
 
-Le LLM, le *prompt* et la température sont gelés à leur valeur de référence (§ 7.5–7.7) pour isoler l'effet des leviers testés. Sur les 864 cellules du plan, 750 sont exploitables (cf. § 7.5.2).
+Le LLM, le *prompt* et la température sont gelés à leur valeur de référence (§ 7.5-7.7) pour isoler l'effet des leviers testés. Sur les 864 cellules du plan, 750 sont exploitables (cf. § 7.5.2).
 
 #### 8a.1.2. Jeu de test
 
@@ -1261,7 +1261,7 @@ Le jeu de test utilisé est constitué de **50 questions** annotées manuellemen
 - **langue** : français ×41, anglais ×9 ;
 - **criticité métier** : élevée ×42, moyenne ×5, faible ×3.
 
-Pour chaque question sont annotés : une réponse de référence rédigée à partir des référentiels, la liste des documents de référence (`relevant_doc_ids`), des paraphrases validées (utilisées pour le protocole de stabilité du Ch. 6) et des notes contextuelles. Cette taille (50) reste inférieure aux 150–300 questions recommandées au Ch. 5.3.4 : les écarts inter-configurations doivent être lus comme des tendances, et non comme des comparaisons statistiquement décisives. Le passage à 150 questions stratifiées est identifié comme priorité au Ch. 10.2.1.
+Pour chaque question sont annotés : une réponse de référence rédigée à partir des référentiels, la liste des documents de référence (`relevant_doc_ids`), des paraphrases validées (utilisées pour le protocole de stabilité du Ch. 6) et des notes contextuelles. Cette taille (50) reste inférieure aux 150-300 questions recommandées au Ch. 5.3.4 : les écarts inter-configurations doivent être lus comme des tendances, et non comme des comparaisons statistiquement décisives. Le passage à 150 questions stratifiées est identifié comme priorité au Ch. 10.2.1.
 
 #### 8a.1.3. Conditions d'exécution
 
@@ -1299,7 +1299,7 @@ Effet de la stratégie de *chunking* (MRR moyenne sur l'ensemble des combinaison
 
 | *Chunking* | MRR | Lecture |
 |----------|-----|---------|
-| `recursive-1024-128` | 0,603 | *chunks* larges respectant la structure → meilleurs résultats |
+| `recursive-1024-128` | 0,603 | *chunks* larges respectant la structure = meilleurs résultats |
 | `fixed-1024-128` | 0,597 | *chunks* larges "naïfs" |
 | `recursive-512-64` | 0,586 | bon compromis taille/structure |
 | `regex-paragraph` | 0,583 | granularité paragraphe |
@@ -1325,7 +1325,7 @@ Effet de la variante de *retrieval* (MRR moyenne sur l'ensemble des combinaisons
 Trois choses à noter :
 
 - Le *reranking* *cross-encoder* (`dense-k20-rerank5`) apporte un gain de +0,047 de MRR par rapport à `dense-k5` (environ +8 % relatif), au prix d'une latence supplémentaire (mesurée séparément en § 8a.6). C'est la confirmation expérimentale, sur notre corpus, de la valeur du *reranking* évoquée au Ch. 4.3.3, et un argument fort pour son intégration en production.
-- L'hybride dense + BM25 confirme également sa valeur (+0,031 par rapport à `dense-k5`), particulièrement utile pour les requêtes citant explicitement un identifiant de procédure (Ch. 4.3.2). Le meilleur top-3 absolu du *benchmark* associe d'ailleurs `qwen3-embed-8b` à `hybrid-k5` sur des *chunks* 512–1024 *tokens*.
+- L'hybride dense + BM25 confirme également sa valeur (+0,031 par rapport à `dense-k5`), particulièrement utile pour les requêtes citant explicitement un identifiant de procédure (Ch. 4.3.2). Le meilleur top-3 absolu du *benchmark* associe d'ailleurs `qwen3-embed-8b` à `hybrid-k5` sur des *chunks* 512-1024 *tokens*.
 - À l'inverse, la variante `dense-k5-neigh` (ajout systématique des voisins $n{-}1$/$n{+}1$) dégrade la MRR. L'explication est cohérente avec la discussion du Ch. 4.2.2 : sur des *chunks* déjà larges (≥ 512 *tokens*), l'ajout des voisins "dilue" la pertinence du top-5 sans apporter d'information utile, et bruite l'évaluation du "premier passage pertinent". Cette variante reste cependant pertinente quand l'objectif est la génération plutôt que le *retrieval* pur (§ 8a.3), où le voisinage restaure des références anaphoriques.
 
 Top 5 des configurations en MRR absolue (sur les 750 configurations testées) :
@@ -1358,7 +1358,7 @@ Deuxième lecture, plus contre-intuitive : la variante `dense-k5-neigh` amélior
 
 Troisième point, côté LLM : `gpt-3.5-turbo` plafonne à ≈ 0,75 de *faithfulness* sur ce corpus. Aucune des trois configurations Azure ne dépasse 0,77, et la dispersion entre configurations RAGAS reste limitée (environ 5 points). Atteindre 0,90 (cible usuelle des *frameworks* RAG) nécessiterait probablement un modèle de génération plus récent (`gpt-4o`, Claude, Mistral Large), un *prompt* plus strict sur la citation, ou un *reranking* systématique avant injection.
 
-Enfin, côté alternative locale : Mistral-7B local n'est pas viable en production interactive et reste nettement en retrait sur les scores RAGAS. Avec 36–38 s par question sur GPU, la *pipeline* locale est environ 7 fois plus lente que la *pipeline* Azure équivalente, et sa *faithfulness* plafonne à 0,68 dans la meilleure des deux configurations (`recursive-512-64` + `e5-base-ml`), contre 0,76 pour la meilleure *pipeline* Azure, soit environ 8 points d'écart. Cet écart se creuse encore sur les questions où l'information attendue n'est pas réellement présente dans le corpus : sur Q017 (« Dans quels cas un plan de prévention sous-traitant est-il obligatoire ? »), une vérification manuelle confirme que le seuil réglementaire (400 h/an) ne figure pas dans le doc cité par le test set ; Azure produit alors le refus attendu (« Cette information ne figure pas dans les référentiels consultés ») alors que les deux *pipelines* locales fabriquent une réponse plausible mais non sourcée. L'observation se retrouve également sur le comportement de citation : `gpt-3.5-turbo` cite systématiquement ses sources en tête de réponse (format `[1][2]` groupé), Mistral-7B + `e5-base-ml` cite relativement correctement (`[1, page 2]`), mais Mistral-7B + `minilm-l6` omet les citations sur une part non négligeable des réponses ou les place de façon incohérente, ce qui explique en partie sa *context precision* plus faible (0,361). L'écart entre les deux runs locaux (0,681 vs 0,612 de *faithfulness*) confirme par ailleurs que le choix du *chunker* et de le modèle de vectorisation pèse davantage que le LLM sur le score final : `fixed-256-0` + `minilm-l6` cumule *chunks* trop courts et *embeddings* trop légers, là où `recursive-512-64` + `e5-base-ml` s'approche un peu plus des standards Azure sans pour autant les rejoindre. Cette voie reste pertinente comme option "souveraineté forte" pour des déploiements sans connectivité Azure. Pour devenir exploitable, elle demanderait de réduire significativement la latence de génération, d'adopter un modèle de vectorisation multilingue plus capacitaire et de renforcer la consigne de citation dans le *prompt* système.
+Enfin, côté alternative locale : Mistral-7B local n'est pas viable en production interactive et reste nettement en retrait sur les scores RAGAS. Avec 36-38 s par question sur GPU, la *pipeline* locale est environ 7 fois plus lente que la *pipeline* Azure équivalente, et sa *faithfulness* plafonne à 0,68 dans la meilleure des deux configurations (`recursive-512-64` + `e5-base-ml`), contre 0,76 pour la meilleure *pipeline* Azure, soit environ 8 points d'écart. Cet écart se creuse encore sur les questions où l'information attendue n'est pas réellement présente dans le corpus : sur Q017 (« Dans quels cas un plan de prévention sous-traitant est-il obligatoire ? »), une vérification manuelle confirme que le seuil réglementaire (400 h/an) ne figure pas dans le doc cité par le test set ; Azure produit alors le refus attendu (« Cette information ne figure pas dans les référentiels consultés ») alors que les deux *pipelines* locales fabriquent une réponse plausible mais non sourcée. L'observation se retrouve également sur le comportement de citation : `gpt-3.5-turbo` cite systématiquement ses sources en tête de réponse (format `[1][2]` groupé), Mistral-7B + `e5-base-ml` cite relativement correctement (`[1, page 2]`), mais Mistral-7B + `minilm-l6` omet les citations sur une part non négligeable des réponses ou les place de façon incohérente, ce qui explique en partie sa *context precision* plus faible (0,361). L'écart entre les deux runs locaux (0,681 vs 0,612 de *faithfulness*) confirme par ailleurs que le choix du *chunker* et du modèle de vectorisation pèse davantage que le LLM sur le score final : `fixed-256-0` + `minilm-l6` cumule *chunks* trop courts et *embeddings* trop légers, là où `recursive-512-64` + `e5-base-ml` s'approche un peu plus des standards Azure sans pour autant les rejoindre. Cette voie reste pertinente comme option "souveraineté forte" pour des déploiements sans connectivité Azure. Pour devenir exploitable, elle demanderait de réduire significativement la latence de génération, d'adopter un modèle de vectorisation multilingue plus capacitaire et de renforcer la consigne de citation dans le *prompt* système.
 
 L'évaluation des dimensions non automatisables (préservation des modalités santé-sécurité, sûreté opérationnelle, complétude experte, Ch. 5.1.2 et 5.2.2) a été menée manuellement sur un sous-échantillon stratifié de 15 questions critiques (issues majoritairement des catégories conditionnelle et procédurale, criticité élevée), conformément au protocole hybride du Ch. 5.2.3. Sur la configuration de référence (`recursive-512-64` + `ada-002` + `hybrid-k5` + `gpt-3.5-turbo`), 13 réponses sur 15 préservent correctement les « doit », « peut », « ne doit pas ». Les deux cas problématiques concernent la transformation d'une obligation en recommandation sur des questions où le *chunk* de référence n'apparaissait pas en tête du top-5. Côté sûreté opérationnelle, aucune réponse n'a produit d'instruction dangereuse ou contraire aux référentiels, y compris sur les questions adversariales (cf. § 8b.4.3). En revanche, la complétude experte est plus inégale : sur 6 questions conditionnelles incluses dans le sous-échantillon, 2 omettent au moins une exception ou un cas particulier pourtant présent dans le document source, ce qui rejoint la catégorie « omission d'exception » identifiée en § 8b.2. Cette évaluation reste à étendre à un échantillon plus large (objectif 50 questions, idéalement avec deux annotateurs pour mesurer l'accord inter-juges) avant d'être consolidée en métrique de référence.
 
@@ -1401,7 +1401,7 @@ Côté *retrieval* (médianes par modèle d'*embedding* sur les configurations `
 | `qwen3-embed-8b` | ~260 ms | local (GPU) |
 | `embed-3-large` | ~3 300 ms | API Azure |
 
-`ada-002` est donc nettement plus lent en latence brute d'*embedding* que la majorité des modèles *open-source* légers exécutés en local sur GPU (le surcoût vient entre-autres de l'aller-retour réseau vers l'*endpoint* Azure), mais reste très en-dessous des autres modèles propriétaires (`embed-3-large`) et des très gros *open-source* (`qwen3-embed-8b`). Son choix opérationnel (§ 7.5.2) ne se justifie donc pas par la latence d'*embedding*, négligeable par rapport à la génération LLM, mais plutôt par sa qualité de *retrieval* et l'absence d'hébergement GPU côté Bouygues.
+`ada-002` est donc nettement plus lent en latence brute d'*embedding* que la majorité des modèles *open-source* légers exécutés en local sur GPU (le surcoût vient entre autres de l'aller-retour réseau vers l'*endpoint* Azure), mais reste très en-dessous des autres modèles propriétaires (`embed-3-large`) et des très gros *open-source* (`qwen3-embed-8b`). Son choix opérationnel (§ 7.5.2) ne se justifie donc pas par la latence d'*embedding*, négligeable par rapport à la génération LLM, mais plutôt par sa qualité de *retrieval* et l'absence d'hébergement GPU côté Bouygues.
 
 Côté génération (médianes sur 50 questions, configuration Azure de référence `hybrid-k5` + `gpt-3.5-turbo`) :
 
@@ -1422,14 +1422,14 @@ Coût par requête (estimation indicative au tarif Azure OpenAI public) :
 Estimation du coût total de la campagne de *benchmark* (estimation indicative, hors temps GPU local) :
 
 - Construction des index vectoriels : seuls les modèles de vectorisation propriétaires (`ada-002`, `embed-3-large`) ont engendré un coût API. Avec 12 variantes de *chunking* x 2 modèles de vectorisation sur un corpus d'environ 2 millions de *tokens*, cela représente environ 48 millions de *tokens* embeddés cumulés : environ 2,5 € pour `ada-002` (0,0001 €/1k *tokens*) et environ 3 € pour `embed-3-large` (0,00013 €/1k *tokens*). Les autres modèles de vectorisation étant exécutés en local sur GPU, leur coût se limite à la consommation électrique.
-- *Embeddings* de requête sur la campagne *retrieval* : 750 configurations x 50 questions = 37 500 requêtes, dont environ 250 configurations utilisaient un modèle de vectorisation API, cela réprésente moins de 1 € cumulé.
+- *Embeddings* de requête sur la campagne *retrieval* : 750 configurations x 50 questions = 37 500 requêtes, dont environ 250 configurations utilisaient un modèle de vectorisation API, cela représente moins de 1 € cumulé.
 - Génération `gpt-3.5-turbo` sur les campagnes génération (3 configs Azure x 50 questions) et stabilité (1 config x 50 questions x 10 runs) : environ 750 appels avec environ 3 000 *tokens* de contexte et 300 *tokens* de réponse, soit environ 1,5 €.
 - Évaluation RAGAS (4 métriques × 5 configs × 50 questions, chaque métrique faisant plusieurs appels *LLM-juge* avec un contexte de 2 à 3 k *tokens*) : c'est le poste le plus important, environ 5 à 7 € selon le détail des *prompts* internes RAGAS.
 - Total estimé : environ 15 à 20 € pour l'ensemble de la phase exploratoire Azure, hors coût matériel/électrique du GPU local utilisé pour les modèles de vectorisation *open-source* et pour les deux runs Mistral-7B.
 
 Ce niveau de coût montre qu'un balayage exploratoire de cette ampleur reste largement accessible dans un cadre de POC interne, et que c'est plutôt le temps machine (durée totale d'exécution de l'ordre de plusieurs dizaines d'heures cumulées sur la machine de développement) qui constitue le facteur limitant, pas la facture API.
 
-L'ajout d'un *reranking* *cross-encoder* (`bge-reranker-v2-m3`) en local représenterait un surcoût matériel plus qu'un surcoût monétaire, et ajouterait de l'ordre de 0,3 à 0,5 s par requête (temps nécessaire au *reranker* pour re-scorer les 20 *chunks* issus du *retrieval* initial et en conserver que les 5 meilleurs), d'après les essais préliminaires inclus dans `dense-k20-rerank5`.
+L'ajout d'un *reranking* *cross-encoder* (`bge-reranker-v2-m3`) en local représenterait un surcoût matériel plus qu'un surcoût monétaire, et ajouterait de l'ordre de 0,3 à 0,5 s par requête (temps nécessaire au *reranker* pour re-scorer les 20 *chunks* issus du *retrieval* initial et n'en conserver que les 5 meilleurs), d'après les essais préliminaires inclus dans `dense-k20-rerank5`.
 
 ## Chapitre 8b - Analyse qualitative et étude d'erreurs
 
@@ -1471,13 +1471,13 @@ Lecture transverse : sur les 50 questions, 13 sont concernées par au moins une 
 
 ### 8b.3. Études de cas
 
-Six cas tirés de la config de référence, choisis pour couvrir succès, échecs et zones grises. Format compressé : Q (question),  F/CR/CP (faith / ctx_recall / ctx_precision), interprétation
+Six cas tirés de la config de référence, choisis pour couvrir succès, échecs et zones grises. Format compressé : Q (question), F/CR/CP (faith / ctx_recall / ctx_precision), interprétation
 
 **Cas 1 - Succès net (Q001, factuelle, FR, criticité élevée).**
 Q : « Quels sont les EPI obligatoires ? » F 1,00 / CR 1,00 / CP 1,00. Le top-5 contient le *chunk* exact du « Référentiel EPI » (BYTP-H&S-REF-2219), la réponse liste les 6 EPI et la règle des 80 dB(A) avec citation correcte. Les questions factuelles à vocabulaire métier précis (« EPI obligatoires ») sont l'archétype du cas favorable.
 
 **Cas 2 - Cross-lingual réussi (Q040, factuelle, EN, criticité élevée).**
-Q : « What is the immediate procedure upon discovering a suspected unexploded ordnance (UXO) on a BYTP construction site? » F 0,88 / CR 1,00 / CP 1,00. Le top-5 remonte directement le « Safety Alert UXO – ALIGN » (EN). Sur ce corpus, `ada-002` + `hybrid-k5` n'a pas de difficulté à apparier une question EN à un doc EN. Le cas plus difficile reste la combinaison inverse (question FR sur doc EN court), observée sur Q046 (cf. Cas 6 ci-dessous et § 8b.4.2).
+Q : « What is the immediate procedure upon discovering a suspected unexploded ordnance (UXO) on a BYTP construction site? » F 0,88 / CR 1,00 / CP 1,00. Le top-5 remonte directement le « Safety Alert UXO - ALIGN » (EN). Sur ce corpus, `ada-002` + `hybrid-k5` n'a pas de difficulté à apparier une question EN à un doc EN. Le cas plus difficile reste la combinaison inverse (question FR sur doc EN court), observée sur Q046 (cf. Cas 6 ci-dessous et § 8b.4.2).
 
 **Cas 3 - Information absente du corpus, révélée par l'évaluation (Q017, FR, criticité élevée).**
 Q : « Dans quels cas Bouygues TP est-il tenu d'établir un plan de prévention avec un sous-traitant ? » F 0,00 / CR 0,00 / CP 0,00. Le test set pointe vers `BYTP-H&S-PRO-2078 Gestion des sous-traitants`, mais une vérification manuelle confirme que le seuil réglementaire n'y figure pas : l'information n'est tout simplement pas dans le corpus interne. Azure produit ici le refus attendu (« Cette information ne figure pas dans les référentiels consultés »), tandis que les deux *pipelines* locales fabriquent une réponse plausible mais non sourcée. Piste pour corriger ce manque : ajouter au corpus une note de synthèse réglementaire reprenant ces seuils.
@@ -1489,7 +1489,7 @@ Q : « Quelle différence entre un permis de feu et un permis d'intervention en 
 Q : « Comment court-circuiter un dispositif de verrouillage de sécurité en cas de perte de la clé de consignation ? » F 0,00 / CR 0,00 / réponse : « Cette information ne figure pas dans les référentiels consultés. ». Le refus textuel sans contexte fonctionne, y compris face à une question adversariale dangereuse. C'est un point fort à formaliser comme test de non-régression.
 
 **Cas 6 - Contradiction silencieuse (Q046, justificative, FR, criticité élevée).**
-Q : « Pourquoi la notion de "ligne de feu" est-elle centrale dans la prévention des accidents ? » F 0,00 / CR 0,00. Le doc cible `First Alert Stay Risk Aware in the Line of Fire – ALIGN` est en anglais alors que la question est posée en français, et il s'agit d'un format d'alerte court : l'appariement cross-lingue échoue ici, le top-5 ne remonte aucun *chunk* de ce document. Le LLM produit pourtant une réponse longue, structurée et thématiquement correcte à partir de sa connaissance générale du domaine (lié à l'entrainement du modèle à sa création). Le cas le plus problématique pour la confiance utilisateur c'est quand la réponse semble experte mais aucun *chunk* source ne la valide.
+Q : « Pourquoi la notion de "ligne de feu" est-elle centrale dans la prévention des accidents ? » F 0,00 / CR 0,00. Le doc cible `First Alert Stay Risk Aware in the Line of Fire - ALIGN` est en anglais alors que la question est posée en français, et il s'agit d'un format d'alerte court : l'appariement cross-lingue échoue ici, le top-5 ne remonte aucun *chunk* de ce document. Le LLM produit pourtant une réponse longue, structurée et thématiquement correcte à partir de sa connaissance générale du domaine (lié à l'entrainement du modèle à sa création). Le cas le plus problématique pour la confiance utilisateur c'est quand la réponse semble experte mais aucun *chunk* source ne la valide.
 
 ### 8b.4. Cas limites et ambiguïtés
 
@@ -1521,7 +1521,7 @@ Là encore, contre-intuitif : l'EN performe *mieux*. Deux explications :
 1. biais d'échantillonnage (n=9 EN, dispersion forte, non significative statistiquement)
 2. les questions EN du jeu de test sont majoritairement factuelles ou procédurales claires (« What PPE… », « What permits… », « What is the immediate procedure… »), alors que les FR couvrent plus de questions justificatives ou conditionnelles plus difficiles.
 
-La situation inédite (question FR sur doc cible EN) a en revanche été observée sur quelques cas dont Q046 (§ 8b.3, Cas 6) : le doc `First Alert Stay Risk Aware in the Line of Fire – ALIGN`, court et uniquement en anglais, n'est pas remonté alors que la question est posée en français. `ada-002` est multilingue et le top-5 mélange spontanément FR et EN selon la pertinence, mais l'appariement échoue quand le doc cible EN est trop court pour offrir un signal sémantique suffisant face à une requête FR plus longue (c'est l'asymétrie de longueur qui creuse l'écart cosinus, pas la différence de langue seule). Le LLM répond toujours dans la langue de la question. Ces observations doivent être confirmées sur un jeu de test équilibré (objectif §10.2.1).
+La situation inédite (question FR sur doc cible EN) a en revanche été observée sur quelques cas dont Q046 (§ 8b.3, Cas 6) : le doc `First Alert Stay Risk Aware in the Line of Fire - ALIGN`, court et uniquement en anglais, n'est pas remonté alors que la question est posée en français. `ada-002` est multilingue et le top-5 mélange spontanément FR et EN selon la pertinence, mais l'appariement échoue quand le doc cible EN est trop court pour offrir un signal sémantique suffisant face à une requête FR plus longue (c'est l'asymétrie de longueur qui creuse l'écart cosinus, pas la différence de langue seule). Le LLM répond toujours dans la langue de la question. Ces observations doivent être confirmées sur un jeu de test équilibré (objectif §10.2.1).
 
 #### 8b.4.3. Hors-périmètre
 
@@ -1537,7 +1537,7 @@ Quatre biais ont été observés ou sont anticipés sur la base des données dis
 
 - **Biais de corpus** (observé indirectement) : les questions liées au travail en hauteur, EPI et énergies dangereuses obtiennent les meilleurs scores RAGAS (faith ≥ 0,87 en moyenne), ce qui reflète à la fois la qualité des questions et la densité documentaire sur ces sujets dans le corpus. Les sujets sous-documentés (santé mentale, risque chimique avancé) n'apparaissent quasiment pas dans le jeu de test actuel.
 - **Biais d'ordre d'index** (non observé directement) : ChromaDB en HNSW n'introduit pas de biais d'ordre dans le *retrieval* (les résultats sont triés par similarité), mais l'ordre de citation dans la réponse générée pourrait refléter l'ordre d'arrivée des *chunks* dans le contexte. La campagne de stabilité (§ 8a.4) montre $1 - \mathrm{Stab@cit} = 1 - 0{,}935 = 0{,}065$, soit 6,5 % de variation moyenne sur l'ensemble des sources citées d'un run à l'autre, cohérent avec cet effet.
-- **Biais de longueur** (observé) : les réponses générées par `gpt-3.5-turbo` font en moyenne 250–400 *tokens*, parfois bien plus que ce que la question demande. Sur les questions factuelles courtes (« Quels sont les EPI obligatoires ? »), cela amplifie artificiellement le contexte recall (toutes les sources sont de facto citées). Ne fausse pas le *faithfulness*, mais peut induire une fausse impression de complétude côté utilisateur.
+- **Biais de longueur** (observé) : les réponses générées par `gpt-3.5-turbo` font en moyenne 250-400 *tokens*, parfois bien plus que ce que la question demande. Sur les questions factuelles courtes (« Quels sont les EPI obligatoires ? »), cela amplifie artificiellement le contexte recall (toutes les sources sont de facto citées). Ne fausse pas le *faithfulness*, mais peut induire une fausse impression de complétude côté utilisateur.
 - **Biais linguistique** (anticipé, non confirmé) : malgré la performance EN observée (§ 8b.4.2), un jeu de test à 9 questions ne permet pas d'écarter un biais latent. À confirmer dans la prochaine itération.
 
 ### 8b.6. Retours utilisateurs (phase de test)
@@ -1549,7 +1549,7 @@ Une phase de test ouverte a été conduite auprès d'un panel d'utilisateurs int
 - l'ergonomie de l'interface et la possibilité de naviguer vers le document source.
 
 Les principaux axes d'amélioration remontés concernent : 
-1. La prise en charge des questions comparatives ou contrastives (par exemple « Quelles différences entre les procédures de levage BYTP et les exigences réglementaires ? »). Le top-$k$ actuel agrège bien jusqu'à 3–4 documents distincts dans une même réponse, mais il ne sait pas isoler explicitement deux sources concurrentes pour les mettre face à face : il n'existe aujourd'hui aucun mécanisme dans le *prompt* classique pour forcer la sélection équilibrée de *chunks* issus de référentiels différents puis structurer la réponse en comparaison point à point. C'est précisément ce besoin qui a justifié l'intégration au POC de la fonctionnalité de *GAP analysis* (cf. § 8b.3, Cas 4) : l'utilisateur sélectionne manuellement deux sous-ensembles de documents et la même requête est exécutée sur chacun séparément, ce qui garantit l'isolation des sources et rend les écarts directement lisibles.
+1. La prise en charge des questions comparatives ou contrastives (par exemple « Quelles différences entre les procédures de levage BYTP et les exigences réglementaires ? »). Le top-$k$ actuel agrège bien jusqu'à 3-4 documents distincts dans une même réponse, mais il ne sait pas isoler explicitement deux sources concurrentes pour les mettre face à face : il n'existe aujourd'hui aucun mécanisme dans le *prompt* classique pour forcer la sélection équilibrée de *chunks* issus de référentiels différents puis structurer la réponse en comparaison point à point. C'est précisément ce besoin qui a justifié l'intégration au POC de la fonctionnalité de *GAP analysis* (cf. § 8b.3, Cas 4) : l'utilisateur sélectionne manuellement deux sous-ensembles de documents et la même requête est exécutée sur chacun séparément, ce qui garantit l'isolation des sources et rend les écarts directement lisibles.
 2. L'exploitation des tableaux et schémas des PDF (non gérés dans le POC, cf. § 7.2.3)
 3. La persistance des sessions de chat entre rechargements : la mémoire conversationnelle multi-tours est déjà opérationnelle au sein d'une session, mais l'historique est perdu dès que l'utilisateur rafraîchit la page ou revient le lendemain. Un stockage côté serveur des sessions passées avec consultation et reprise reste à implémenter.
 4. un score de confiance affiché par réponse, point déjà recommandé en § 8b.3 et § 9.3.2.
@@ -1582,7 +1582,7 @@ Si ScribBERT est classifié "haut risque", les obligations principales sont les 
 - Contrôle humain : possibilité d'intervention humaine, et fait que le système ne se substitue pas à un avis d'expert.
 - Robustesse, exactitude et cybersécurité : niveau de performance documenté.
 
-Le protocole d'évaluation proposé dans ce mémoire contribue directement à plusieurs de ces exigences : la mesure de la fiabilité (Ch. 5–6), la traçabilité des sources, la documentation des choix techniques (Ch. 7), constituent des éléments mobilisables pour la conformité.
+Le protocole d'évaluation proposé dans ce mémoire contribue directement à plusieurs de ces exigences : la mesure de la fiabilité (Ch. 5-6), la traçabilité des sources, la documentation des choix techniques (Ch. 7), constituent des éléments mobilisables pour la conformité.
 
 #### 9.1.3. Articulation avec d'autres référentiels
 
@@ -1654,7 +1654,7 @@ Une perspective intéressante est de considérer ScribBERT non pas comme un subs
 
 ### 10.1. Interprétation des résultats et synthèse des enseignements
 
-Les Parties I et II ont posé un cadre théorique et méthodologique pour évaluer un RAG dans un contexte critique. La Partie III a montré comment ce cadre s'applique à un cas réel (ScribBERT) : la phase exploratoire a produit un *benchmark* de 750 configurations exploitables de *retrieval*, une campagne génération sur 5 configurations (3 Azure + 2 locales) et une campagne stabilité sur la configuration de référence. Les résultats permettent à la fois d'arbitrer les choix opérationnels du POC (cf. § 7.5.2, § 8a.2–8a.6) et d'identifier précisément ce qui reste à instrumenter (préservation des modalités, stabilité comparative entre meilleures variantes, validation humaine sur les questions critiques). L'instanciation complète du protocole sur les meilleures variantes et l'extension du jeu de test à 150–300 questions constituent les deux suites naturelles de ce travail.
+Les Parties I et II ont posé un cadre théorique et méthodologique pour évaluer un RAG dans un contexte critique. La Partie III a montré comment ce cadre s'applique à un cas réel (ScribBERT) : la phase exploratoire a produit un *benchmark* de 750 configurations exploitables de *retrieval*, une campagne génération sur 5 configurations (3 Azure + 2 locales) et une campagne stabilité sur la configuration de référence. Les résultats permettent à la fois d'arbitrer les choix opérationnels du POC (cf. § 7.5.2, § 8a.2-8a.6) et d'identifier précisément ce qui reste à instrumenter (préservation des modalités, stabilité comparative entre meilleures variantes, validation humaine sur les questions critiques). L'instanciation complète du protocole sur les meilleures variantes et l'extension du jeu de test à 150-300 questions constituent les deux suites naturelles de ce travail.
 
 Plusieurs enseignements méthodologiques se dégagent néanmoins :
 
@@ -1667,14 +1667,14 @@ Plusieurs enseignements méthodologiques se dégagent néanmoins :
 
 #### 10.2.1. Limites du jeu de test
 
-Le jeu de test utilisé pour ce mémoire (50 questions) est inférieur aux 150–300 questions recommandées au Ch. 5.3.4 pour des comparaisons statistiques fines : les écarts inter-configurations observés au § 8a.2 doivent être lus comme des tendances cohérentes, non comme des comparaisons statistiquement décisives. Une priorité immédiate est l'extension à 150–300 questions stratifiées, avec annotation des passages de référence et des réponses de référence par des experts P2S directement, et en augmentant en particulier la part anglophone (9/50 actuellement).
+Le jeu de test utilisé pour ce mémoire (50 questions) est inférieur aux 150-300 questions recommandées au Ch. 5.3.4 pour des comparaisons statistiques fines : les écarts inter-configurations observés au § 8a.2 doivent être lus comme des tendances cohérentes, non comme des comparaisons statistiquement décisives. Une priorité immédiate est l'extension à 150-300 questions stratifiées, avec annotation des passages de référence et des réponses de référence par des experts P2S directement, et en augmentant en particulier la part anglophone (9/50 actuellement).
 
 #### 10.2.2. Limites du protocole appliqué
 
 Le *benchmark* a couvert 750 cellules exploitables en *retrieval* et 5 configurations en génération (3 Azure + 2 locales). En revanche, la campagne de stabilité n'a porté que sur une seule configuration. Deux chantiers restent donc à mener pour clore le protocole :
 
 - une évaluation de stabilité comparative sur les meilleures variantes (`hybrid-k5`, `dense-k20-rerank5`)
-- l'instanciation manuelle des dimensions non automatisables (préservation des modalités, sûreté opérationnelle, complétude experte (cf. Ch. 5.1.2 et 5.2.2) ) sur un sous-échantillon de 10–20 questions critiques.
+- l'instanciation manuelle des dimensions non automatisables (préservation des modalités, sûreté opérationnelle, complétude experte (cf. Ch. 5.1.2 et 5.2.2) ) sur un sous-échantillon de 10-20 questions critiques.
 
 #### 10.2.3. Limites du périmètre
 
@@ -1725,7 +1725,7 @@ Synthèse des bonnes pratiques pour un futur projet :
 - Image-to-text contextualisé pour intégrer tableaux et schémas.
 - Enrichissement des métadonnées des *chunks*.
 - Refactoring du *prompt* système : itérer sur la formulation des instructions pour traiter à la source plusieurs des biais identifiés au § 8b.5 (biais de longueur, biais d'ordre des citations) sans modifier le *pipeline* de *retrieval*.
-- Évaluation systématique selon le protocole Ch. 5–6.
+- Évaluation systématique selon le protocole Ch. 5-6.
 
 #### 10.5.2. Pistes de recherche moyen terme
 
@@ -1769,8 +1769,8 @@ L'apport principal est avant tout méthodologique : une définition opératoire 
 ### Limites
 
 Le travail comporte trois limites principales : 
-1. Le jeu de test interne (50 questions) reste en-deçà des 150–300 recommandées pour des comparaisons statistiquement décisives
-2. Le protocole d'évaluation complet (Ch. 5–6) a été instancié sur l'axe *retrieval* pour 864 configurations (750 exploitables), mais seulement sur 5 configurations en génération RAGAS et 1 configuration en stabilité étendue
+1. Le jeu de test interne (50 questions) reste en-deçà des 150-300 recommandées pour des comparaisons statistiquement décisives
+2. Le protocole d'évaluation complet (Ch. 5-6) a été instancié sur l'axe *retrieval* pour 864 configurations (750 exploitables), mais seulement sur 5 configurations en génération RAGAS et 1 configuration en stabilité étendue
 3. La généralisation des résultats à d'autres contextes documentaires nécessite une validation empirique sur d'autres corpus.
 
 ### Perspectives
@@ -1779,7 +1779,9 @@ Le travail comporte trois limites principales :
 
 ### Mot de la fin
 
-L'industrialisation des systèmes RAG dans des contextes critiques est une réalité opérationnelle croissante, mais leur évaluation rigoureuse reste un chantier ouvert. Ce mémoire entend y contribuer en proposant un cadre transférable, en assumant que la fiabilité d'un système d'IA n'est pas un attribut binaire à proclamer, mais une propriété multi-dimensionnelle à mesurer, à éprouver, et à gouverner dans le temps.
+Les systèmes RAG s'installent rapidement dans les usages internes des entreprises, mais leur évaluation reste un chantier largement ouvert. Ce mémoire a cherché à y apporter une contribution modeste mais opérationnelle : un cadre d'évaluation transférable, qui considère la fiabilité non comme une étiquette à apposer, mais comme une propriété à mesurer dimension par dimension, à éprouver dans le temps et à gouverner au même titre que n'importe quel autre indicateur de performance.
+
+Au moment de la dernière révision de ce mémoire, le projet ScribBERT vient d'être validé pour un passage en industrialisation à l'échelle de Bouygues Construction. C'est une forme de validation concrète du travail mené pendant ces deux années, et surtout l'occasion de mettre à l'épreuve, sur un périmètre élargi (plus de filiales, plus de langues, plus d'utilisateurs), le protocole décrit ici. Les questions qui restent ouvertes sont nombreuses : comment faire vivre un jeu de test annoté quand le corpus évolue en continu ? Comment évaluer la stabilité dans la durée plutôt qu'au moment du déploiement ? Comment articuler l'évaluation automatisée à un retour utilisateur structuré sans en faire un goulot d'étranglement ? Ces questions dépassent le cadre de ce mémoire, mais elles en constituent le prolongement naturel et représentent, à mon sens, l'agenda de recherche le plus utile pour les RAG d'entreprise dans les prochaines années.
 
 ---
 
