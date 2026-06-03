@@ -1,7 +1,5 @@
 ﻿# Mémoire : Évaluation de la cohérence et de la fiabilité d'un système RAG (cas d'usage : ScribBERT)
 
-> Document de travail (version brouillon). Les éléments marqués **[À compléter]** sont des placeholders (chiffres, exemples internes, schémas, références exactes).
-
 ## Introduction
 
 Les modèles de langage ont profondément changé notre rapport à l'information. En l'espace de quelques années, on est passé de systèmes incapables de produire une phrase cohérente à des modèles qui rédigent avec une aisance parfois troublante (assistants conversationnels, génération de contenu, recherche d'information intelligente). Le "boom de l'IA" n'est pas qu'un effet de mode : il transforme concrètement la manière dont on produit, partage et exploite la connaissance dans les organisations.
@@ -300,7 +298,7 @@ La **dépendance au chunking** est un problème plus subtil mais réel : une mau
 
 Enfin, la **cohérence globale** de la réponse reste fragile : même avec de bons passages, le modèle peut oublier une exception critique ou généraliser.
 
-Ces difficultés justifient une évaluation à deux niveaux (qualité du retrieval *et* qualité de la génération), car un bon score sur l'un ne garantit pas un bon résultat sur l'autre (bien qu'un mauvais retrieval ne facilitera pas une bonne génération évidemment).
+Ces difficultés justifient une évaluation à deux niveaux (qualité du retrieval *et* qualité de la génération), car un bon score sur l'un ne garantit pas un bon résultat sur l'autre (bien qu'un mauvais retrieval ne facilite pas une bonne génération évidemment).
 
 Plusieurs variantes architecturales cherchent à répondre à ces défis : le RAG "classique" de Lewis et al.[@Lewis2020], REALM qui intègre le retrieval dans la pré-formation[@Guu2020], ou encore Fusion-in-Decoder (FiD) qui concatène de nombreux passages et laisse le décodeur fusionner l'information.[@IzacardGrave2021] Toutes illustrent un même dilemme : donner plus de passages au LLM augmente le rappel potentiel, mais aussi le risque de contradictions, de dilution, et augmente le coût.
 
@@ -1025,7 +1023,7 @@ Les chapitres 4 à 6 ont défini un cadre méthodologique complet :
 - **Ch. 5** a structuré le protocole d'évaluation autour des cinq dimensions de la fiabilité, avec des approches automatiques, humaines et hybrides ;
 - **Ch. 6** a approfondi la dimension stabilité aussi bien perçue que statistique, sous-traitée mais critique pour un déploiement en production.
 
-La Partie III instancie ce cadre sur ScribBERT : architecture déployée (Ch. 7), résultats expérimentaux (Ch. 8a-8b), enjeux de gouvernance (Ch. 9) et discussion (Ch. 10).
+La Partie III instancie ce cadre sur ScribBERT : architecture déployée (Ch. 7), résultats expérimentaux (Ch. 8a-8b), enjeux éthiques, réglementaires et industriels (Ch. 9) et discussion (Ch. 10).
 
 
 
@@ -1139,7 +1137,7 @@ Conformément à la grille du Ch. 4.2, la stratégie retenue est un chunking str
   - assez petit pour rester discriminant à l'embedding et économique en tokens lors de l'injection dans le contexte LLM ;
   - le benchmark systématique (§ 8a.2) montre que les chunkings 1024 tokens dominent en MRR, ce qui valide a posteriori l'ordre de grandeur retenu ;
 - l'overlap est de ~50 tokens, soit une valeur faible (≈ 4 %), qui suffit à amortir des coupures malheureuses sans gonfler significativement l'index ;
-- une fenêtre contextuelle est ajoutée à la récupération : pour chaque chunk retourné par le retrieval, les chunks $n-1$ et $n+1$ sont automatiquement adjoints avant injection dans le contexte LLM. Cette mécanique compense un overlap faible et restaure le contexte amont/aval, particulièrement utile pour les références anaphoriques ("cette règle", "les EPI mentionnés") et pour la cohérence procédurale.
+- une fenêtre contexte est ajoutée à la récupération : pour chaque chunk retourné par le retrieval, les chunks $n-1$ et $n+1$ sont automatiquement adjoints avant injection dans le contexte LLM. Cette mécanique compense un overlap faible et restaure le contexte amont/aval, particulièrement utile pour les références anaphoriques ("cette règle", "les EPI mentionnés") et pour la cohérence procédurale.
 
 Les métadonnées attachées à chaque chunk sont actuellement : `nom_document`, `entité_émettrice`, `langue`, `date du document`.
 
@@ -1149,7 +1147,7 @@ Les métadonnées attachées à chaque chunk sont actuellement : `nom_document`,
 
 Le POC initial a utilisé en grande partie GPT-3.5 Turbo comme LLM, choisi pour :
 - la rapidité de mise en œuvre (API mature),
-- un compromis coût/qualité acceptable pour valider la faisabilité,
+- un compromis coût/qualité acceptable pour valider la faisabilité.
 
 Pour les embeddings, j'ai fait tourner à la fois des modèles locaux disponnibles sur HuggingFace et `text-embedding-ada-002` via l'API Azure OpenAI. Cette double approche m'a permis de comparer une solution auto-hébergeable, plus compatible avec les contraintes de souveraineté, et une solution propriétaire servant de point de référence en termes de qualité de retrieval.
 
@@ -1191,7 +1189,7 @@ Concernant ls modèles de génération de texte, les cinq runs disponibles (§ 8
 | Filtres métadonnées | Filtrage retrieval actif sur `doc_name` (liste d’inclusions) ; les filtres `client`/`langue` sont d'abord traduits en mapping de `doc_name` concernés, puis appliqués sur ces `doc_name` directement | Ch. 4.3.4 |
 | Contextualisation | Contextualisation par concaténation du chunk précédent, courant et suivant (n-1, n, n+1) lors de l’indexation, avec garde-fou sur ruptures de chapitre | § 7.4 |
 
-Le choix d'un dense pur s'explique par la simplicité d'implémentation au POC et par une qualité jugée suffisante en évaluation interne (cf. Ch. 4.3.2 et les configurations de § 7.5.2). L'hybridation sparse+dense (BM25 + embeddings) reste toutefois une amélioration prioritaire, particulièrement pertinente pour les requêtes contenant des références exactes (numéros de procédure, codes EPI, références normatives), mieux captées par une composante lexicale (cf. Ch. 4.3.2).
+Le choix d'un dense pur s'explique par la simplicité d'implémentation au POC et par une qualité jugée suffisante en évaluation interne (cf. Ch. 4.3.2). L'hybridation sparse+dense (BM25 + embeddings) reste toutefois une amélioration prioritaire, particulièrement pertinente pour les requêtes contenant des correspondances exactes (numéros de procédure, codes EPI, références normatives), mieux captées par une composante lexicale (cf. Ch. 4.3.2).
 
 Le filtrage actuellement implémenté repose sur une distance maximale. En pratique, les chunks au-delà du seuil sont exclus (cf. Ch. 5.1.2). En revanche, le refus contrôlé strict n'est pas totalement verrouillé dans la version actuelle : quand aucun chunk pertinent n'est retenu, un message de contexte indique qu'aucun document n'a été trouvé, mais le modèle peut encore s'appuyer sur l'historique de conversation, ce qui rappelle la nécessité d'un garde-fou plus strict comme discuté au Ch. 4.4.6 et au Ch. 6.
 
@@ -1452,6 +1450,7 @@ Concrètement, les seuils retenus sont les suivants :
 - Contradiction silencieuse : faithfulness égal à 0 sur une réponse longue et structurée, toutes les assertions sont contredites par le contexte.
 - Refus à tort : réponse de type « information non trouvée » alors que le jeu de test indique des documents de référence existants.
 - Hors-périmètre accepté : question annotée hors-périmètre à laquelle le système répond au lieu de refuser.
+- Inversion de modalité : "doit" devenu "peut" ou l'inverse.
 
 Sur la config de référence (50 questions) :
 
@@ -1485,23 +1484,26 @@ Q : « Dans quels cas Bouygues TP est-il tenu d'établir un plan de prévention 
 Q : « Quelle différence entre un permis de feu et un permis d'intervention en zone ATEX ? » F 1,00 / CR 0,75 / CP 0,20. Le système répond correctement sur la partie « permis de feu » mais la partie ATEX est diluée par 3-4 chunks hors-sujet. Les questions binaires (« différence entre A et B ») nécessitent une décomposition en sous-requêtes pour garantir l'équilibre des contextes (Ch. 4.3.6). En complément, j'ai déjà intégré au POC une fonctionnalité de *GAP analysis* qui permet à l'utilisateur de lancer la même question sur plusieurs sous-ensemble de documents qu'il sélectionne pour visualiser les écarts entre les réponses obtenues : utile précisément sur les comparaisons où l'on veut isoler chaque entité dans son document de référence. Au-delà de Q005, cette fonctionnalité a aussi vocation à accélérer l'ouverture de chantiers dans un nouveau pays, en identifiant rapidement les écarts entre les référentiels internes Bouygues TP et les réglementations locales applicables.
 
 **Cas 5 — Hors-périmètre dangereux correctement refusé (Q029, FR, criticité élevée).**
-Q : « Comment court-circuiter un dispositif de verrouillage de sécurité si on a perdu la clé de consignation ? » — F 0,00 / CR 0,00 / réponse : « Cette information ne figure pas dans les référentiels consultés. ». **Enseignement** : le refus textuel sans contexte fonctionne, y compris face à une question adversariale potentiellement dangereuse. C'est un point fort à formaliser comme test de non-régression.
+Q : « Comment court-circuiter un dispositif de verrouillage de sécurité si on a perdu la clé de consignation ? » F 0,00 / CR 0,00 / réponse : « Cette information ne figure pas dans les référentiels consultés. ». Le refus textuel sans contexte fonctionne, y compris face à une question adversariale dangereuse. C'est un point fort à formaliser comme test de non-régression.
 
 **Cas 6 — Contradiction silencieuse (Q046, justificative, FR, criticité élevée).**
-Q : « Pourquoi la notion de "ligne de feu" est-elle centrale dans la prévention des accidents ? » — F 0,00 / CR 0,00. Le doc cible `First Alert Stay Risk Aware in the Line of Fire – ALIGN` est en anglais alors que la question est posée en français, et il s'agit d'un format d'alerte court : l'appariement cross-lingue échoue ici, le top-5 ne remonte aucun chunk de ce document. Le LLM produit pourtant une réponse longue, structurée et thématiquement correcte à partir de sa connaissance générale du domaine. **Enseignement** : le cas le plus problématique pour la confiance utilisateur, la réponse semble experte mais aucun chunk source ne la valide. Pistes complémentaires à l'introduction d'un score de confiance côté UI : indexer une version FR des First Alert (ou un résumé bilingue à côté du chunk d'origine) pour absorber les requêtes FR sur des docs courts EN.
+Q : « Pourquoi la notion de "ligne de feu" est-elle centrale dans la prévention des accidents ? » F 0,00 / CR 0,00. Le doc cible `First Alert Stay Risk Aware in the Line of Fire – ALIGN` est en anglais alors que la question est posée en français, et il s'agit d'un format d'alerte court : l'appariement cross-lingue échoue ici, le top-5 ne remonte aucun chunk de ce document. Le LLM produit pourtant une réponse longue, structurée et thématiquement correcte à partir de sa connaissance générale du domaine (lié à l'entrainement du modèle à sa création). Le cas le plus problématique pour la confiance utilisateur c'est quand la réponse semble experte mais aucun chunk source ne la valide.
 
 ### 8b.4. Cas limites et ambiguïtés
 
 #### 8b.4.1. Acronymes et jargon métier
 
-Sur les 50 questions du jeu de test, **17 contiennent au moins un acronyme métier** (EPI, ATEX, PPE, SST, CATEC, LOTO, MEWP, UXO, HiPo, ou les sigles d'entité BYTP/BYCN/ALIGN). Contrairement à l'hypothèse initiale (« les embeddings généralistes mal-contextualisent les acronymes »), la sous-population « question avec acronyme » est en fait **mieux traitée** que la sous-population sans :
+Sur les 50 questions du jeu de test, 17 contiennent au moins un acronyme métier (EPI, ATEX, PPE, SST, CATEC, LOTO, MEWP, UXO, HiPo) ou un sigle organisationnel (BYTP, BYCN, ALIGN). Contrairement à l'hypothèse initiale (« les embeddings généralistes contextualisent mal les acronymes »), la sous-population « avec acronyme » obtient expérimentalement de meilleurs scores :
 
 | Sous-population | n | Faith. moyenne | Ctx. recall moyen |
 |------------------|---|----------------|-------------------|
-| Questions **avec** acronyme | 17 | **0,918** | 0,699 |
+| Questions **avec** acronyme | 17 | 0,918 | 0,699 |
 | Questions **sans** acronyme | 33 | 0,686 | 0,593 |
 
-Trois explications cumulatives : (i) l'acronyme agit comme un **marqueur lexical à forte spécificité** qui pèse fortement dans la composante BM25 de `hybrid-k5` ; (ii) les acronymes sont présents *tels quels* dans les chunks d'origine (titres, listes), ce qui permet à un dense même non-spécialisé de les apparier ; (iii) les questions sans acronyme tendent à être plus génériques (« pourquoi… », « comment… »), donc plus difficiles intrinsèquement. **Conclusion** : sur ce corpus, le levier « expansion d'acronymes » identifié *a priori* est **secondaire** ; il faut concentrer les efforts sur les questions ouvertes en langage naturel.
+
+Ce résultat ne signifie pas que l'acronyme « aide » en soi : il s'explique surtout par un facteur de confusion. Les questions sans acronyme sont majoritairement des formulations ouvertes (« pourquoi… », « comment… ») intrinsèquement plus difficiles, alors que les questions avec acronyme sont souvent factuelles et s'ancrent sur un terme à forte spécificité lexicale, présent tel quel dans les chunks d'origine (titres, listes, tableaux), ce qui suffit à un embedding dense généraliste pour les apparier, sans nécessiter d'expansion.
+
+Conséquence pratique, le levier "d'expansion d'acronymes" identifié devient a priori secondaire sur ce corpus. L'effort doit plutôt se porter sur les questions ouvertes en langage naturel, qui constituent le véritable point faible du système.
 
 #### 8b.4.2. Multilinguisme et code-switching
 
@@ -1509,40 +1511,48 @@ Sur 9 questions EN et 41 questions FR, la config de référence donne :
 
 | Langue | n | Faith. moyenne | Ans. relevancy | Ctx. recall |
 |--------|---|----------------|----------------|-------------|
-| EN | 9 | **0,913** | 0,950 | 0,690 |
+| EN | 9 | 0,913 | 0,950 | 0,690 |
 | FR | 41 | 0,733 | 0,799 | 0,616 |
 
-Là encore, contre-intuitif : l'EN performe *mieux*. Deux explications : (a) **biais d'échantillonnage** (n=9 EN, dispersion forte non significative statistiquement) ; (b) les questions EN du jeu de test sont majoritairement **factuelles ou procédurales claires** (« What PPE… », « What permits… », « What is the immediate procedure… »), alors que les FR couvrent plus de questions justificatives ou conditionnelles plus difficiles. La situation inédite (question FR sur doc cible EN) a en revanche été observée sur quelques cas dont Q046 (§ 8b.3, Cas 6) : le doc `First Alert Stay Risk Aware in the Line of Fire – ALIGN`, court et uniquement en anglais, n'est pas remonté alors que la question est posée en français. `ada-002` est multilingue et le top-5 mélange spontanément FR et EN selon la pertinence, mais l'appariement échoue quand le doc cible EN est trop court pour offrir un signal sémantique suffisant face à une requête FR. Le LLM répond toujours dans la langue de la question. Ces observations **doivent être confirmées** sur un jeu de test équilibré (objectif §10.2.1 : passer à 25 EN / 125 FR au minimum).
+Là encore, contre-intuitif : l'EN performe *mieux*. Deux explications : 
+
+1. biais d'échantillonnage (n=9 EN, dispersion forte, non significative statistiquement)
+2. les questions EN du jeu de test sont majoritairement factuelles ou procédurales claires (« What PPE… », « What permits… », « What is the immediate procedure… »), alors que les FR couvrent plus de questions justificatives ou conditionnelles plus difficiles.
+
+La situation inédite (question FR sur doc cible EN) a en revanche été observée sur quelques cas dont Q046 (§ 8b.3, Cas 6) : le doc `First Alert Stay Risk Aware in the Line of Fire – ALIGN`, court et uniquement en anglais, n'est pas remonté alors que la question est posée en français. `ada-002` est multilingue et le top-5 mélange spontanément FR et EN selon la pertinence, mais l'appariement échoue quand le doc cible EN est trop court pour offrir un signal sémantique suffisant face à une requête FR plus longue (c'est l'asymétrie de longueur qui creuse l'écart cosinus, pas la différence de langue seule). Le LLM répond toujours dans la langue de la question. Ces observations doivent être confirmées sur un jeu de test équilibré (objectif §10.2.1).
 
 #### 8b.4.3. Hors-périmètre
 
-Le jeu de test contient **5 questions hors-périmètre** (Q007, Q008, Q028, Q029, Q050). En pratique :
+Le jeu de test contient 5 questions hors-périmètre (Q007, Q028, Q029, Q050). En pratique :
 
-- **4/5** ont produit le refus standardisé attendu : « Cette information ne figure pas dans les référentiels consultés. » — couvrant des questions RH (congé maternité/paternité, remboursement de frais) et une question adversariale dangereuse (court-circuiter un verrouillage de sécurité, Q029).
-- **1/5** (Q008 sur le port du harnais) avait été **mal étiquetée** dans le test set comme « hors-périmètre / refus attendu » alors que la question est légitime et que le système y a répondu correctement (faith 1,00, ctx_rec ≥ 0,9). L'étiquetage a depuis été corrigé dans `data/test_set.json` (type `conditionnelle`, réponse de référence reformulée autour de la « protection collective équivalente »).
+- 4/4 ont produit le refus standardisé attendu : « Cette information ne figure pas dans les référentiels consultés. », couvrant des questions RH et une question adversariale dangereuse (court-circuiter un verrouillage de sécurité, Q029).
 
-Sur ce périmètre, le **filtre par distance** (`dense-k5-thresh` à seuil 0,17) joue son rôle de garde-fou : quand aucun chunk ne franchit le seuil, le contexte injecté au LLM est vide ou très partiel et le prompt système conduit au refus. Limite : le filtre est passif ; une question adversariale **proche d'un sujet du corpus** (ex. « comment ne pas porter d'EPI sans se faire prendre ? ») pourrait remonter des chunks plausibles et passer la barrière. Une mitigation est de coupler le filtre score avec un **classifieur d'intention** (in-scope / out-of-scope) entraîné spécifiquement sur les requêtes adverses (Ch. 6.4).
+Sur ce périmètre, le filtre par distance (`dense-k5-thresh` à seuil 0,17) joue son rôle de garde-fou : quand aucun chunk ne franchit le seuil, le contexte injecté au LLM est vide ou très partiel et le prompt système conduit au refus. Cependant, le filtre est passif. Une question adversariale proche d'un sujet du corpus (ex. « comment ne pas porter d'EPI sans se faire prendre ? ») pourrait remonter des chunks plausibles et passer la barrière.
 
 ### 8b.5. Biais identifiés
 
-Quatre biais ont été observés ou sont anticipés sur la base des données disponibles :
+Quatre biais ont été observés ou sont anticipés sur la base des données disponible :
 
-- **Biais de corpus** (observé indirectement) : les questions liées au travail en hauteur, EPI et énergies dangereuses obtiennent les meilleurs scores RAGAS (faith ≥ 0,87 en moyenne), ce qui reflète à la fois la qualité des questions et la **densité documentaire** sur ces sujets dans le corpus. Les sujets sous-documentés (santé mentale, risque chimique avancé, climat sécurité quantitatif) n'apparaissent quasiment pas dans le jeu de test actuel — ce qui constitue un biais d'évaluation à corriger lors de l'extension à 150 questions.
-- **Biais de récence / d'ordre d'index** (non observé directement) : ChromaDB en HNSW n'introduit pas de biais d'ordre dans le retrieval (les résultats sont triés par similarité), mais l'**ordre de citation** dans la réponse générée pourrait refléter l'ordre d'arrivée des chunks dans le contexte. La campagne de stabilité (§ 8a.4) montre $1 - \mathrm{Stab@cit} = 1 - 0{,}935 = 0{,}065$, soit 6,5 % de variation moyenne sur l'ensemble des sources citées d'un run à l'autre, cohérent avec cet effet.
-- **Biais de longueur** (observé) : les réponses générées par `gpt-3.5-turbo` font en moyenne 250–400 tokens, parfois bien plus que ce que la question demande. Sur les questions factuelles courtes (« Quels sont les EPI ? »), cela amplifie artificiellement le contexte recall (toutes les sources sont *de facto* citées). Ne fausse pas faithfulness, mais peut induire une **fausse impression de complétude** côté utilisateur.
-- **Biais linguistique** (anticipé, non confirmé) : malgré la performance EN observée (§ 8b.4.2), un jeu de test à 9 questions ne permet pas d'écarter un biais latent ; à confirmer dans la prochaine itération.
+- **Biais de corpus** (observé indirectement) : les questions liées au travail en hauteur, EPI et énergies dangereuses obtiennent les meilleurs scores RAGAS (faith ≥ 0,87 en moyenne), ce qui reflète à la fois la qualité des questions et la densité documentaire sur ces sujets dans le corpus. Les sujets sous-documentés (santé mentale, risque chimique avancé) n'apparaissent quasiment pas dans le jeu de test actuel.
+- **Biais d'ordre d'index** (non observé directement) : ChromaDB en HNSW n'introduit pas de biais d'ordre dans le retrieval (les résultats sont triés par similarité), mais l'ordre de citation dans la réponse générée pourrait refléter l'ordre d'arrivée des chunks dans le contexte. La campagne de stabilité (§ 8a.4) montre $1 - \mathrm{Stab@cit} = 1 - 0{,}935 = 0{,}065$, soit 6,5 % de variation moyenne sur l'ensemble des sources citées d'un run à l'autre, cohérent avec cet effet.
+- **Biais de longueur** (observé) : les réponses générées par `gpt-3.5-turbo` font en moyenne 250–400 tokens, parfois bien plus que ce que la question demande. Sur les questions factuelles courtes (« Quels sont les EPI obligatoires ? »), cela amplifie artificiellement le contexte recall (toutes les sources sont de facto citées). Ne fausse pas le faithfulness, mais peut induire une fausse impression de complétude côté utilisateur.
+- **Biais linguistique** (anticipé, non confirmé) : malgré la performance EN observée (§ 8b.4.2), un jeu de test à 9 questions ne permet pas d'écarter un biais latent. À confirmer dans la prochaine itération.
 
 ### 8b.6. Retours utilisateurs (phase de test)
 
-Une phase de test ouverte a été conduite auprès d'un panel d'utilisateurs internes du département P2S et au-delà. Les retours qualitatifs collectés ont été **globalement positifs**, en particulier sur :
+Une phase de test ouverte a été conduite auprès d'un panel d'utilisateurs internes du département P2S et au-delà. Les retours qualitatifs collectés ont été globalement positifs, en particulier sur :
 
-- la **rapidité d'accès** à l'information par rapport à la consultation manuelle des PDF ;
-- la **présence systématique des sources** rendant la vérification simple ;
-- l'**ergonomie** de l'interface ReactJS et la possibilité de naviguer vers le document source.
+- la rapidité d'accès à l'information par rapport à une consultation manuelle des PDF
+- la présence systématique des sources rendant la vérification simple
+- l'ergonomie de l'interface et la possibilité de naviguer vers le document source.
 
-Les principaux **axes d'amélioration** remontés concernent : (i) la prise en charge des **questions de synthèse multi-procédures** (croiser plusieurs référentiels dans une seule réponse, là où le top-$k$ actuel sature au profit d'un seul doc dominant) ; (ii) l'exploitation des **tableaux et schémas** des PDF (non gérés dans le POC, cf. § 7.2.3) ; (iii) la mémoire de **conversation multi-tours** pour enchaîner « précise », « et pour les sous-traitants ? » sans relancer toute la requête ; (iv) un **score de confiance affiché** par réponse — point déjà recommandé en § 8b.3 (cas 6) et § 9.3.2.
+Les principaux axes d'amélioration remontés concernent : 
+1. La prise en charge des questions comparatives ou contrastives (par exemple « Quelles différences entre les procédures de levage BYTP et les exigences réglementaires ? »). Le top-$k$ actuel agrège bien jusqu'à 3–4 documents distincts dans une même réponse, mais il ne sait pas isoler explicitement deux sources concurrentes pour les mettre face à face : il n'existe aujourd'hui aucun mécanisme dans le prompt classique pour forcer la sélection équilibrée de chunks issus de référentiels différents puis structurer la réponse en comparaison point à point. C'est précisément ce besoin qui a justifié l'intégration au POC de la fonctionnalité de *GAP analysis* (cf. § 8b.3, Cas 4) : l'utilisateur sélectionne manuellement deux sous-ensembles de documents et la même requête est exécutée sur chacun séparément, ce qui garantit l'isolation des sources et rend les écarts directement lisibles.
+2. L'exploitation des tableaux et schémas des PDF (non gérés dans le POC, cf. § 7.2.3)
+3. La persistance des sessions de chat entre rechargements : la mémoire conversationnelle multi-tours est déjà opérationnelle au sein d'une session, mais l'historique est perdu dès que l'utilisateur rafraîchit la page ou revient le lendemain. Un stockage côté serveur des sessions passées avec consultation et reprise reste à implémenter.
+4. un score de confiance affiché par réponse, point déjà recommandé en § 8b.3 et § 9.3.2.
 
-Une **enquête structurée** (questionnaire avec échelles de Likert sur les dimensions satisfaction, utilité perçue, confiance, intention de réutilisation) reste à mener pour passer de l'impression qualitative à une mesure consolidée. Cette enquête est identifiée comme priorité dans la trajectoire d'industrialisation (Ch. 10.2.2).
+Une enquête structurée reste à mener pour passer de l'impression qualitative à une mesure consolidée. Cette enquête est identifiée comme priorité dans la trajectoire d'industrialisation (Ch. 10.2.2). Au-delà de la mesure, la formation et l'accompagnement des utilisateurs finaux (bonnes pratiques de formulation des requêtes, lecture critique des réponses, vérification systématique des sources citées) constituent un axe tout aussi prioritaire : l'adoption d'un outil de RAG en contexte santé-sécurité dépend autant de la maîtrise utilisateur que de la performance technique.
 
 ## Chapitre 9 — Enjeux éthiques, réglementaires et industriels
 
@@ -1554,39 +1564,39 @@ L'industrialisation d'un RAG dans un domaine critique comme la santé-sécurité
 
 L'**AI Act européen** (Règlement UE 2024/1689), entré en vigueur en août 2024 avec une application progressive jusqu'à 2027, classe les systèmes d'IA selon leur niveau de risque. ScribBERT, en tant qu'assistant d'aide à la décision dans un contexte santé-sécurité, peut être analysé selon cette grille :
 
-- **Risque inacceptable** : non concerné (pas de manipulation, pas de notation sociale).
-- **Haut risque** : potentiellement concerné si l'on considère que le système contribue à la **gestion des risques pour la sécurité des travailleurs**, ce qui correspond aux usages listés dans l'annexe III du règlement (notamment dans le domaine de l'emploi et de la gestion des travailleurs). **[À approfondir avec le service juridique : qualification finale]**.
-- **Risque limité** : concerné par les obligations de **transparence** (l'utilisateur doit savoir qu'il interagit avec une IA).
-- **Risque minimal** : non applicable ici.
+- Risque inacceptable : non concerné (pas de manipulation, pas de notation sociale).
+- Haut risque : potentiellement concerné si l'on considère que le système contribue à la gestion des risques pour la sécurité des compagnons, ce qui correspond aux usages listés dans l'annexe III du règlement (notamment dans le domaine de l'emploi et de la gestion des travailleurs).
+- Risque limité : concerné par les obligations de transparence (l'utilisateur doit savoir qu'il interagit avec une IA).
+- Risque minimal : non applicable ici.
 
 #### 9.1.2. Obligations applicables (en hypothèse haut risque)
 
-Si ScribBERT est classifié haut risque, les obligations principales sont :
+Si ScribBERT est classifié "haut risque", les obligations principales sont les suivantes :
 
-- **Système de gestion des risques** documenté et tenu à jour.
-- **Qualité des données d'entraînement** : moins applicable ici (RAG, pas de fine-tuning), mais la **qualité du corpus** est un équivalent fonctionnel.
-- **Documentation technique** détaillée et journaux d'événements.
-- **Transparence** envers les utilisateurs (information claire sur la nature IA du système).
-- **Contrôle humain** : possibilité d'intervention humaine, et fait que le système ne se substitue pas à un avis d'expert.
-- **Robustesse, exactitude et cybersécurité** : niveau de performance documenté.
+- Système de gestion des risques documenté et tenu à jour.
+- Qualité des données d'entraînement : moins applicable ici (pas de fine-tuning), mais la qualité du corpus est un équivalent fonctionnel.
+- Documentation technique détaillée et journaux d'événements.
+- Transparence envers les utilisateurs (information claire sur la nature IA du système).
+- Contrôle humain : possibilité d'intervention humaine, et fait que le système ne se substitue pas à un avis d'expert.
+- Robustesse, exactitude et cybersécurité : niveau de performance documenté.
 
-Le protocole d'évaluation proposé dans ce mémoire **contribue directement** à plusieurs de ces exigences : la mesure de la fiabilité (Ch. 5–6), la traçabilité des sources, la documentation des choix techniques (Ch. 7), constituent des éléments mobilisables pour la conformité.
+Le protocole d'évaluation proposé dans ce mémoire contribue directement à plusieurs de ces exigences : la mesure de la fiabilité (Ch. 5–6), la traçabilité des sources, la documentation des choix techniques (Ch. 7), constituent des éléments mobilisables pour la conformité.
 
 #### 9.1.3. Articulation avec d'autres référentiels
 
 ScribBERT relève également d'autres cadres susceptibles de s'appliquer :
 
-- **Norme ISO/IEC 42001** sur les systèmes de management de l'IA ;
-- **Norme ISO/IEC 23894** sur la gestion des risques en IA ;
-- **Recommandations CNIL** sur l'IA (cycle 2023-2024) pour la partie données personnelles éventuelles.
+- Norme ISO/IEC 42001 sur les systèmes de management de l'IA ;
+- Norme ISO/IEC 23894 sur la gestion des risques en IA ;
+- Recommandations CNIL sur l'IA (cycle 2023-2024) pour la partie données personnelles éventuelles, ce qui me permet de faire le lien avec la partie suivante :
 
 ### 9.2. RGPD et données internes
 
-Bien que ScribBERT ne traite pas de données personnelles dans son corpus (référentiels de procédures), trois points RGPD méritent attention :
+Bien que ScribBERT ne traite pas de données personnelles dans son corpus (référentiels de procédures), trois points RGPD méritent une attention particulière :
 
-1. **Logs des requêtes utilisateurs** : si une requête contient des données personnelles (nom d'un collaborateur, identifiant chantier), elle est journalisée à des fins d'amélioration. Il faut définir une **durée de conservation**, les **finalités** précises, et garantir un **droit d'accès / suppression**.
-2. **Confidentialité des documents internes** : le choix d'un hébergement local au LabTP (§ 7.2.2) garantit la non-exposition à des fournisseurs cloud externes pour le POC. La bascule éventuelle vers un LLM API (OpenAI, Anthropic) en production exigerait une analyse complémentaire, idéalement via Azure OpenAI EU/FR avec contrats DPA appropriés.
-3. **Traçabilité des décisions** : si une décision opérationnelle (ex. report d'une intervention) s'appuie sur une réponse de ScribBERT, la trace doit être conservée, avec la version du modèle, la version du corpus et la réponse exacte, pour permettre une analyse a posteriori.
+1. Logs des requêtes utilisateurs : si une requête contient des données personnelles (nom d'un collaborateur, identifiant chantier), elle est journalisée à des fins d'amélioration. Il faut définir une durée de conservation, les finalités précises, et garantir un droit d'accès / suppression
+2. Confidentialité des documents internes : le choix d'un hébergement local au LabTP (§ 7.2.2) garantit la non-exposition à des fournisseurs cloud externes pour le POC. La bascule éventuelle vers de l'hébergement cloud en production exigerait une analyse complémentaire, idéalement avec contrats DPA appropriés.
+3. Traçabilité des décisions : si une décision opérationnelle (ex. report d'une intervention) s'appuie sur une réponse de ScribBERT, la trace doit être conservée, avec la version du modèle, la version du corpus et la réponse exacte, pour permettre une analyse a posteriori.
 
 ### 9.3. Responsabilité en contexte santé-sécurité
 
@@ -1594,148 +1604,151 @@ Bien que ScribBERT ne traite pas de données personnelles dans son corpus (réf�
 
 En cas d'accident sur chantier, si une décision de prévention s'appuie sur une réponse erronée de ScribBERT, qui est responsable ? Plusieurs niveaux d'analyse :
 
-- **Responsabilité juridique** : l'employeur reste responsable de la sécurité de ses salariés (Code du travail français). L'outil IA n'est qu'un moyen.
-- **Responsabilité du système** : l'éditeur (ici Bouygues TP en tant que développeur interne) doit pouvoir documenter ses choix et ses tests (cf. AI Act).
-- **Responsabilité de l'utilisateur** : le préventeur reste tenu de son devoir de vérification, ce qui justifie le **disclaimer affiché**.
+- Responsabilité juridique : Quoi qu'il arrive, légalement, l'employeur reste responsable de la sécurité de ses salariés (Code du travail français). L'outil IA n'est qu'un moyen.
+- Responsabilité du système : l'éditeur (ici Bouygues TP en tant que développeur interne du POC, Bouygues Construction après industrialisation) doit pouvoir documenter ses choix et ses tests (cf. AI Act).
+- Responsabilité de l'utilisateur : le préventeur reste tenu de son devoir de vérification, ce qui justifie le disclaimer affiché en permanence en bas de l'écran.
 
 #### 9.3.2. Le disclaimer comme mesure de mitigation
 
-ScribBERT affiche actuellement un **disclaimer permanent** rappelant que :
-- la responsabilité de la qualité des réponses n'incombe pas au système ;
-- l'utilisateur doit faire appel à son **esprit critique** et **vérifier les documents sources** avant toute action opérationnelle.
+ScribBERT affiche un disclaimer permanent rappelant que :
+- la responsabilité de la qualité des réponses n'incombe pas au système.
+- l'utilisateur doit faire appel à son esprit critique et vérifier les documents sources avant toute action opérationnelle.
 
-Ce disclaimer est une mesure nécessaire mais **non suffisante** : la jurisprudence européenne sur les outils d'aide à la décision tend à considérer qu'un disclaimer ne dégage pas l'éditeur de toute responsabilité, particulièrement si l'outil est présenté comme "expert" ou "fiable". Les renforcements possibles incluent :
+Ce disclaimer est une mesure nécessaire mais non suffisante : la jurisprudence européenne sur les outils d'aide à la décision tend à considérer qu'un disclaimer ne dégage pas l'éditeur de toute responsabilité, particulièrement si l'outil est présenté comme "expert" ou "fiable". Les renforcements possibles incluent :
 
-- afficher un **score de confiance** par réponse, pour calibrer la vigilance ;
-- **mettre en avant les sources** plus que la réponse synthétisée, l'utilisateur étant ainsi systématiquement renvoyé au document validé ;
-- pour les réponses critiques (port d'EPI vital, mises en sécurité), recommander explicitement la **consultation d'un référent santé-sécurité** humain.
+- afficher un score de confiance par réponse, pour calibrer la vigilance, déjà mentionné plus tôt,
+- mettre en avant les sources plus que la réponse synthétisée, l'utilisateur étant ainsi systématiquement renvoyé au document validé,
+- pour les réponses critiques (port d'EPI vital, mises en sécurité), recommander explicitement la consultation des documents officiels, ou d'un préventeur santé-sécurité humain.
 
 #### 9.3.3. Supervision humaine
 
-Le principe de **human-in-the-loop** est central pour les systèmes IA en domaine critique. Pour ScribBERT, cela peut prendre plusieurs formes :
+Le principe de human-in-the-loop est central pour les systèmes IA en domaine critique. Pour ScribBERT, cela peut prendre plusieurs formes :
 
-- **Revue périodique des logs** par l'équipe P2S, avec analyse des questions récurrentes et des cas d'erreur détectés ;
-- **Procédure d'escalade** : un canal pour signaler une réponse erronée, avec mise à jour du corpus ou du système ;
-- **Validation experte** des évolutions majeures (changement de modèle, mise à jour massive du corpus) avant déploiement.
+- Revue périodique des logs par l'équipe P2S, avec analyse des questions récurrentes et des cas d'erreur détectés ;
+- Procédure d'escalade : un canal pour signaler une réponse erronée, avec mise à jour du corpus ou du système ;
+- Validation experte des évolutions majeures (changement de modèle, mise à jour massive du corpus) avant déploiement.
 
 ### 9.4. Gouvernance d'un RAG d'entreprise
 
 L'industrialisation impose une discipline de gouvernance que le POC peut tolérer, mais que la production exige :
 
-- **Versioning** : chaque mise en production identifie sans ambiguïté la version du modèle d'embedding, du LLM, du corpus, du prompt et du code applicatif.
-- **Pipeline CI/CD avec tests d'évaluation automatisés** : avant tout déploiement, le jeu de test est passé sur la nouvelle configuration et les métriques sont comparées à la baseline.
-- **Audit trail** : chaque réponse produite est logguée avec l'ensemble des éléments permettant de la rejouer (cf. Ch. 5.4.4).
-- **Plan de gestion de l'obsolescence** : les modèles propriétaires sont régulièrement dépréciés ; un plan de migration doit exister.
-- **Politique de mise à jour du corpus** : workflow de validation pour l'ajout / la modification d'un document, avec invalidation et reconstruction de l'index.
-- **Comité de gouvernance** réunissant IT, métier, juridique, sécurité, décisionnaire sur les évolutions majeures.
+- Versioning : chaque mise en production identifie sans ambiguïté la version du modèle d'embedding, du LLM, du corpus, du prompt et du code applicatif.
+- Pipeline CI/CD avec tests d'évaluation automatisés : avant tout déploiement, le jeu de test est passé sur la nouvelle configuration et les métriques sont comparées à une baseline.
+- Audit trail : chaque réponse produite est logguée avec l'ensemble des éléments permettant de la rejouer (cf. Ch. 5.4.4).
+- Plan de gestion de l'obsolescence : les modèles propriétaires sont régulièrement dépréciés.Un plan de migration doit exister.
+- Politique de mise à jour du corpus : workflow de validation pour l'ajout / la modification d'un document, avec reconstruction de l'index.
 
 ### 9.5. Acceptabilité et conduite du changement
 
 La meilleure technologie échoue si les utilisateurs ne l'adoptent pas. Trois facteurs ont été identifiés comme déterminants pour ScribBERT :
 
-1. **La confiance**, gagnée par la qualité des réponses *et* par la transparence sur les sources. Les retours utilisateurs (§ 8b.6) confirment que la présence systématique des citations est un facteur clé d'adoption.
-2. **L'utilité perçue** par rapport à l'alternative (recherche manuelle dans les PDF, demande à un expert). ScribBERT doit faire gagner du temps **sans dégrader la qualité de la décision**.
-3. **L'accompagnement** : formation initiale, communication interne, identification d'**ambassadeurs** dans les équipes pour porter l'outil.
+1. La confiance, gagnée par la qualité des réponses et par la transparence sur les sources. Les retours utilisateurs (§ 8b.6) confirment que la présence systématique des citations est un facteur clé d'adoption.
+2. L'utilité perçue par rapport à l'alternative (recherche manuelle dans les PDF, demande à un expert). ScribBERT doit faire gagner du temps sans dégrader la qualité de la décision.
+3. L'accompagnement : formation initiale, communication interne, identification d'ambassadeurs dans les équipes pour porter l'outil.
 
-Une perspective intéressante est de considérer ScribBERT non pas comme un **substitut** à l'expert santé-sécurité, mais comme un **amplificateur** : il permet aux préventeurs de répondre plus vite aux questions répétitives, libérant du temps pour les sujets complexes qui requièrent un jugement humain.
+Une perspective intéressante est de considérer ScribBERT non pas comme un substitut à l'expert santé-sécurité, mais comme plutôt un amplificateur/facilitateur.
 
 ## Chapitre 10 — Discussion et perspectives
 
 ### 10.1. Interprétation des résultats et synthèse des enseignements
 
-Les Parties I et II ont posé un cadre théorique et méthodologique pour évaluer un RAG dans un contexte critique. La Partie III a montré comment ce cadre s'applique à un cas réel (ScribBERT) : la phase exploratoire a produit un benchmark de **864 configurations de retrieval** (750 exploitables), une campagne **génération** sur 5 configurations (3 Azure + 2 Mistral-7B local) et une campagne **stabilité** sur la configuration de référence. Les résultats permettent à la fois d'arbitrer les choix opérationnels du POC (cf. § 7.5.2, § 8a.2–8a.6) et d'identifier précisément ce qui reste à instrumenter (préservation des modalités, stabilité comparative entre meilleures variantes, validation humaine sur les questions critiques). L'instanciation **complète** du protocole sur les meilleures variantes et l'extension du jeu de test à 150–300 questions constituent les deux suites naturelles de ce travail.
+Les Parties I et II ont posé un cadre théorique et méthodologique pour évaluer un RAG dans un contexte critique. La Partie III a montré comment ce cadre s'applique à un cas réel (ScribBERT) : la phase exploratoire a produit un benchmark de 750 configurations exploitables de retrieval, une campagne génération sur 5 configurations (3 Azure + 2 locales) et une campagne stabilité sur la configuration de référence. Les résultats permettent à la fois d'arbitrer les choix opérationnels du POC (cf. § 7.5.2, § 8a.2–8a.6) et d'identifier précisément ce qui reste à instrumenter (préservation des modalités, stabilité comparative entre meilleures variantes, validation humaine sur les questions critiques). L'instanciation complète du protocole sur les meilleures variantes et l'extension du jeu de test à 150–300 questions constituent les deux suites naturelles de ce travail.
 
 Plusieurs enseignements méthodologiques se dégagent néanmoins :
 
-1. **La fiabilité d'un RAG ne se réduit pas à un score** : c'est un faisceau de dimensions (retrieval, fidélité, pertinence réponse, stabilité, traçabilité) qui doivent être mesurées séparément pour pouvoir diagnostiquer.
-2. **Les choix d'ingénierie (chunking, contextualisation, filtrage par score) ont un impact comparable à celui du choix du modèle** : il est tentant de centrer l'attention sur le LLM, mais l'expérience ScribBERT confirme qu'un chunking adapté au corpus et un filtrage de seuil bien calibré pèsent au moins autant.
-3. **La stabilité est sous-évaluée dans les frameworks usuels** : pour un système en production sur un sujet critique, la variance inter-runs et la robustesse aux paraphrases méritent un protocole dédié (Ch. 6).
-4. **La traçabilité est à la fois un critère technique et un enjeu de confiance** : citer les sources de manière vérifiable est probablement le facteur le plus fort d'acceptabilité utilisateur observé.
+1. La fiabilité d'un RAG ne se réduit pas à un seul score : c'est un faisceau de dimensions (retrieval, fidélité, pertinence réponse, stabilité, traçabilité) qui doivent être mesurées séparément pour pouvoir diagnostiquer.
+2. Les choix d'ingénierie (chunking, contextualisation, filtrage par score) ont un impact comparable à celui du choix du modèle : il est tentant de centrer l'attention sur le LLM, mais l'expérience ScribBERT confirme qu'un chunking adapté au corpus et un filtrage de seuil bien calibré pèsent au moins autant.
+3. La stabilité est sous-évaluée dans les frameworks usuels : pour un système en production sur un sujet critique, la variance inter-runs et la robustesse aux paraphrases méritent un protocole dédié (Ch. 6).
+4. La traçabilité est à la fois un critère technique et un enjeu de confiance : citer les sources de manière vérifiable est probablement le facteur le plus fort d'acceptabilité utilisateur observé.
 
 ### 10.2. Limites méthodologiques
 
 #### 10.2.1. Limites du jeu de test
 
-Le jeu de test interne (50 questions) est inférieur aux 150–300 questions recommandées au Ch. 5.3.4 pour des comparaisons statistiques fines : les écarts inter-configurations observés au § 8a.2 doivent être lus comme des tendances cohérentes, non comme des comparaisons statistiquement décisives. Une priorité immédiate est l'**extension à 150–300 questions** stratifiées, avec annotation des passages de référence et des réponses de référence par des experts P2S, et en augmentant en particulier la part anglophone (9/50 actuellement).
+Le jeu de test utilisé pour ce mémoire (50 questions) est inférieur aux 150–300 questions recommandées au Ch. 5.3.4 pour des comparaisons statistiques fines : les écarts inter-configurations observés au § 8a.2 doivent être lus comme des tendances cohérentes, non comme des comparaisons statistiquement décisives. Une priorité immédiate est l'extension à 150–300 questions stratifiées, avec annotation des passages de référence et des réponses de référence par des experts P2S directement, et en augmentant en particulier la part anglophone (9/50 actuellement).
 
 #### 10.2.2. Limites du protocole appliqué
 
-Le benchmark a couvert 864 cellules en retrieval (750 exploitables), 5 configurations en génération (3 Azure + 2 locales) et une seule configuration en stabilité étendue. Une **évaluation stabilité comparative** sur les meilleures variantes (`hybrid-k5`, `dense-k20-rerank5`) et l'**instanciation manuelle des dimensions non automatisables** (préservation des modalités, sûreté opérationnelle, complétude experte — Ch. 5.1.2 et 5.2.2) sur un sous-échantillon de 10–20 questions critiques restent à mener pour clore le protocole.
+Le benchmark a couvert 750 cellules exploitables en retrieval et 5 configurations en génération (3 Azure + 2 locales). En revanche, la campagne de stabilité n'a porté que sur une seule configuration. Deux chantiers restent donc à mener pour clore le protocole :
+
+- une évaluation de stabilité comparative sur les meilleures variantes (`hybrid-k5`, `dense-k20-rerank5`)
+- l'instanciation manuelle des dimensions non automatisables (préservation des modalités, sûreté opérationnelle, complétude experte (cf. Ch. 5.1.2 et 5.2.2) ) sur un sous-échantillon de 10–20 questions critiques.
 
 #### 10.2.3. Limites du périmètre
 
-Le corpus actuel se limite aux documents du siège, en français et anglais. L'extension aux filiales et chantiers internationaux fera émerger des défis nouveaux (variantes locales, contradictions inter-entités, langues additionnelles).
+Le corpus actuel se limite aux documents du siège, en français et anglais et deux/trois clients. L'extension aux filiales et reglementations internationales fera émerger des défis nouveaux (variantes locales, contradictions inter-entités, langues additionnelles).
 
 #### 10.2.4. Précautions d'interprétation
 
-Les retours utilisateurs positifs de la phase de test sont un signal important mais ne se substituent pas à une évaluation systématique. **L'effet de nouveauté** et l'**enthousiasme métier** peuvent biaiser les retours initiaux ; une évaluation à 6 et 12 mois post-déploiement serait nécessaire pour mesurer l'usage stable.
+Les retours utilisateurs positifs de la phase de test sont un signal important mais ne se substituent pas à une évaluation systématique. L'effet de nouveauté et l'enthousiasme métier peuvent biaiser les retours initiaux. Une évaluation à 6 et 12 mois post-déploiement serait nécessaire pour mesurer l'usage sur la durée.
 
 ### 10.3. Apports du travail
 
 #### 10.3.1. Apports théoriques
 
-- Une **définition opératoire de la fiabilité** d'un RAG (Ch. 3.3) qui décompose le concept en cinq dimensions mesurables.
-- Une **clarification du rôle de la stabilité** comme dimension à part entière de la fiabilité, méritant un protocole d'évaluation dédié (Ch. 6).
-- Une **lecture critique des frameworks d'évaluation existants** (RAGAS, TruLens, LLM-as-judge), avec mise en évidence de leurs limites en domaine critique.
+- Une définition opératoire de la fiabilité d'un RAG (Ch. 3.3) qui décompose le concept en cinq dimensions mesurables.
+- Une clarification du rôle de la stabilité comme dimension à part entière de la fiabilité, méritant un protocole d'évaluation dédié (Ch. 6).
+- Une lecture critique des frameworks d'évaluation existants (RAGAS, TruLens, LLM-as-judge), avec mise en évidence de leurs limites en domaine critique.
 
 #### 10.3.2. Apports méthodologiques
 
-- Un **catalogue structuré des leviers techniques** d'un RAG avec leurs compromis (Ch. 4), réutilisable pour tout projet RAG d'entreprise.
-- Un **protocole d'évaluation diagnostique** (Ch. 5) organisé par dimension, qui permet de localiser l'origine des erreurs plutôt que de juger globalement.
-- Un **protocole de stabilité** (Ch. 6) directement applicable.
+- Un catalogue structuré des leviers techniques d'un RAG avec leurs compromis (Ch. 4), réutilisable pour tout projet RAG d'entreprise.
+- Un protocole d'évaluation diagnostique (Ch. 5) organisé par dimension, qui permet de localiser l'origine des erreurs plutôt que de juger globalement.
+- Un protocole de stabilité (Ch. 6) directement applicable.
 
 #### 10.3.3. Apports industriels (cas ScribBERT)
 
-- Une architecture RAG fonctionnelle et **adaptée aux contraintes de Bouygues TP** (souveraineté des données, multilinguisme FR/EN, corpus normatif).
-- Une **identification claire des limites du POC** (hybridation, reranking, gestion des tableaux) et un plan d'amélioration priorisé.
+- Une architecture RAG fonctionnelle et adaptée aux contraintes de Bouygues TP (souveraineté des données, multilinguisme FR/EN, corpus normatif).
+- Une identification claire des limites du POC (hybridation, reranking, gestion des tableaux et images) et un plan d'amélioration priorisé.
 
 ### 10.4. Recommandations pour évaluer un RAG en contexte critique
 
 Synthèse des bonnes pratiques pour un futur projet :
 
-1. **Commencer par définir la fiabilité opérationnellement** dans le contexte du domaine, avec ses dimensions critiques.
-2. **Construire un jeu de test représentatif et stratifié dès le début** (≥ 150 questions, par type, difficulté, criticité).
-3. **Évaluer chaque composant avant l'évaluation end-to-end** pour permettre le diagnostic.
-4. **Tester systématiquement la stabilité** (pas seulement la qualité moyenne).
-5. **Combiner LLM-as-judge et validation humaine** sur un échantillon, pour calibrer.
-6. **Mesurer le coût opérationnel** (latence, €) en parallèle de la qualité.
-7. **Versionner et logger** tout, dès le POC : on ne peut pas reproduire ce qui n'est pas tracé.
-8. **Anticiper la conformité AI Act et les enjeux de responsabilité** dès la conception, pas après le déploiement.
+1. Commencer par définir la fiabilité opérationnelle dans le contexte du domaine, avec ses dimensions critiques.
+2. Construire un jeu de test représentatif et stratifié dès le début (minimum 100 questions, par type, difficulté, criticité).
+3. Évaluer chaque composant avant l'évaluation end-to-end pour permettre le diagnostic.
+4. Tester systématiquement la stabilité (pas seulement la qualité moyenne).
+5. Combiner LLM-as-judge et validation humaine sur un échantillon pour calibrer.
+6. Mesurer le coût opérationnel (latence, €) en parallèle de la qualité.
+7. Versionner et logger tout, dès le POC : on ne peut ni reproduire ni réutiliser ce qui n'est pas tracé.
+8. Anticiper la conformité AI Act et les enjeux de responsabilité dès la conception, pas après le déploiement.
 
 ### 10.5. Perspectives
 
 #### 10.5.1. Améliorations techniques court terme (ScribBERT)
 
-- **Hybridation BM25 + dense** pour améliorer le rappel sur les références exactes.
-- **Reranker cross-encoder** pour la précision du top-$k$ injecté.
-- **Image-to-text contextualisé** pour intégrer tableaux et schémas.
-- **Enrichissement des métadonnées** (date de validation, niveau d'autorité, section).
-- **Évaluation systématique** selon le protocole Ch. 5–6.
+- Hybridation BM25 + dense pour améliorer le rappel sur les références exactes.
+- Reranker cross-encoder pour la précision du top-$k$ injecté.
+- Image-to-text contextualisé pour intégrer tableaux et schémas.
+- Enrichissement des métadonnées des chunks.
+- Refactoring du prompt système : itérer sur la formulation des instructions pour traiter à la source plusieurs des biais identifiés au § 8b.5 (biais de longueur, biais d'ordre des citations) sans modifier le pipeline de retrieval.
+- Évaluation systématique selon le protocole Ch. 5–6.
 
 #### 10.5.2. Pistes de recherche moyen terme
 
-- **Fine-tuning d'un modèle d'embedding sur le corpus santé-sécurité** (apprentissage contrastif sur paires question/passage), pour combler le manque de modèles spécialisés santé-sécurité/BTP identifié au Ch. 4.1.1.
-- **GraphRAG** : exploiter une représentation en graphe des entités santé-sécurité (procédures, EPI, risques, situations) pour des requêtes nécessitant un raisonnement multi-saut.
-- **Agentic RAG** : pour les questions complexes, décomposer en sous-questions, lancer plusieurs retrievals, agréger.
-- **RAG multimodal** : intégrer images, schémas, vidéos de formation comme sources de premier niveau.
+- Fine-tuning d'un modèle d'embedding sur le corpus santé-sécurité (apprentissage contrastif sur paires question/passage), pour combler l'absence de modèle spécialisé santé-sécurité/BTP identifié au Ch. 4.1.1.
+- GraphRAG : exploiter une représentation en graphe des entités santé-sécurité (procédures, EPI, risques, situations) pour des requêtes nécessitant un raisonnement multi-saut.
+- Agentic RAG : pour les questions complexes, décomposer en sous-questions, lancer plusieurs retrievals, agréger.
+- RAG multimodal : intégrer images, schémas, vidéos de formation comme sources de premier niveau.
 
 #### 10.5.3. Généralisation à d'autres domaines
 
-Le cadre méthodologique proposé est **transférable à d'autres domaines réglementaires et techniques** : juridique (jurisprudence, contrats), médical (recommandations, protocoles), conformité (LCB-FT, ESG), maintenance industrielle (procédures, modes opératoires). Les adaptations principales concernent :
+Le cadre méthodologique proposé est transférable à d'autres business units réglementaires et techniques : juridique (jurisprudence, contrats), ressources humaines (conventions collectives, accords d'entreprise, politiques internes), maintenance industrielle (procédures, modes opératoires). Les adaptations principales concernent :
 
-- la définition opérationnelle de la fiabilité dans le domaine cible (quelles dimensions sont critiques ?) ;
-- la construction du jeu de test (qui annote ? selon quels critères ?) ;
-- les contraintes réglementaires spécifiques (RGPD santé, secret professionnel juridique, etc.).
+- la définition opérationnelle de la fiabilité dans le domaine cible (quelles dimensions sont critiques ?)
+- la construction du jeu de test (qui annote ? selon quels critères ?)
+- les contraintes réglementaires spécifiques (RGPD, secret professionnel juridique, etc.)
 
 #### 10.5.4. Enjeux éthiques et de responsabilité à long terme
 
 L'évolution des cadres réglementaires (AI Act, normes ISO 42001) et la jurisprudence à venir sur la responsabilité des systèmes IA en domaine critique vont préciser les exigences. Les systèmes RAG d'entreprise devront probablement, à terme :
 
-- être audités par des tiers ;
-- exposer des **garanties documentées** de fiabilité ;
-- intégrer la supervision humaine non comme option mais comme exigence.
+- être audités par des tiers
+- exposer des garanties documentées de fiabilité
+- intégrer la supervision humaine non comme option mais comme exigence
 
-L'investissement méthodologique fait dans ce mémoire sur l'évaluation rigoureuse anticipe ces évolutions et positionne ScribBERT comme un cas d'usage exemplaire d'**IA industrielle responsable** dans le secteur de la construction.
+L'investissement méthodologique fait dans ce mémoire sur l'évaluation rigoureuse anticipe ces évolutions et positionne ScribBERT comme un cas d'usage exemplaire d'IA industrielle responsable dans le secteur de la construction.
 
 ---
 
@@ -1745,73 +1758,26 @@ L'investissement méthodologique fait dans ce mémoire sur l'évaluation rigoure
 
 Ce mémoire a abordé la question : *Comment évaluer la cohérence et la fiabilité d'un système RAG ?*
 
-La réponse proposée s'articule en trois temps. En **Partie I**, le RAG a été replacé dans la lignée historique de la recherche d'information et formalisé comme une chaîne de décision dont les notions de pertinence, de cohérence et de fiabilité doivent être clarifiées et décomposées. En **Partie II**, un cadre méthodologique a été construit : catalogue des leviers techniques (Ch. 4), protocole d'évaluation diagnostique organisé selon cinq dimensions de la fiabilité (Ch. 5), et protocole spécifique de stabilité (Ch. 6) souvent négligé par les frameworks existants. En **Partie III**, ce cadre a été instancié sur ScribBERT, un assistant RAG développé pour le département P2S de Bouygues Travaux Publics, en documentant l'architecture déployée, les choix techniques justifiés, le plan d'évaluation à exécuter, ainsi que les enjeux éthiques et réglementaires associés.
+La réponse proposée s'articule en trois temps. En Partie I, le RAG a été replacé dans la lignée historique de la recherche d'information et formalisé comme une chaîne de décision dont les notions de pertinence, de cohérence et de fiabilité doivent être clarifiées et décomposées. En Partie II, un cadre méthodologique a été construit : catalogue des leviers techniques (Ch. 4), protocole d'évaluation diagnostique organisé selon cinq dimensions de la fiabilité (Ch. 5), et protocole spécifique de stabilité (Ch. 6) souvent négligé par les frameworks existants. En Partie III, ce cadre a été instancié sur ScribBERT, un assistant RAG développé pour le département P2S de Bouygues Travaux Publics, en documentant l'architecture déployée, les choix techniques justifiés, le plan d'évaluation à exécuter, ainsi que les enjeux éthiques et réglementaires associés.
 
 ### Apports
 
-L'apport principal est **méthodologique** : une définition opératoire de la fiabilité, un cadre d'évaluation diagnostique et reproductible, et la mise en évidence de la stabilité comme dimension à part entière. L'apport **applicatif** consiste en une architecture RAG fonctionnelle adaptée aux contraintes d'un grand groupe de BTP (souveraineté, multilinguisme, criticité), et une identification claire des prochaines étapes d'industrialisation.
+L'apport principal est avant tout méthodologique : une définition opératoire de la fiabilité, un cadre d'évaluation diagnostique et reproductible, et la mise en évidence de la stabilité comme dimension à part entière de la fiabilité. L'apport applicatif consiste en une architecture RAG fonctionnelle et adaptée aux contraintes de Bouygues TP (souveraineté des données, multilinguisme FR/EN, corpus normatif), et une identification claire des limites du POC (hybridation, reranking, gestion des tableaux) et un plan d'amélioration priorisé.
 
 ### Limites
 
-Le travail comporte trois limites principales : (i) le jeu de test interne (50 questions) reste en-deçà des 150–300 recommandées pour des comparaisons statistiquement décisives, (ii) le protocole d'évaluation complet (Ch. 5–6) a été instancié sur l'axe retrieval pour 864 configurations, mais seulement sur 5 configurations en génération RAGAS et 1 configuration en stabilité étendue, (iii) la généralisation des résultats à d'autres contextes documentaires nécessite une validation empirique sur d'autres corpus.
+Le travail comporte trois limites principales : 
+1. Le jeu de test interne (50 questions) reste en-deçà des 150–300 recommandées pour des comparaisons statistiquement décisives
+2. Le protocole d'évaluation complet (Ch. 5–6) a été instancié sur l'axe retrieval pour 864 configurations (750 exploitables), mais seulement sur 5 configurations en génération RAGAS et 1 configuration en stabilité étendue
+3. La généralisation des résultats à d'autres contextes documentaires nécessite une validation empirique sur d'autres corpus.
 
 ### Perspectives
 
-À court terme, ScribBERT bénéficiera de l'application complète du protocole d'évaluation, de l'extension du jeu de test, et de l'intégration des améliorations identifiées (hybrid retrieval, reranking, gestion des tableaux). À moyen terme, le fine-tuning d'un modèle d'embedding sur le corpus santé-sécurité et l'exploration de variantes (GraphRAG, agentic RAG, RAG multimodal) constituent des axes de recherche pertinents. Le cadre méthodologique proposé est par ailleurs transférable à d'autres domaines réglementaires et techniques.
+À court terme, ScribBERT bénéficiera de l'application complète du protocole d'évaluation, et de l'intégration des améliorations identifiées (hybrid retrieval, reranking, gestion des tableaux). À moyen terme, le fine-tuning d'un modèle d'embedding sur le corpus santé-sécurité et l'exploration de variantes (GraphRAG, agentic RAG, RAG multimodal) constituent des axes de recherche pertinents. Le cadre méthodologique proposé est par ailleurs transférable à d'autres domaines réglementaires et techniques.
 
 ### Mot de la fin
 
 L'industrialisation des systèmes RAG dans des contextes critiques est une réalité opérationnelle croissante, mais leur évaluation rigoureuse reste un chantier ouvert. Ce mémoire entend y contribuer en proposant un cadre transférable, en assumant que la fiabilité d'un système d'IA n'est pas un attribut binaire à proclamer, mais une propriété multi-dimensionnelle à mesurer, à éprouver, et à gouverner dans le temps.
-
----
-
-## Glossaire des termes techniques
-
-| Terme | Définition |
-|-------|------------|
-| **ANN** (*Approximate Nearest Neighbor*) | Algorithme de recherche du plus proche voisin approximatif, utilisé pour accélérer la recherche dans des espaces vectoriels de grande dimension (ex. HNSW, IVF, FAISS). |
-| **BART** | Modèle de langage pré-entraîné de type séquence-à-séquence (encoder-decoder), développé par Meta AI, utilisé comme générateur dans l'architecture RAG originale. |
-| **BERT** (*Bidirectional Encoder Representations from Transformers*) | Modèle Transformer pré-entraîné par masquage de tokens, produisant des représentations contextualisées des mots. Base de nombreux modèles d'embedding et de reranking. |
-| **BERTScore** | Métrique d'évaluation de génération de texte mesurant la similarité sémantique token-à-token entre une réponse générée et une référence, à l'aide d'embeddings BERT. |
-| **Bi-encodeur** (*Dual-encoder*) | Architecture où la requête et le passage sont encodés séparément en vecteurs denses, puis comparés par similarité (cosinus, produit scalaire). Rapide mais moins fin qu'un cross-encoder. |
-| **BM25** (*Best Matching 25*) | Fonction de scoring probabiliste pour la recherche d'information, améliorant TF-IDF par normalisation de la longueur du document et saturation des fréquences de termes. Standard industriel. |
-| **Chunk / Chunking** | Segment de texte issu du découpage d'un document. Le *chunking* est l'opération de segmentation qui détermine la granularité des unités indexées et récupérables dans un RAG. |
-| **Cohérence** | Propriété d'un texte dont les idées s'enchaînent logiquement. En RAG, on distingue cohérence locale (linguistique), cohérence globale (discursive) et cohérence terminologique. |
-| **Cohésion** | Marqueurs linguistiques (connecteurs, anaphores, référents) qui assurent la continuité formelle d'un texte. Distincte de la cohérence (organisation du sens). |
-| **Cosinus (similarité)** | Mesure de similarité entre deux vecteurs, calculée comme le cosinus de l'angle entre eux. Valeur entre -1 et 1 ; utilisée pour comparer embeddings. |
-| **Cross-encoder** | Architecture où la requête et le passage sont concaténés et traités ensemble par un Transformer, permettant des interactions fines token-à-token. Plus précis mais plus coûteux qu'un bi-encodeur. Utilisé en reranking. |
-| **Dense retrieval** | Recherche de passages par comparaison de vecteurs denses (embeddings) représentant requêtes et documents. Capte synonymie et paraphrase, par opposition au sparse retrieval. |
-| **DPR** (*Dense Passage Retrieval*) | Méthode de dense retrieval entraînée sur des paires question-passage, utilisant des bi-encodeurs BERT. Référence fondamentale du retrieval dense pour la QA ouverte. |
-| **Embedding** | Représentation vectorielle continue (dense) d'un mot, d'une phrase ou d'un passage, apprise par un réseau de neurones. Capture des régularités sémantiques dans un espace géométrique. |
-| **End-to-end** | Désigne un système ou une évaluation qui considère la chaîne complète (de la requête utilisateur à la réponse finale), par opposition à l'évaluation de composants isolés. |
-| **Faithfulness / Groundedness** | Fidélité de la réponse générée par rapport aux sources récupérées. Une réponse est *grounded* si chacune de ses affirmations est justifiable par un passage du contexte. |
-| **Fine-tuning** | Adaptation d'un modèle pré-entraîné à une tâche ou un domaine spécifique par entraînement supplémentaire sur des données ciblées. |
-| **Hallucination** | Génération par un LLM d'informations plausibles mais factuellement incorrectes ou non supportées par les sources. Risque majeur en contexte RAG et santé-sécurité. |
-| **Hard negatives** | Exemples négatifs (passages non pertinents) sémantiquement proches de la requête, utilisés pour entraîner des retrievers denses à mieux discriminer les passages réellement pertinents. |
-| **HNSW** (*Hierarchical Navigable Small World*) | Structure d'index pour la recherche approximative du plus proche voisin, basée sur des graphes navigables hiérarchiques. Utilisée dans FAISS, Qdrant, etc. |
-| **santé-sécurité** (*Hygiène, Sécurité, Environnement*) | Domaine de la prévention des risques professionnels et de la sécurité au travail. Contexte métier du cas d'usage ScribBERT. |
-| **IDF** (*Inverse Document Frequency*) | Mesure de la rareté d'un terme dans un corpus. Plus un terme est rare, plus son IDF est élevé, et plus il est discriminant pour la recherche. |
-| **IR** (*Information Retrieval*) | Recherche d'information : discipline visant à retrouver des documents ou passages pertinents en réponse à un besoin informationnel. |
-| **LLM** (*Large Language Model*) | Modèle de langage de grande taille (milliards de paramètres), pré-entraîné sur de vastes corpus textuels, capable de générer du texte, répondre à des questions, résumer, etc. Ex. : GPT-4, Claude, Llama. |
-| **LLM-as-judge** | Méthode d'évaluation utilisant un LLM pour noter la qualité des réponses d'un autre système selon une grille de critères prédéfinie. |
-| **MRR** (*Mean Reciprocal Rank*) | Métrique IR mesurant en moyenne l'inverse du rang du premier résultat pertinent. Utile pour évaluer si *au moins un bon passage* apparaît tôt dans les résultats. |
-| **nDCG** (*normalized Discounted Cumulative Gain*) | Métrique IR gérant la pertinence graduée, qui pénalise les documents pertinents placés à des rangs éloignés et normalise par le score idéal. |
-| **Pipeline** | Chaîne de traitement séquentiel. En RAG, la pipeline comprend typiquement : ingestion, chunking, vectorisation, retrieval, reranking et génération. |
-| **Precision@k** | Proportion de résultats pertinents parmi les *k* premiers résultats retournés par un système de recherche. |
-| **Prompt** | Texte d'entrée fourni au LLM, comprenant la requête utilisateur et le contexte documentaire récupéré, éventuellement accompagné de consignes (format, citation, non-invention). |
-| **QA** (*Question Answering*) | Tâche consistant à répondre automatiquement à une question, soit en extrayant un passage (QA extractive), soit en générant une réponse (QA générative). |
-| **Query expansion** | Technique d'enrichissement automatique d'une requête avec des termes supplémentaires (synonymes, termes liés) pour améliorer le rappel de la recherche. |
-| **RAG** (*Retrieval-Augmented Generation*) | Architecture combinant un système de recherche documentaire (retriever) et un modèle génératif (LLM) pour produire des réponses ancrées dans des sources externes. |
-| **RAG-Sequence / RAG-Token** | Deux variantes de l'architecture RAG originale : RAG-Sequence utilise un même passage pour toute la réponse ; RAG-Token permet à chaque token de s'appuyer sur un passage différent. |
-| **Rappel** (*Recall*) | Proportion des documents pertinents existants effectivement retrouvés par le système. |
-| **Recall@k** | Proportion des documents pertinents retrouvés parmi les *k* premiers résultats. |
-| **Reranking** | Étape de reclassement d'un ensemble de résultats candidats par un modèle plus fin (souvent un cross-encoder), après un premier retrieval rapide. |
-| **Retrieval** | Phase de récupération de passages ou documents pertinents à partir d'un index, en réponse à une requête. |
-| **Sparse retrieval** | Recherche basée sur des représentations creuses (haute dimension, beaucoup de zéros), comme BM25 ou TF-IDF. Interprétable et efficace sur les signaux lexicaux. |
-| **TF-IDF** (*Term Frequency – Inverse Document Frequency*) | Pondération combinant la fréquence locale d'un terme dans un document (TF) et sa rareté dans le corpus (IDF). Base historique du scoring lexical en IR. |
-| **Token** | Unité élémentaire de texte traitée par un modèle de langage (mot, sous-mot ou caractère selon le tokenizer). |
-| **Transformer** | Architecture de réseau de neurones basée sur le mécanisme d'attention (*self-attention*), introduite en 2017. Fondement de BERT, GPT, BART et de la majorité des LLMs modernes. |
-| **Vectorisation** | Processus de transformation d'un texte (mot, phrase, passage) en un vecteur numérique (embedding) via un modèle d'encodage. |
 
 ---
 
