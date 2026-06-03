@@ -72,6 +72,19 @@
 \usepackage{setspace}
 \setstretch{1.15}
 
+% --- Titres : forcer \paragraph et \subparagraph à passer à la ligne ---
+% Par défaut LaTeX rend \paragraph (= #### Markdown) en titre « run-in »,
+% collé au début du paragraphe qui suit. On les redéfinit en blocs.
+\usepackage{titlesec}
+\titleformat{\paragraph}[block]
+  {\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+  {0pt}{2.25ex plus 1ex minus .2ex}{1ex plus .2ex}
+\titleformat{\subparagraph}[block]
+  {\normalfont\normalsize\bfseries\itshape}{\thesubparagraph}{1em}{}
+\titlespacing*{\subparagraph}
+  {0pt}{2ex plus 1ex minus .2ex}{0.8ex plus .2ex}
+
 % --- Anti-débordement (inline code, longs identifiants, URLs) ---
 % Pandoc convertit `code` en \texttt{...}. Par défaut, la fonte monospace
 % interdit toute coupure : les identifiants type « recursive-1024-128 »
