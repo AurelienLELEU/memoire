@@ -1,4 +1,4 @@
-## Introduction {-}
+﻿## Introduction {-}
 
 Les modèles de langage ont profondément changé notre rapport à l'information. En l'espace de quelques années, le monde de l'informatique est passé de systèmes incapables de produire une phrase cohérente à des modèles qui rédigent avec une aisance parfois troublante (assistants conversationnels, génération de contenu, recherche d'information intelligente). Le "boom de l'IA" n'est pas qu'un effet de mode : il transforme concrètement la manière dont les êtres humains produisent, partagent et exploitent la connaissance dans les organisations.
 
@@ -121,7 +121,7 @@ Enfin, une autre famille importante, très utilisée en pratique, est celle des 
 
 Ces modèles "classiques" (BM25, *query likelihood*, variantes) restent extrêmement compétitifs, notamment sur des corpus techniques où les indices lexicaux (références, numéros de procédure, intitulés normatifs) apportent des signaux précieux.
 
-#### 1.1.1. Évaluer un système de recherche : pourquoi les métriques comptent
+#### Évaluer un système de recherche : pourquoi les métriques comptent
 
 Les *pipelines* RAG héritent directement de l'IR un point crucial : **l'évaluation dépend du protocole**. La performance d'un moteur ne peut pas être "résumée" par un seul score sans préciser la tâche, la définition de pertinence, le nombre de résultats considérés ($k$), et la nature binaire ou graduée des jugements.[@Manning2008; @BaezaYates2011; @Croft2010; @VoorheesHarman2005]
 
@@ -134,7 +134,7 @@ En recherche classée, des métriques au rang sont utilisées : Precision@k, Rec
 
 Ce point est central pour le mémoire : changer la définition de pertinence (thématique vs situationnelle) modifie les scores de *retrieval*, et la qualité perçue aussi.
 
-#### 1.1.2. Feedback, reformulation et *learning-to-rank*
+#### Feedback, reformulation et *learning-to-rank*
 
 Les systèmes IR peuvent aussi reformuler la requête pour améliorer les résultats. Le *relevance feedback* et ses variantes (pseudo-relevance feedback, expansion de requête) augmentent le rappel (*recall*) mais peuvent introduire du bruit.[@Rocchio1971] Dans un RAG, ce compromis est amplifié : une expansion mal calibrée risque de récupérer des passages thématiquement proches mais non applicables.
 
