@@ -1,6 +1,4 @@
-﻿# Mémoire : Évaluation de la cohérence et de la fiabilité d'un système RAG (cas d'usage : ScribBERT)
-
-## Introduction
+﻿## Introduction {-}
 
 Les modèles de langage ont profondément changé notre rapport à l'information. En l'espace de quelques années, le monde de l'informatique est passé de systèmes incapables de produire une phrase cohérente à des modèles qui rédigent avec une aisance parfois troublante (assistants conversationnels, génération de contenu, recherche d'information intelligente). Le "boom de l'IA" n'est pas qu'un effet de mode : il transforme concrètement la manière dont les êtres humains produisent, partagent et exploitent la connaissance dans les organisations.
 
@@ -24,7 +22,7 @@ La démarche s'organise en trois parties :
 
 \newpage
 
-## Présentation du contexte : Bouygues Travaux Publics et le projet ScribBERT
+## Présentation du contexte : Bouygues Travaux Publics et le projet ScribBERT {-}
 
 Avant d'entrer dans le vif du sujet technique, il est nécessaire de poser le décor : l'entreprise, le département, et les contraintes concrètes qui ont façonné ce projet.
 
@@ -234,6 +232,7 @@ Sur le plan formel, le RAG peut se modéliser comme un problème de génération
 $$p(y\mid x)=\sum_z p(y\mid x,z)\,p(z\mid x)$$
 
 où :
+
 - $x$ est la **requête** de l'utilisateur,
 - $z$ est un **passage** issu du corpus (variable latente : non observée directement, elle est inférée),
 - $y$ est la **réponse** générée.
@@ -577,6 +576,7 @@ L'hybridation BM25 + dense est devenue un standard de fait. Deux stratégies :
 - **Reciprocal Rank Fusion (RRF)** : $\mathrm{RRF}(d) = \sum_i \frac{1}{k + r_i(d)}$, qui combine les rangs et non les scores (plus robuste à des échelles hétérogènes).
 
 L'hybridation est particulièrement utile sur des corpus techniques où :
+
 - le **dense** capture les paraphrases et l'intention,
 - le **sparse** garantit le rappel sur des **identifiants exacts** (numéros de procédure, codes EPI, références normatives).
 
@@ -809,6 +809,7 @@ Constitue le ***gold standard***, particulièrement pour les dimensions difficil
 | Citations | 0-2 | 0 = aucune ou erronée, 2 = chaque affirmation citée correctement |
 
 **Bonnes pratiques** :
+
 - **Plusieurs annotateurs** par item (idéalement 2-3) pour mesurer l'accord inter-annotateurs (Kappa de Cohen, $\alpha$ de Krippendorff).
 - **Annotation à l'aveugle** sur la configuration testée (l'annotateur ne sait pas quel système a produit la réponse).
 - **Profil mixte** d'annotateurs : experts métiers et utilisateurs cibles, pour capturer expertise et utilisabilité.
@@ -843,6 +844,7 @@ Quatre sources complémentaires :
 Pour un protocole diagnostique, il est convenu de stratifies le jeu de test selon plusieurs axes :
 
 **Par type d'intention** :
+
 - **Factuelles** ("Quelle est la hauteur minimale pour port du harnais ?") réponse courte, vérifiable.
 - **Procédurales** ("Quelle est la procédure avant intervention en espace confiné ?") réponse multi-étapes.
 - **Conditionnelles** ("Que faire si... ?") gestion des exceptions.
@@ -851,11 +853,13 @@ Pour un protocole diagnostique, il est convenu de stratifies le jeu de test selo
 - **Hors-périmètre** (test du refus contrôlé).
 
 **Par niveau de difficulté** :
+
 - **Facile** : la réponse est dans un seul passage explicite.
 - **Moyen** : nécessite 2-3 passages.
 - **Difficile** : exception ou condition à identifier, modalité subtile ou contradiction apparente à arbitrer.
 
 **Par criticité métier** :
+
 - **Élevée** : erreur potentiellement dangereuse (port d'EPI vital, procédure de mise en sécurité).
 - **Moyenne** : erreur procédurale sans conséquence vitale immédiate.
 - **Faible** : information administrative ou organisationnelle.
@@ -882,6 +886,7 @@ En-deçà de 100 questions, les comparaisons entre configurations sont sujettes 
 #### 5.3.5. Versioning
 
 Le jeu de test évolue (corrections, ajouts, retraits). Le versionnage porte sur :
+
 - le contenu (questions, réponses de référence, passages de référence),
 - le corpus de référence (documents, *chunks*, *embeddings*) : un jeu de test n'a de sens que pour une version donnée du corpus,
 - les annotations (qui, quand, sur quelle base).
@@ -900,6 +905,7 @@ Pour ce mémoire, l'approche OFAT sera privilégiée pour les comparaisons princ
 #### 5.4.2. Configuration de référence (*baseline*)
 
 Toute expérience compare à une configuration de référence documentée :
+
 - modèle d'*embedding* et version exacte,
 - stratégie et paramètres de *chunking*,
 - type de *retrieval* et top-$k$,
@@ -912,6 +918,7 @@ Cette *baseline* est elle-même l'objet d'une évaluation initiale, sur l'ensemb
 #### 5.4.3. Reproductibilité
 
 Pour qu'une expérience soit reproductible :
+
 - **fixer les seeds** (générateur, ANN si applicable) ;
 - **figer les versions** des modèles (un même nom de modèle peut être mis à jour silencieusement par le fournisseur) ;
 - ***journaliser*** la requête, le contexte récupéré, la réponse complète, les métadonnées de chaque passage ;
@@ -928,6 +935,7 @@ Pour chaque configuration et chaque métrique : analyser la moyenne, médiane, �
 #### 5.5.2. Tests de significativité
 
 Pour comparer deux configurations sur une métrique :
+
 - **Test apparié** (la même question est posée aux deux configurations) : préférer le test de Wilcoxon signed-rank, non paramétrique et robuste. Le test t apparié reste possible si la distribution des différences est proche de la normale.
 - **Correction multiple** lorsque plusieurs métriques ou plusieurs configurations sont testées simultanément (Bonferroni, Holm).
 - **Effet plutôt que p-value seule** : rapporter la **taille d'effet** (différence moyenne, Cohen's $d$) et un intervalle de confiance.
@@ -1036,6 +1044,7 @@ La Partie III instancie ce cadre sur ScribBERT : architecture déployée (Ch. 7)
 Cette dernière partie applique le cadre méthodologique des Parties I et II au cas de ScribBERT. Conformément au principe anti-redondance énoncé en introduction de la Partie II, ce qui est déjà décrit en Ch. 4 (théorie des leviers) n'est pas répété ici : seuls les **choix réalisés** et leurs **justifications** sont documentés.
 
 La structure est la suivante :
+
 - **Ch. 7** : architecture déployée et choix techniques.
 - **Ch. 8a** : résultats quantitatifs.
 - **Ch. 8b** : analyse qualitative et étude d'erreurs.
@@ -1108,6 +1117,7 @@ L'étape 1 est actuellement la plus fragile : les PDFs santé-sécurité contien
 #### 7.2.4. UI et expérience utilisateur
 
 L'interface ReactJS expose :
+
 - une **zone de saisie** en langage naturel ;
 - un **filtre** optionnel sur les métadonnées (entité émettrice, langue) ;
 - la **réponse générée** avec citations cliquables, le nom du document avec la (ou les) page(s) utilisée(s) pour la réponse, et la possibilité de télécharger le PDF d'origine ;
@@ -1148,6 +1158,7 @@ Les métadonnées attachées à chaque *chunk* sont actuellement : `nom_document
 #### 7.5.1. Phase POC
 
 Le POC initial a utilisé en grande partie GPT-3.5 Turbo comme LLM, choisi pour :
+
 - la rapidité de mise en œuvre (API mature),
 - un compromis coût/qualité acceptable pour valider la faisabilité.
 
@@ -1198,6 +1209,7 @@ Le filtrage actuellement implémenté repose sur une distance maximale. En prati
 ### 7.7. Configuration de la génération
 
 ***Prompt*** : structure conforme aux principes énoncés au Ch. 4.4.2 :
+
 - instruction système rappelant le rôle (assistant santé-sécurité, ancrage strict sur les sources),
 - consigne explicite de citation des sources et d'aveu d'ignorance le cas échéant,
 - consignes de format (réponse synthétique, structurée, avec liens vers les sources).
@@ -1215,6 +1227,7 @@ return (
 ```
 
 **Paramètres de décodage** :
+
 - **Température** : **0,05** (réglage effectif de la route de génération principale, cohérent avec la recommandation de stabilité formulée plus haut en Ch. 4.4.4 et au Ch. 6) ;
 - **Max tokens** : non fixé explicitement, pas de plafond applicatif dédié dans cette couche ;
 - **Seed** : non fixée à ce stade : la génération est globalement stable grâce à une température basse, mais la reproductibilité stricte d’un run à l’autre n’est pas garantie.
@@ -1613,6 +1626,7 @@ En cas d'accident sur chantier, si une décision de prévention s'appuie sur une
 #### 9.3.2. L'avertissement comme mesure de mitigation
 
 ScribBERT affiche un avertissement permanent rappelant que :
+
 - la responsabilité de la qualité des réponses n'incombe pas au système.
 - l'utilisateur doit faire appel à son esprit critique et vérifier les documents sources avant toute action opérationnelle.
 
@@ -1754,7 +1768,7 @@ L'investissement méthodologique fait dans ce mémoire sur l'évaluation rigoure
 
 ---
 
-## Conclusion générale
+## Conclusion générale {-}
 
 ### Synthèse
 
@@ -1786,7 +1800,7 @@ Au moment de la dernière révision de ce mémoire, le projet ScribBERT vient d'
 ---
 
 
-## Glossaire des termes anglais
+## Glossaire des termes anglais {-}
 
 Ce glossaire reprend les termes anglais (mots et expressions) employés dans le mémoire et italicisés dans le texte. Les acronymes (RAG, LLM, BM25, GPT, API, MRR, nDCG, etc.) sont définis directement lors de leur première occurrence dans le corps du texte.
 
@@ -1875,7 +1889,7 @@ Ce glossaire reprend les termes anglais (mots et expressions) employés dans le 
 - ***watermark*** : Filigrane : signal discret inséré dans une sortie pour en tracer l'origine.
 - ***workflow*** : Flux de travail : séquence d'étapes coordonnées composant un processus.
 
-## Bibliographie
+## Bibliographie {-}
 
 ::: {#refs}
 :::

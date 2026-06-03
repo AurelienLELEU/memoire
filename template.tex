@@ -1,4 +1,4 @@
-\documentclass[11pt, a4paper]{report}
+\documentclass[11pt, a4paper]{article}
 
 % --- Encodage et langue ---
 % Compatible pdflatex / xelatex / lualatex.
@@ -75,15 +75,16 @@
 % --- Anti-débordement (inline code, longs identifiants, URLs) ---
 % Pandoc convertit `code` en \texttt{...}. Par défaut, la fonte monospace
 % interdit toute coupure : les identifiants type « recursive-1024-128 »
-% débordent dans les colonnes de tableau et en marge.
-% Stratégie en trois temps :
-%   (a) on donne à LaTeX une marge d'élasticité d'urgence + \sloppy,
-%   (b) on réactive la coupure aux tirets dans la fonte monospace,
-%   (c) on enveloppe \texttt avec \seqsplit, qui autorise une coupure
-%       après chaque caractère du contenu (sans changer le rendu si
-%       le mot tient sur la ligne).
-\setlength{\emergencystretch}{3em}
-\usepackage{seqsplit}
+% débordent en marge.
+% Stratégie :
+%   (a) marge d'élasticité d'urgence + \sloppy,
+%   (b) coupure aux tirets « - » réactivée dans la fonte monospace,
+%   (c) le paquet « underscore » rend « \_ » sécable en mode texte,
+%       ce qui permet le retour à la ligne après un « _ » dans les
+%       identifiants type « entité_émettrice », sans couper le mot
+%       au milieu d'une syllabe.
+\setlength{\emergencystretch}{4em}
+\usepackage[strings]{underscore}
 
 \makeatletter
 % Active la coupure aux tirets « - » dans la fonte monospace
@@ -91,11 +92,6 @@
   \not@math@alphabet\ttfamily\mathtt
   \fontfamily\ttdefault\selectfont
   \hyphenchar\font=`\-\relax}
-
-% Redéfinit \texttt : conserve le rendu mono et autorise les coupures
-% à n'importe quelle position si nécessaire.
-\let\PandocOrigTexttt\texttt
-\renewcommand{\texttt}[1]{\PandocOrigTexttt{\seqsplit{#1}}}
 \makeatother
 
 % --- Maths ---
@@ -133,9 +129,7 @@
 \fancyhead[L]{\nouppercase{\leftmark}}
 \fancyhead[R]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
-% Pandoc avec report + ## crée des \section, pas des \chapter.
-% On redirige \leftmark vers section pour avoir le bon titre dans le header.
-\renewcommand{\chaptermark}[1]{}
+% Classe « article » : \leftmark est alimenté par \sectionmark.
 \renewcommand{\sectionmark}[1]{\markboth{#1}{}}
 
 % --- Titre ---
@@ -143,9 +137,12 @@
 \author{$author$}
 \date{$date$}
 
-% --- Pandoc tight list fix ---
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+% --- Pandoc tight list ---
+% Pandoc insère \tightlist au début des listes serrées (items sans ligne
+% vide entre eux). La définition par défaut écrase tout espace vertical,
+% ce qui rend les puces illisibles. On la neutralise pour conserver les
+% espacements standards de \itemize.
+\providecommand{\tightlist}{}
 
 % --- Pandoc syntax highlighting macros ---
 $if(highlighting-macros)$
