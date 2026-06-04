@@ -72,6 +72,20 @@
 \usepackage{setspace}
 \setstretch{1.15}
 
+% --- Pages remplies jusqu'en bas ---
+% Par défaut, la classe « article » utilise \raggedbottom : chaque page
+% se termine où le texte se termine naturellement, ce qui peut laisser
+% beaucoup d'espace blanc en bas, surtout quand la page suivante commence
+% par un titre de section (LaTeX préfère pousser le titre à la page
+% suivante plutôt que de le laisser seul en bas).
+% \flushbottom force LaTeX à étirer les espaces verticaux élastiques
+% (autour des titres, entre paragraphes) pour aligner toutes les pages
+% sur la même hauteur. Les pénalités widow/club sont aussi relâchées
+% pour donner plus de souplesse au moteur de coupure.
+\flushbottom
+\widowpenalty=1000
+\clubpenalty=1000
+
 % --- Titres : forcer \paragraph et \subparagraph à passer à la ligne ---
 % Par défaut LaTeX rend \paragraph (= #### Markdown) en titre « run-in »,
 % collé au début du paragraphe qui suit. On les redéfinit en blocs.
