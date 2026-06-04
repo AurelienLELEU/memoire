@@ -6,7 +6,7 @@ Je remercie également Julien Larseneur, du pôle Intelligence Artificielle de B
 
 Je tiens à remercier l'ensemble des équipes du département Prévention Santé-Sécurité pour leur disponibilité lors des phases de test et de retours utilisateurs, ainsi que les contributeurs du pôle Intelligence Artificielle pour les nombreux échanges techniques qui ont nourri le projet.
 
-Je remercie enfin l'équipe pédagogique de l'École Hexagone pour le cadre de formation du Master 2 Intelligence Artificielle, et plus largement toutes les personnes qui, par leurs conseils, leurs relectures ou leurs encouragements, ont contribué à la réalisation de ce travail.
+Je remercie enfin l'équipe pédagogique de l'École Hexagone pour le cadre de formation du Mastère 2 Intelligence Artificielle, et plus largement toutes les personnes qui, par leurs conseils, leurs relectures ou leurs encouragements, ont contribué à la réalisation de ce travail.
 
 ```{=latex}
 \cleardoublepage
@@ -21,20 +21,6 @@ Le travail s'articule en trois parties. La première replace le RAG dans la lign
 Les résultats mettent en évidence la nécessité de séparer les erreurs de *retrieval* et de génération, de stratifier l'analyse par type et criticité de question, et d'intégrer explicitement la mesure de stabilité dans toute comparaison de configurations. Au-delà de ScribBERT, le cadre proposé est transférable à d'autres déploiements RAG en environnement documentaire spécialisé soumis à des exigences de fiabilité élevées.
 
 **Mots-clés** : Retrieval-Augmented Generation ; RAG ; évaluation ; fiabilité ; fidélité aux sources ; recherche d'information ; embeddings ; chunking ; LLM-as-judge ; stabilité ; santé-sécurité ; ScribBERT.
-
-```{=latex}
-\cleardoublepage
-```
-
-# Abstract {-}
-
-This thesis proposes a methodological framework for evaluating the consistency and reliability of Retrieval-Augmented Generation (RAG) systems deployed in critical industrial settings. The case study is ScribBERT, a conversational agent developed for the Occupational Health and Safety department of Bouygues Travaux Publics, designed to allow natural-language querying of internal safety guidelines. The challenge is specific: in a domain where an erroneous answer may endanger field workers, rigorous evaluation becomes a prerequisite for deployment.
-
-The work unfolds in three parts. The first situates RAG within the history of information retrieval and formalises the notions of relevance, consistency, and faithfulness to sources. The second builds a reproducible evaluation protocol structured around five dimensions of reliability — retrieval relevance, source faithfulness, answer relevance, stability, and traceability — combining automatic metrics (Recall@k, MRR, nDCG, LLM-as-judge faithfulness) with targeted human validation. The third instantiates this protocol on ScribBERT: benchmarking chunking strategies, embedding models, and retrieval configurations, together with typological error analysis and inter-run stability studies.
-
-The results highlight the need to disentangle retrieval and generation errors, to stratify analysis by question type and criticality, and to explicitly integrate stability measurement into any comparison of configurations. Beyond the ScribBERT case, the proposed framework is transferable to other RAG deployments in specialised, high-stakes documentary environments.
-
-**Keywords**: Retrieval-Augmented Generation; RAG; evaluation; reliability; faithfulness; information retrieval; embeddings; chunking; LLM-as-judge; stability; occupational health and safety; ScribBERT.
 
 ```{=latex}
 \cleardoublepage
