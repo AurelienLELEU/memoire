@@ -1,5 +1,0 @@
-Note: Environment variable`HF_TOKEN` is set and is the current active token independently from the token you've just configured.
-→ Génération : markdown-1200-50 | ada-002 | dense-k5-thresh | azure-gpt35
-  questions:   0%|          | 0/50 [00:00<?, ?it/s]Note: Environment variable`HF_TOKEN` is set and is the current active token independently from the token you've just configured.
-→ Génération : markdown-1200-50 | ada-002 | dense-k5-thresh | azure-gpt35
-  questions:   0%|          | 0/50 [00:00<?, ?it/s]  questions:   2%|▏         | 1/50 [00:24<20:18, 24.86s/it]  questions:   4%|▍         | 2/50 [03:31<1:36:04, 120.09s/it]
