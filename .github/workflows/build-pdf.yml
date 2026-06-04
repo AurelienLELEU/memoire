@@ -25,9 +25,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pandoc texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-lang-french texlive-xetex latexmk fonts-lmodern
 
-      - name: Download CSL style (Chicago full note — footnotes)
+      - name: Download CSL style (APA 7th edition)
         run: |
-          curl -sSfL "https://www.zotero.org/styles/chicago-fullnote-bibliography" -o chicago-note.csl
+          curl -sSfL "https://www.zotero.org/styles/apa" -o apa.csl
 
       - name: Convert Markdown to PDF via LaTeX
         run: |
@@ -37,10 +37,10 @@ jobs:
             --no-highlight \
             --citeproc \
             --bibliography=references.bib \
-            --csl=chicago-note.csl \
-            --variable title="Évaluation de la cohérence et de la fiabilité d'un système RAG" \
+            --csl=apa.csl \
+            --variable title="Évaluer la cohérence et la fiabilité d'un système RAG : étude de cas ScribBERT" \
             --variable author="Aurélien Leleu" \
-            --variable date="2026" \
+            --variable date="2025-2026" \
             --toc \
             --number-sections \
             -o memoire.pdf
@@ -53,10 +53,10 @@ jobs:
             --no-highlight \
             --citeproc \
             --bibliography=references.bib \
-            --csl=chicago-note.csl \
-            --variable title="Évaluation de la cohérence et de la fiabilité d'un système RAG" \
+            --csl=apa.csl \
+            --variable title="Évaluer la cohérence et la fiabilité d'un système RAG : étude de cas ScribBERT" \
             --variable author="Aurélien Leleu" \
-            --variable date="2026" \
+            --variable date="2025-2026" \
             --toc \
             --number-sections \
             -o memoire.tex

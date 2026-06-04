@@ -1,4 +1,55 @@
-﻿# Introduction {-}
+﻿# Remerciements {-}
+
+Mes remerciements vont en premier lieu à Flavien Martin, responsable Système & Appels d'offres au département Prévention Santé-Sécurité de Bouygues Travaux Publics, pour la confiance accordée tout au long de cette alternance, la liberté d'initiative laissée sur le projet ScribBERT, et les échanges réguliers qui ont structuré ma compréhension du métier.
+
+Je remercie également Julien Larseneur, du pôle Intelligence Artificielle de Bouygues Travaux Publics, pour son encadrement technique exigeant et son insistance permanente sur la rigueur méthodologique de l'évaluation. Beaucoup des choix présentés dans ce mémoire sont directement issus de nos discussions.
+
+Je tiens à remercier l'ensemble des équipes du département Prévention Santé-Sécurité pour leur disponibilité lors des phases de test et de retours utilisateurs, ainsi que les contributeurs du pôle Intelligence Artificielle pour les nombreux échanges techniques qui ont nourri le projet.
+
+Je remercie enfin l'équipe pédagogique de l'École Hexagone pour le cadre de formation du Master 2 Intelligence Artificielle, et plus largement toutes les personnes qui, par leurs conseils, leurs relectures ou leurs encouragements, ont contribué à la réalisation de ce travail.
+
+```{=latex}
+\cleardoublepage
+```
+
+# Résumé {-}
+
+Ce mémoire propose un cadre méthodologique pour évaluer la cohérence et la fiabilité des systèmes RAG (*Retrieval-Augmented Generation*) déployés en contexte industriel critique. Le cas d'application est ScribBERT, un agent conversationnel développé pour le département Prévention Santé-Sécurité de Bouygues Travaux Publics, destiné à permettre l'interrogation en langage naturel des référentiels santé-sécurité internes. L'enjeu est singulier : dans un domaine où une réponse erronée peut compromettre la sécurité des compagnons sur chantier, une évaluation rigoureuse devient un prérequis au déploiement.
+
+Le travail s'articule en trois parties. La première replace le RAG dans la lignée historique de la recherche d'information et formalise les notions de pertinence, de cohérence et de fidélité aux sources. La deuxième construit un protocole d'évaluation reproductible structuré autour de cinq dimensions de la fiabilité — pertinence du *retrieval*, fidélité aux sources, pertinence de la réponse, stabilité, traçabilité — combinant métriques automatiques (Recall@k, MRR, nDCG, *faithfulness* via *LLM-as-judge*) et validation humaine ciblée. La troisième instancie ce protocole sur ScribBERT : *benchmark* des stratégies de *chunking*, des modèles d'*embedding* et des configurations de *retrieval*, analyse d'erreurs typologique et étude de stabilité inter-runs.
+
+Les résultats mettent en évidence la nécessité de séparer les erreurs de *retrieval* et de génération, de stratifier l'analyse par type et criticité de question, et d'intégrer explicitement la mesure de stabilité dans toute comparaison de configurations. Au-delà de ScribBERT, le cadre proposé est transférable à d'autres déploiements RAG en environnement documentaire spécialisé soumis à des exigences de fiabilité élevées.
+
+**Mots-clés** : Retrieval-Augmented Generation ; RAG ; évaluation ; fiabilité ; fidélité aux sources ; recherche d'information ; embeddings ; chunking ; LLM-as-judge ; stabilité ; santé-sécurité ; ScribBERT.
+
+```{=latex}
+\cleardoublepage
+```
+
+# Abstract {-}
+
+This thesis proposes a methodological framework for evaluating the consistency and reliability of Retrieval-Augmented Generation (RAG) systems deployed in critical industrial settings. The case study is ScribBERT, a conversational agent developed for the Occupational Health and Safety department of Bouygues Travaux Publics, designed to allow natural-language querying of internal safety guidelines. The challenge is specific: in a domain where an erroneous answer may endanger field workers, rigorous evaluation becomes a prerequisite for deployment.
+
+The work unfolds in three parts. The first situates RAG within the history of information retrieval and formalises the notions of relevance, consistency, and faithfulness to sources. The second builds a reproducible evaluation protocol structured around five dimensions of reliability — retrieval relevance, source faithfulness, answer relevance, stability, and traceability — combining automatic metrics (Recall@k, MRR, nDCG, LLM-as-judge faithfulness) with targeted human validation. The third instantiates this protocol on ScribBERT: benchmarking chunking strategies, embedding models, and retrieval configurations, together with typological error analysis and inter-run stability studies.
+
+The results highlight the need to disentangle retrieval and generation errors, to stratify analysis by question type and criticality, and to explicitly integrate stability measurement into any comparison of configurations. Beyond the ScribBERT case, the proposed framework is transferable to other RAG deployments in specialised, high-stakes documentary environments.
+
+**Keywords**: Retrieval-Augmented Generation; RAG; evaluation; reliability; faithfulness; information retrieval; embeddings; chunking; LLM-as-judge; stability; occupational health and safety; ScribBERT.
+
+```{=latex}
+\cleardoublepage
+\tableofcontents
+\cleardoublepage
+\listoffigures
+\cleardoublepage
+\listoftables
+```
+
+```{=latex}
+\cleardoublepage
+```
+
+# Introduction {-}
 
 Les modèles de langage ont profondément changé notre rapport à l'information. En l'espace de quelques années, le monde de l'informatique est passé de systèmes incapables de produire une phrase cohérente à des modèles qui rédigent avec une aisance parfois troublante (assistants conversationnels, génération de contenu, recherche d'information intelligente). Le "boom de l'IA" n'est pas qu'un effet de mode : il transforme concrètement la manière dont les êtres humains produisent, partagent et exploitent la connaissance dans les organisations.
 
@@ -35,6 +86,10 @@ Quatre conséquences directes de ce cadre applicatif structurent la suite du mé
 - les contraintes de confidentialité orientent les choix techniques vers des modèles auto-hébergeables ou disponibles dans un espace sécurisé ;
 - le caractère opérationnel du déploiement (utilisateurs réels, certains enthousiastes, d'autres méfiants vis-à-vis de l'IA) impose de considérer non seulement la performance moyenne, mais aussi la stabilité et la gestion des cas limites. Les premiers retours utilisateurs ont confirmé que la peur de l'erreur reste présente et légitime — en phase de POC, certaines réponses se sont avérées incorrectes ou incomplètes —, ce qui a renforcé la nécessité d'un cadre d'évaluation solide avant tout déploiement élargi.
 
+```{=latex}
+\cleardoublepage
+```
+
 # PARTIE I - Cadre conceptuel et état de l'art
 
 Cette première partie replace les systèmes de (RAG) Retrieval-Augmented Generation dans l'histoire des méthodes de recherche d'information. Elle vise ensuite à formaliser les notions de pertinence et de cohérence / fidélité qui seront au cœur du protocole d'évaluation.
@@ -43,6 +98,10 @@ Deux constats structurent cette partie :
 
 1. Un RAG n'est pas "un LLM + des documents". C'est une chaîne complexe de décision (découpage, indexation, recherche, assemblage du contexte, génération) dont les erreurs et imprécisions s'additionnent parfois.
 2. Les critères d'évaluation de l'IR (recherche d'information) classique et ceux des LLMs ne se recouvrent pas. Un excellent score de *retrieval* est tout à fait compatible avec une réponse finale fausse.
+
+```{=latex}
+\newpage
+```
 
 ## Chapitre 1 - De la recherche documentaire à la recherche sémantique
 
@@ -167,6 +226,10 @@ Le paradigme *retriever-reader* a d'abord été popularisé par DrQA (Chen et al
 
 Le RAG n'est pas une invention isolée mais l'aboutissement d'une lignée de recherche en IR.
 
+```{=latex}
+\newpage
+```
+
 ## Chapitre 2 - Les fondements du RAG (Retrieval-Augmented Generation)
 
 ### Principe général : génération augmentée par récupération
@@ -267,6 +330,10 @@ Deux types de mémoire se distinguent : la "mémoire paramétrique" d'un LLM (se
 ### Pourquoi la notion de "source" est centrale en contexte santé-sécurité
 
 Dans une application santé-sécurité, une réponse "créative" est indésirable : la réponse attendue est normative ou procédurale, fondée sur les bons documents. La qualité tient alors à des questions très concrètes : le système distingue-t-il une procédure groupe validée d'une note informelle ? Respecte-t-il la différence entre "doit" et "devrait" ? Mentionne-t-il les exceptions ? Ces exigences, bien plus strictes que dans un agent conversationnel grand public, imposent de centrer l'évaluation sur la fidélité aux sources, ce qui sera l'objet de la Partie II.
+
+```{=latex}
+\newpage
+```
 
 ## Chapitre 3 - La question de la "pertinence" et de la "cohérence"
 
@@ -378,6 +445,10 @@ La Partie II présente la méthodologie retenue, et la Partie III l'applique à 
 
 ---
 
+```{=latex}
+\cleardoublepage
+```
+
 # PARTIE II - Méthodologie d'évaluation d'un système RAG
 
 La Partie I a posé les bases : ce qu'est un RAG, ce que signifient "pertinence" et "cohérence" dans ce contexte, et pourquoi ces notions sont si délicates à évaluer quand l'enjeu est la sécurité des collaborateurs. La Partie II entre dans le concret.
@@ -391,6 +462,10 @@ Trois questions structurent cette partie :
 3. Comment évaluer la cohérence (fidélité aux sources, stabilité), qui est la dimension la plus difficile à automatiser (Chapitre 6) ?
 
 L'ambition est de proposer un cadre transférable, pas spécifique à ScribBERT, mais qui sera instancié sur ce cas en Partie III.
+
+```{=latex}
+\newpage
+```
 
 ## Chapitre 4 - Modèles et paramètres influençant la performance
 
@@ -641,6 +716,10 @@ L'ensemble des leviers présentés peut être résumé dans une matrice qui guid
 L'expérimentation menée en Partie III ne pourra pas tester toutes les combinaisons (explosion combinatoire). Elle adoptera une approche OFAT (*One-Factor-At-a-Time*) sur un sous-ensemble de paramètres jugés les plus impactants, complétée par quelques expériences factorielles ciblées.
 
 Le Chapitre 5 présente le protocole d'évaluation lui-même : jeux de test, métriques, conditions d'expérimentation.
+
+```{=latex}
+\newpage
+```
 
 ## Chapitre 5 - Construction d'un protocole d'évaluation
 
@@ -921,6 +1000,10 @@ Le protocole proposé articule cinq dimensions de la fiabilité (*retrieval*, fi
 
 Le Chapitre 6 approfondit la dimension stabilité, qui mérite un traitement spécifique car elle est sous-traitée par les *frameworks* usuels et particulièrement critique pour un système RAG en production sur un sujet sensible.
 
+```{=latex}
+\newpage
+```
+
 ## Chapitre 6 - Évaluation de la stabilité et de la répétabilité
 
 ### Pourquoi la stabilité est une dimension distincte de la fiabilité
@@ -992,6 +1075,10 @@ La Partie III instancie ce cadre sur ScribBERT : architecture déployée (Ch. 7)
 
 ---
 
+```{=latex}
+\cleardoublepage
+```
+
 # PARTIE III - Application pratique : étude de cas ScribBERT
 
 Cette dernière partie applique le cadre méthodologique des Parties I et II au cas de ScribBERT. Conformément au principe anti-redondance énoncé en introduction de la Partie II, ce qui est déjà décrit en Ch. 4 (théorie des leviers) n'est pas répété ici : seuls les choix réalisés et leurs justifications sont documentés.
@@ -1003,6 +1090,10 @@ La structure est la suivante :
 - Ch. 8b : analyse qualitative et étude d'erreurs.
 - Ch. 9 : enjeux éthiques, réglementaires et industriels.
 - Ch. 10 : discussion et perspectives.
+
+```{=latex}
+\newpage
+```
 
 ## Chapitre 7 - Mise en œuvre du système RAG ScribBERT
 
@@ -1197,6 +1288,10 @@ Le POC ScribBERT, dans sa version actuelle, présente au moins ces limites struc
 4. Pas de gestion des tableaux et schémas : pertes informationnelles sur des contenus à forte valeur santé-sécurité (matrices de risques, logigrammes).
 
 Ces axes constituent des priorités cohérentes pour la trajectoire de production et seront discutés en perspective au Ch. 10.
+
+```{=latex}
+\newpage
+```
 
 ## Chapitre 8a - Résultats quantitatifs
 
@@ -1397,6 +1492,10 @@ Ce niveau de coût montre qu'un balayage exploratoire de cette ampleur reste lar
 
 L'ajout d'un *reranking* *cross-encoder* (`bge-reranker-v2-m3`) en local représenterait un surcoût matériel plus qu'un surcoût monétaire, et ajouterait de l'ordre de 0,3 à 0,5 s par requête (temps nécessaire au *reranker* pour re-scorer les 20 *chunks* issus du *retrieval* initial et n'en conserver que les 5 meilleurs), d'après les essais préliminaires inclus dans `dense-k20-rerank5`.
 
+```{=latex}
+\newpage
+```
+
 ## Chapitre 8b - Analyse qualitative et étude d'erreurs
 
 ### 8b.1. Méthodologie
@@ -1522,6 +1621,10 @@ Les principaux axes d'amélioration remontés concernent :
 
 Une enquête structurée reste à mener pour passer de l'impression qualitative à une mesure consolidée. Cette enquête est identifiée comme priorité dans la trajectoire d'industrialisation (Ch. 10.2.2). Au-delà de la mesure, la formation et l'accompagnement des utilisateurs finaux (bonnes pratiques de formulation des requêtes, lecture critique des réponses, vérification systématique des sources citées) constituent un axe tout aussi prioritaire : l'adoption d'un outil de RAG en contexte santé-sécurité dépend autant de la maîtrise utilisateur que de la performance technique.
 
+```{=latex}
+\newpage
+```
+
 ## Chapitre 9 - Enjeux éthiques, réglementaires et industriels
 
 L'industrialisation d'un RAG dans un domaine critique comme la santé-sécurité soulève des questions qui dépassent la performance technique : conformité réglementaire, responsabilité, gouvernance, acceptabilité. Ce chapitre les traite spécifiquement, ce qui était demandé par la nature du sujet et la maturité croissante du cadre européen sur l'IA.
@@ -1616,6 +1719,10 @@ La meilleure technologie échoue si les utilisateurs ne l'adoptent pas. Trois fa
 3. L'accompagnement : formation initiale, communication interne, identification d'ambassadeurs dans les équipes pour porter l'outil.
 
 Une perspective intéressante est de considérer ScribBERT non pas comme un substitut à l'expert santé-sécurité, mais comme plutôt un amplificateur/facilitateur.
+
+```{=latex}
+\newpage
+```
 
 ## Chapitre 10 - Discussion et perspectives
 
@@ -1721,6 +1828,10 @@ L'investissement méthodologique fait dans ce mémoire sur l'évaluation rigoure
 
 ---
 
+```{=latex}
+\cleardoublepage
+```
+
 # Conclusion générale {-}
 
 ## Synthèse {-}
@@ -1752,6 +1863,10 @@ Au moment de la dernière révision de ce mémoire, le projet ScribBERT vient d'
 
 ---
 
+
+```{=latex}
+\cleardoublepage
+```
 
 # Glossaire des termes anglais {-}
 
@@ -1841,6 +1956,10 @@ Ce glossaire reprend les termes anglais (mots et expressions) employés dans le 
 - *Vision Language Model* : VLM : modèle multimodal qui traite conjointement images et texte.
 - *watermark* : Filigrane : signal discret inséré dans une sortie pour en tracer l'origine.
 - *workflow* : Flux de travail : séquence d'étapes coordonnées composant un processus.
+
+```{=latex}
+\cleardoublepage
+```
 
 # Bibliographie {-}
 

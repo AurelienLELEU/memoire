@@ -1,4 +1,4 @@
-\documentclass[11pt, a4paper]{article}
+\documentclass[11pt, a4paper, twoside, openright]{article}
 
 % --- Encodage et langue ---
 % Compatible pdflatex / xelatex / lualatex.
@@ -150,14 +150,24 @@
 \usepackage{footnote}
 
 % --- En-têtes / pieds de page ---
+% En mode twoside, pagination extérieure (gauche sur page paire, droite sur page impaire)
+% et titre courant en bas de page externe pour ne pas surcharger la marge supérieure.
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\nouppercase{\leftmark}}
-\fancyhead[R]{\thepage}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\nouppercase{\leftmark}}
+\fancyhead[LO]{\nouppercase{\rightmark}}
 \renewcommand{\headrulewidth}{0.4pt}
-% Classe « article » : \leftmark est alimenté par \sectionmark.
+% Classe « article » : \leftmark = section courante, \rightmark = subsection courante.
 \renewcommand{\sectionmark}[1]{\markboth{#1}{}}
+\renewcommand{\subsectionmark}[1]{\markright{#1}}
+% Même style sur les pages démarrant un nouveau chapitre/partie
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[LE,RO]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
 
 % --- Titre ---
 \title{$title$}
@@ -194,25 +204,58 @@ $endif$
 
 \begin{document}
 
-% --- Page de titre ---
+% La page de titre, les remerciements, le résumé, l'abstract, la table des matières
+% et les listes des figures/tableaux sont intégrés au corps du mémoire (Markdown +
+% blocs LaTeX bruts) afin de garder une source unique et un ordonnancement explicite.
+
+% --- Page de couverture ---
 \begin{titlepage}
 \centering
-\vspace*{2cm}
-{\Huge\bfseries $title$\par}
+\thispagestyle{empty}
+\vspace*{1cm}
+
+{\Large\bfseries École Hexagone\par}
+\vspace{0.4cm}
+{\normalsize[\,Logo École Hexagone\,]\par}
+\vspace{0.8cm}
+{\large Établissement d'enseignement supérieur privé\par}
+
 \vspace{1.5cm}
-{\Large Mémoire\par}
-\vspace{1cm}
-{\large $author$\par}
-\vspace{0.5cm}
-{\large $date$\par}
+
+{\large Rapport professionnel de cursus\par}
+\vspace{0.2cm}
+{\large \textit{Master 2 Intelligence Artificielle}\par}
+\vspace{0.2cm}
+{\large Année universitaire 2025-2026\par}
+
+\vspace{2.3cm}
+
+{\rule{0.85\textwidth}{0.5pt}\par}
+\vspace{0.8cm}
+{\huge\bfseries $title$\par}
+\vspace{0.8cm}
+{\rule{0.85\textwidth}{0.5pt}\par}
+
+\vspace{2cm}
+
+{\Large $author$\par}
+
 \vfill
+
+{\large Sous le tutorat de :\par}
+\vspace{0.6cm}
+{\normalsize Flavien Martin, Responsable Système \& Appels d'offres,\\
+Département Prévention Santé-Sécurité, Bouygues Travaux Publics\\[0.4em]
+Julien Larseneur, Pôle Intelligence Artificielle,\\
+Bouygues Travaux Publics\par}
+
+\vspace{0.8cm}
 \end{titlepage}
 
-% --- Table des matières ---
-\tableofcontents
-\newpage
+% Page blanche après la couverture pour démarrer les remerciements en page recto
+\cleardoublepage
 
-% --- Corps ---
+% --- Corps (généré à partir du Markdown) ---
 $body$
 
 \end{document}
