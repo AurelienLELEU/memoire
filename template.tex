@@ -152,6 +152,12 @@
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{graphicx}
+% Pandoc émet pour les images avec {width=X%} un \includegraphics qui
+% fixe à la fois la largeur ET la hauteur (height=\textheight), ce qui
+% étire l'image et casse le ratio largeur/hauteur. On force globalement
+% keepaspectratio pour que LaTeX choisisse le facteur d'échelle le plus
+% contraignant et préserve les proportions d'origine.
+\setkeys{Gin}{keepaspectratio=true}
 \usepackage{float}
 
 % --- Liens ---
