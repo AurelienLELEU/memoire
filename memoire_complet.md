@@ -1025,7 +1025,7 @@ Cette dimension est aussi un enjeu méthodologique : si la variance au sein d'un
 
 Ces sources de variance n'ont pas pu être testées systématiquement sur ScribBERT dans le cadre de ce travail (cf. limites, Ch. 11). La cartographie ci-dessous reste donc en partie théorique, fondée sur la littérature et sur quelques observations ponctuelles pendant le développement.
 
-Côté génération, la variance vient d'abord de l'échantillonnage stochastique (température, *top-p*) qui agit sur la diversité lexicale et, à température élevée, sur le contenu factuel lui-même. Même à température 0, le non-déterminisme persiste sur les LLM propriétaires : parallélisme GPU et *traitement par lots* variable empêchent un déterminisme strict, et il faut s'appuyer sur des paramètres dédiés (`seed`, identifiant `system_fingerprint` côté OpenAI / Azure OpenAI) pour tracer ce qui est effectivement reproductible. S'y ajoutent les choix de format : un même contenu peut être rendu en puces ou en phrases, ce qui fausse toute comparaison textuelle brute. Les sources de variance côté récupération (approximation ANN, égalités de scores, concurrence sur index distribué) ont déjà été décrites en § 2.2, § 3.2 et § 6.1, et ne sont pas reprises ici.
+Côté génération, la variance vient d'abord de l'échantillonnage stochastique (température, *top-p*) qui agit sur la diversité lexicale et, à température élevée, sur le contenu factuel lui-même. Même à température 0, le non-déterminisme persiste sur les LLM propriétaires : parallélisme GPU et *traitement par lots* variable empêchent un déterminisme strict, et il faut s'appuyer sur des paramètres dédiés (`seed`, identifiant `system_fingerprint` côté OpenAI / Azure OpenAI) pour tracer ce qui est effectivement reproductible. S'y ajoutent les choix de format : un même contenu peut être rendu en puces ou en phrases, ce qui fausse toute comparaison textuelle brute. Les sources de variance côté récupération (approximation ANN, égalités de scores, concurrence sur index distribué) ont déjà été décrites en § 1.4, § 3.2 et § 6.1, et ne sont pas reprises ici.
 
 Côté formulation utilisateur, deux requêtes sémantiquement équivalentes peuvent produire des réponses différentes : paraphrases ("Quels EPI pour travail en hauteur ?" vs "Quels équipements de protection pour les travaux en hauteur ?"), fautes d'orthographe et accents (auxquels les vectorisations sont inégalement sensibles), niveau de spécificité ("EPI travail en hauteur" vs "harnais antichute" qui ciblent la même règle par des chemins différents) ou alternance codique FR/EN ponctuel.
 
@@ -2023,7 +2023,7 @@ Chaque entrée contient les champs suivants : `id`, `question`, `language`, `typ
 - Q032 — *factuelle, moyenne, fr* : exemple de question avec une paraphrase piège (réponse attendue : « non »).
 - Q040 — *procédurale, moyenne, en* : « Pre-lift checks for a crane operation » — réponse multi-éléments (certificat, plan de levage, signaleur, zone d'exclusion, conditions météo).
 
-Les paraphrases associées à chaque question (1 à 3 reformulations préservant l'intention) sont utilisées pour le protocole de stabilité décrit au Ch. 6 et exécuté au § 8.6.
+Les paraphrases associées à chaque question (1 à 3 reformulations préservant l'intention) sont utilisées pour le protocole de stabilité décrit au Ch. 6 et exécuté au § 8.4.
 
 ## Annexe B — *Prompt* système ScribBERT {-}
 
