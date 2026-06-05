@@ -72,6 +72,19 @@
 \usepackage{setspace}
 \setstretch{1.15}
 
+% --- Numérotation hiérarchique ---
+% Les Parties (#) restent des sections non numérotées (séparateurs).
+% Les Chapitres (##) deviennent l'unité numérotée de plus haut niveau (1, 2, 3, ...).
+% Les sections (###) et sous-sections (####) héritent : 4.1, 4.1.2, etc.
+\setcounter{secnumdepth}{4}
+\renewcommand{\thesubsection}{\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
+\renewcommand{\theparagraph}{\thesubsubsection.\arabic{paragraph}}
+\renewcommand{\thesubparagraph}{\theparagraph.\arabic{subparagraph}}
+
+% --- Total de pages pour la pagination en pied de page ---
+\usepackage{lastpage}
+
 % --- Pages remplies jusqu'en bas ---
 % Par défaut, la classe « article » utilise \raggedbottom : chaque page
 % se termine où le texte se termine naturellement, ce qui peut laisser
@@ -98,6 +111,15 @@
   {\normalfont\normalsize\bfseries\itshape}{\thesubparagraph}{1em}{}
 \titlespacing*{\subparagraph}
   {0pt}{2ex plus 1ex minus .2ex}{0.8ex plus .2ex}
+
+% Chaque Chapitre (= \subsection) commence sur une nouvelle page, avec un
+% libellé « Chapitre N — » prépendu automatiquement à son intitulé. La page
+% d'ouverture de chapitre utilise le style « plain » (pas d'en-tête).
+\titleformat{\subsection}[block]
+  {\clearpage\thispagestyle{plain}\normalfont\LARGE\bfseries}
+  {Chapitre~\thesubsection~\textemdash}{0.6em}{}
+\titlespacing*{\subsection}
+  {0pt}{0pt}{1.5ex plus .3ex}
 
 % --- Anti-débordement (inline code, longs identifiants, URLs) ---
 % Pandoc convertit `code` en \texttt{...}. Par défaut, la fonte monospace
@@ -150,23 +172,26 @@
 \usepackage{footnote}
 
 % --- En-têtes / pieds de page ---
-% En mode twoside, pagination extérieure (gauche sur page paire, droite sur page impaire)
-% et titre courant en bas de page externe pour ne pas surcharger la marge supérieure.
+% Pagination en pied de page (centrée) au format « Page X sur Y »,
+% conformément à la méthodologie École Hexagone (« page x sur total »).
+% Le titre courant reste en en-tête, sans numéro de page.
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[LE,RO]{\thepage}
 \fancyhead[RE]{\nouppercase{\leftmark}}
 \fancyhead[LO]{\nouppercase{\rightmark}}
+\fancyfoot[C]{Page \thepage{} sur \pageref*{LastPage}}
 \renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
 % Classe « article » : \leftmark = section courante, \rightmark = subsection courante.
 \renewcommand{\sectionmark}[1]{\markboth{#1}{}}
 \renewcommand{\subsectionmark}[1]{\markright{#1}}
-% Même style sur les pages démarrant un nouveau chapitre/partie
+% Même style sur les pages démarrant un nouveau chapitre/partie (TOC, etc.)
 \fancypagestyle{plain}{%
   \fancyhf{}%
-  \fancyhead[LE,RO]{\thepage}%
+  \fancyfoot[C]{Page \thepage{} sur \pageref*{LastPage}}%
   \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
 }
 
 % --- Titre ---

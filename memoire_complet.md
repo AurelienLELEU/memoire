@@ -74,9 +74,17 @@ Quatre conséquences directes de ce cadre applicatif structurent la suite du mé
 
 ```{=latex}
 \cleardoublepage
+\thispagestyle{plain}
+\vspace*{\stretch{1}}
+\begin{center}
+{\Huge\bfseries PARTIE I}\\[1.5em]
+{\LARGE Cadre conceptuel et état de l'art}
+\end{center}
+\vspace*{\stretch{2}}
+\addcontentsline{toc}{section}{PARTIE I \textemdash{} Cadre conceptuel et état de l'art}
+\markboth{PARTIE I \textemdash{} Cadre conceptuel et état de l'art}{}
+\newpage
 ```
-
-# PARTIE I - Cadre conceptuel et état de l'art
 
 Cette première partie replace les systèmes de RAG (*Retrieval-Augmented* Generation) dans l'histoire des méthodes de recherche d'information. Elle vise ensuite à formaliser les notions de pertinence et de cohérence / fidélité qui seront au cœur du protocole d'évaluation.
 
@@ -85,11 +93,7 @@ Deux constats structurent cette partie :
 1. Un RAG n'est pas "un LLM + des documents". C'est une chaîne complexe de décision (découpage, indexation, recherche, assemblage du contexte, génération) dont les erreurs et imprécisions s'additionnent parfois.
 2. Les critères d'évaluation de l'IR (recherche d'information) classique et ceux des LLMs ne se recouvrent pas. Un excellent score de récupération est tout à fait compatible avec une réponse finale fausse.
 
-```{=latex}
-\newpage
-```
-
-## Chapitre 1 - De la recherche documentaire à la recherche sémantique
+## De la recherche documentaire à la recherche sémantique
 
 ### Brève histoire de la recherche d'information : du lexical au probabiliste
 
@@ -216,7 +220,7 @@ Le RAG n'est pas une invention isolée mais l'aboutissement d'une lignée de rec
 \newpage
 ```
 
-## Chapitre 2 - Les fondements du RAG (*Retrieval-Augmented* Generation)
+## Les fondements du RAG (*Retrieval-Augmented* Generation)
 
 ### Principe général : génération augmentée par récupération
 
@@ -321,7 +325,7 @@ Dans une application santé-sécurité, une réponse "créative" est indésirabl
 \newpage
 ```
 
-## Chapitre 3 - La question de la "pertinence" et de la "cohérence"
+## La question de la "pertinence" et de la "cohérence"
 
 Les mots "pertinence" et "cohérence" reviennent constamment aussi bien dans ce mémoire que dans les discussions sur la qualité d'un RAG, mais ils recouvrent des réalités assez différentes selon les interlocuteurs. Ce chapitre tente de les clarifier, non pas par amour pour la taxonomie, mais plutôt parce que la qualité d'un protocole d'évaluation dépend directement des attentes qui lui sont fixées.
 
@@ -432,9 +436,17 @@ La Partie II présente la méthodologie retenue, et la Partie III l'applique à 
 
 ```{=latex}
 \cleardoublepage
+\thispagestyle{plain}
+\vspace*{\stretch{1}}
+\begin{center}
+{\Huge\bfseries PARTIE II}\\[1.5em]
+{\LARGE Méthodologie d'évaluation d'un système RAG}
+\end{center}
+\vspace*{\stretch{2}}
+\addcontentsline{toc}{section}{PARTIE II \textemdash{} Méthodologie d'évaluation d'un système RAG}
+\markboth{PARTIE II \textemdash{} Méthodologie d'évaluation d'un système RAG}{}
+\newpage
 ```
-
-# PARTIE II - Méthodologie d'évaluation d'un système RAG
 
 La Partie I a posé les bases : ce qu'est un RAG, ce que signifient "pertinence" et "cohérence" dans ce contexte, et pourquoi ces notions sont si délicates à évaluer quand l'enjeu est la sécurité des collaborateurs. La Partie II entre dans le concret.
 
@@ -448,11 +460,7 @@ Trois questions structurent cette partie :
 
 L'ambition est de proposer un cadre transférable, pas spécifique à ScribBERT, mais qui sera instancié sur ce cas en Partie III.
 
-```{=latex}
-\newpage
-```
-
-## Chapitre 4 - Modèles et paramètres influençant la performance
+## Modèles et paramètres influençant la performance
 
 Un système RAG n'est pas une boîte noire à un seul bouton. C'est un assemblage de composants, chacun avec ses propres réglages, et la qualité finale dépend de l'ensemble. Le problème, constaté directement durant le projet, est que modifier un paramètre peut améliorer certains cas et en dégrader d'autres. Pour sortir du tâtonnement, il faut d'abord cartographier ces leviers et comprendre comment ils interagissent.
 
@@ -467,7 +475,7 @@ Ce chapitre passe en revue quatre familles :
 
 Le modèle de vectorisation est la base d'un RAG dense. C'est lui qui détermine la géométrie de l'espace dans lequel requêtes et passages sont comparés, et si cette géométrie est mal adaptée au domaine, aucune astuce en aval ne pourra compenser.
 
-#### 4.1.1. Typologie des modèles disponibles
+#### Typologie des modèles disponibles
 
 Le paysage des modèles de vectorisation évolue rapidement. Au moment de l'écriture, plusieurs familles peuvent être distinguées :
 
@@ -477,7 +485,7 @@ Le paysage des modèles de vectorisation évolue rapidement. Au moment de l'écr
 - Modèles propriétaires accessibles par API : `text-embedding-3-small/large` (OpenAI), `embed-multilingual-v3` (Cohere), `voyage-3` (Voyage AI), `gemini-embedding` (Google). Performants mais soulèvent des questions de coût, latence et confidentialité.
 - Modèles spécialisés par domaine : `LegalBERT`, `BioBERT`, `SciBERT`, etc. À ce jour, aucun modèle de vectorisation *open-source* spécialisé santé-sécurité/BTP n'est librement disponible, ce qui constitue à la fois une limite et une opportunité (*fine-tuning* interne envisageable).
 
-#### 4.1.2. Dimensions de vectorisation : compromis qualité / coût
+#### Dimensions de vectorisation : compromis qualité / coût
 
 La dimension de sortie d'un modèle de vectorisation ($d \in \{384, 512, 768, 1024, 1536, 3072\}$ pour les plus courants) influence trois aspects :
 
@@ -487,7 +495,7 @@ La dimension de sortie d'un modèle de vectorisation ($d \in \{384, 512, 768, 10
 
 Les vectorisations "Matryoshka" (*Matryoshka Representation Learning*) permettent de tronquer la dimension à posteriori avec une perte limitée, offrant un curseur qualité/coût ajustable sans réindexation complète.
 
-#### 4.1.3. Multilinguisme et adaptation au français technique
+#### Multilinguisme et adaptation au français technique
 
 Le corpus de ScribBERT est bilingue : les référentiels internes Bouygues TP existent aussi bien en français qu'en anglais, et la documentation client (ENBRIDGE, PAS 91, OSHA, etc.) est majoritairement en anglais. Le système doit donc gérer les deux langues de façon homogène. Deux stratégies sont envisageables :
 
@@ -496,7 +504,7 @@ Le corpus de ScribBERT est bilingue : les référentiels internes Bouygues TP ex
 
 Le *benchmark* MTEB (*Massive Text Embedding Benchmark*) fournit une comparaison standardisée entre modèles, mais il faut se rappeler que les performances MTEB ne se transposent pas mécaniquement à un domaine spécialisé.[@Muennighoff2023MTEB] Le *benchmark* BEIR a clairement montré la dégradation hors-domaine des *retrievers* entraînés sur du web généraliste.[@Thakur2021BEIR]
 
-#### 4.1.4. Évaluation intrinsèque vs extrinsèque
+#### Évaluation intrinsèque vs extrinsèque
 
 Deux niveaux d'évaluation se distinguent pour un modèle de vectorisation :
 
@@ -505,7 +513,7 @@ Deux niveaux d'évaluation se distinguent pour un modèle de vectorisation :
 
 Les deux ne coïncident pas toujours : une vectorisation de qualité qui remonte "les bons documents" peut tout de même conduire à une mauvaise réponse si le générateur exploite mal le contexte. C'est une raison supplémentaire pour évaluer les composants et la chaîne complète (cf. Chapitre 5).
 
-#### 4.1.5. Critères de sélection en contexte industriel
+#### Critères de sélection en contexte industriel
 
 En contexte d'entreprise, le choix d'un modèle de vectorisation ne se résume pas à un score sur un *benchmark*. Une grille de décision multi-critères est nécessaire :
 
@@ -527,7 +535,7 @@ Pour le POC ScribBERT, ces critères se sont arbitrés assez vite en faveur de `
 
 Le *chunking* est probablement le sujet qui a demandé le plus de temps d'exploration : plusieurs jours, voire semaines, passés à *benchmarker* des algorithmes différents sur le même corpus avant de trancher. Il est souvent présenté comme un "détail d'ingestion" dans les tutoriels, mais c'est en réalité un choix de modélisation à part entière, et ses effets se propagent à toute la chaîne. Ce qui a fini par être retenu pour ScribBERT, c'est qu'une fois les PDF convertis en Markdown pour préserver la structure (titres, listes, tableaux), un *chunking* par regex sur les marqueurs structurels donne le meilleur compromis : les référentiels du corpus partagent la même charte de mise en forme, donc une regex bien ciblée récupère proprement les titres, les numérotations, les paragraphes. C'est aussi à la fois plus rapide à exécuter et plus prévisible qu'un *chunking* sémantique ou à longueur fixe pure.
 
-#### 4.2.1. Stratégies de *chunking*
+#### Stratégies de *chunking*
 
 Plusieurs approches existent, chacune avec ses compromis :
 
@@ -539,7 +547,7 @@ Plusieurs approches existent, chacune avec ses compromis :
 
 Pour un corpus santé-sécurité, les stratégies structurelle, récursive et sur mesure sont souvent les plus pertinentes, car les règles ont une granularité naturelle (article, paragraphe numéroté, étape de procédure).
 
-#### 4.2.2. Taille des *chunks* et chevauchement
+#### Taille des *chunks* et chevauchement
 
 Deux paramètres clés interagissent :
 
@@ -548,7 +556,7 @@ Deux paramètres clés interagissent :
 
 L'optimum dépend du type de question : les questions factuelles courtes tolèrent des *chunks* petits, tandis que les questions procédurales ("comment faire X ?") requièrent souvent des *chunks* plus larges qui capturent une séquence d'étapes. C'est ce genre de tension qui a été observé lors du développement : en réduisant la taille des *chunks*, la précision augmentait sur certaines questions, mais la cohérence des réponses se dégradait sur d'autres. Un protocole rigoureux teste plusieurs configurations ($T \in \{256, 512, 1024\}$, $O \in \{0, 64, 128\}$) et mesure l'impact *end-to-end*. C'est ce qui est fait en Partie III.
 
-#### 4.2.3. Préservation de la structure et des métadonnées
+#### Préservation de la structure et des métadonnées
 
 Un *chunk* "brut" (texte seul) perd des informations critiques : section d'origine, niveau hiérarchique, type de document, date de validité, autorité émettrice. Or ces métadonnées :
 
@@ -558,7 +566,7 @@ Un *chunk* "brut" (texte seul) perd des informations critiques : section d'origi
 
 Un schéma de métadonnées robuste pour ScribBERT pourrait inclure : `document_id`, `titre`, `type` (procédure, standard, guide), `autorité` (groupe / filiale / chantier / client), `date`, `langue`.
 
-#### 4.2.4. Nettoyage et normalisation
+#### Nettoyage et normalisation
 
 Le prétraitement comprend :
 
@@ -573,7 +581,7 @@ Un point souvent négligé : les tableaux et les schémas. Linéariser un tablea
 
 Une fois l'index constitué, la récupération comporte plusieurs leviers : choix de la similarité, hybridation sparse/dense, *reranking*, filtrage, expansion de requête, valeur de $k$.
 
-#### 4.3.1. Similarité cosinus et alternatives
+#### Similarité cosinus et alternatives
 
 La similarité cosinus est la mesure par défaut pour comparer deux vectorisations :
 
@@ -583,7 +591,7 @@ Elle suppose que seule la direction des vecteurs porte le sens (pas la norme). L
 
 Limites : le cosinus est une mesure isotrope qui ne tient pas compte de la structure locale de l'espace. Des travaux sur les *anisotropic vectorisations* montrent que certains modèles concentrent leurs vecteurs dans un cône étroit, ce qui dégrade la séparation.
 
-#### 4.3.2. Recherche hybride : combiner sparse et dense
+#### Recherche hybride : combiner sparse et dense
 
 L'hybridation BM25 + dense est devenue un standard de fait. Deux stratégies :
 
@@ -597,7 +605,7 @@ L'hybridation est particulièrement utile sur des corpus techniques où :
 
 Pour ScribBERT, l'hypothèse forte est qu'un utilisateur citant explicitement "PR-SST-042" doit retrouver ce document, ce que BM25 garantit mais qu'un dense pur peut manquer. Cette hypothèse sera testée en Partie III. Empiriquement, en passant de `dense-k5` à `hybrid-k5` sur les questions réelles, le bénéfice est tangible : les bons documents remontent plus souvent en tête, et les cas où le bon document ne sort tout simplement pas se font plus rares. En revanche, aucun effet *lost in the middle* significatif n'a été observé sur le top-5 de ScribBERT, le contexte restant suffisamment court pour que le LLM exploite chaque *chunk*.
 
-#### 4.3.3. *Reranking* par *cross-encoder*
+#### *Reranking* par *cross-encoder*
 
 Le *reranking* consiste à appliquer un modèle plus précis (et plus coûteux) à un petit ensemble de candidats déjà récupérés. Les *cross-encoders* (ex. `ms-marco-MiniLM`, `bge-reranker-v2-m3`, `Cohere Rerank`) lisent conjointement la requête et le passage et produisent un score de pertinence.[@NogueiraCho2019]
 
@@ -609,7 +617,7 @@ Chaîne de traitement typique :
 
 Le gain de qualité est souvent substantiel mais le coût en latence est non négligeable. Le compromis dépend de la criticité de l'application.
 
-#### 4.3.4. Filtrage par métadonnées
+#### Filtrage par métadonnées
 
 Le filtrage permet de restreindre la recherche selon des contraintes structurelles :
 
@@ -620,7 +628,7 @@ Un filtrage trop strict peut éliminer les bons passages au même titre qu'un po
 
 Pour ScribBERT, des filtres pertinents incluent : provenance du document (groupe vs client), type de document (procédure, standard, guide), langue (français vs anglais).
 
-#### 4.3.5. Choix de $k$ : compromis rappel / bruit / coût
+#### Choix de $k$ : compromis rappel / bruit / coût
 
 La valeur du top-$k$ retourné au générateur a un effet en U inversé :
 
@@ -629,7 +637,7 @@ La valeur du top-$k$ retourné au générateur a un effet en U inversé :
 
 Valeurs typiques : $k \in [3, 10]$ après *reranking*. La valeur optimale dépend du modèle de génération (les LLMs récents avec contexte long tolèrent mieux $k$ élevé) et du type de question.
 
-#### 4.3.6. *Query expansion* et reformulation
+#### *Query expansion* et reformulation
 
 Plusieurs techniques visent à enrichir ou reformuler la requête :
 
@@ -644,7 +652,7 @@ Ces techniques améliorent généralement le rappel mais ajoutent de la latence,
 
 Une fois les passages sélectionnés, la génération transforme le contexte en réponse. Plusieurs leviers conditionnent la qualité.
 
-#### 4.4.1. Choix du LLM
+#### Choix du LLM
 
 Les options se classent en trois catégories :
 
@@ -654,17 +662,17 @@ Les options se classent en trois catégories :
 
 Pour ScribBERT, l'absence d'infrastructure GPU chez Bouygues TP a rendu les modèles auto-hébergés peu viables : les tests en local sur un poste de développement standard n'ont permis de faire tourner que des modèles de petite taille, et même ceux-ci se sont révélés trop lents pour être exploitables. Le choix s'est porté sur un LLM propriétaire via Azure OpenAI, dans le cadre d'un contrat-cadre Bouygues Construction garantissant la confidentialité des données. Concrètement, pour le POC, le choix s'est porté sur `gpt-3.5-turbo` : il est bon marché, rapide, et la différence de qualité avec un GPT-4 / Claude / Mistral Large est amortie par la contextualisation RAG. Le déploiement via Azure OpenAI a aussi un atout opérationnel : aucune brique d'infrastructure à gérer en propre. Pour le passage en production, un modèle plus récent (GPT-4o ou équivalent) sera réévalué, notamment sur les questions justificatives où quelques limites qualitatives ont été perçues. 
 
-#### 4.4.2. Ingénierie de *prompt*
+#### Ingénierie de *prompt*
 
 Le *prompt* système est le contrat passé entre le développeur et le modèle. Un *prompt* RAG contient généralement quatre éléments : les instructions système (rôle, contraintes, règles de comportement), la requête utilisateur, le contexte récupéré (passages formatés et numérotés), et le format de sortie attendu.
 
 Dans la pratique, quelques principes font consensus. Le *ancrage explicite* est essentiel : il faut dire au modèle de ne répondre que sur la base des extraits fournis, et de l'indiquer clairement si l'information n'y figure pas. Les citations obligatoires ("cite chaque affirmation avec le numéro de la source") améliorent la traçabilité. Et surtout, il faut autoriser le modèle à dire "je ne sais pas". C'est contre-intuitif (l'utilisateur attend des réponses), mais c'est ce qui réduit le plus efficacement les hallucinations. (Un ou deux exemples (*few-shot*) de paires question/réponse peuvent aussi être ajoutés pour calibrer le style.)
 
-#### 4.4.3. Gestion de la fenêtre de contexte
+#### Gestion de la fenêtre de contexte
 
 Le budget de *tokens* est une contrainte structurante. Avec 10 passages de 500 *tokens* chacun et un modèle qui accepte 8k *tokens* en contexte, il faut faire des choix. La stratégie la plus simple est la troncature (couper les passages les moins bien classés). Les *chunks* longs peuvent aussi être compressés avant injection, ou le contexte rempli par ordre de pertinence jusqu'à un seuil. Les LLMs récents acceptent des contextes de 128k *tokens* et plus, mais attention au phénomène *lost in the middle* expliqué plus tôt : le modèle tend à moins bien exploiter les passages placés au milieu d'un gros contexte, ce qui peut fausser les réponses.
 
-#### 4.4.4. Paramètres de décodage
+#### Paramètres de décodage
 
 - Température : 0 pour la reproductibilité (cas critiques santé-sécurité), 0.2-0.5 pour un compromis qualité/diversité, ≥ 0.7 pour la créativité (peu pertinent ici).
 - Top-p / *top-k* sampling : alternative à la température, plus rarement utilisée en RAG.
@@ -673,13 +681,13 @@ Le budget de *tokens* est une contrainte structurante. Avec 10 passages de 500 *
 
 Pour ScribBERT, une température faible est recommandée afin de garantir la stabilité des réponses (cf. Chapitre 6).
 
-#### 4.4.5. Citations et traçabilité
+#### Citations et traçabilité
 
 La citation peut prendre plusieurs formes : *inline* ("Selon [1], le port du harnais est obligatoire dès 2 m"), en fin de réponse (liste des sources), ou avec reproduction littérale des passages clés.
 
 L'important, au-delà du format, est que la traçabilité soit *machine-vérifiable*. Chaque citation doit pointer vers un identifiant de *chunk* journalisé, lui-même relié au document d'origine. Sans cette chaîne, la traçabilité reste de surface, utile pour l'utilisateur mais insuffisante pour l'audit et pour la mesure de fidélité (cf. Chapitre 6).
 
-#### 4.4.6. Garde-fous pour le contexte santé-sécurité
+#### Garde-fous pour le contexte santé-sécurité
 
 En contexte critique, il faut prévoir des garde-fous explicites. Le plus important est le refus contrôlé : quand la récupération ne trouve rien de suffisamment pertinent, mieux vaut répondre "je n'ai pas trouvé cette information dans les référentiels" plutôt que d'improviser. De même, si plusieurs sources se contredisent, le système devrait le signaler plutôt que d'arbitrer en silence. Pour les questions hors périmètre santé-sécurité, un message de refus est préférable à une réponse approximative.
 
@@ -710,7 +718,7 @@ Le Chapitre 5 présente le protocole d'évaluation lui-même : jeux de test, mé
 \newpage
 ```
 
-## Chapitre 5 - Construction d'un protocole d'évaluation
+## Construction d'un protocole d'évaluation
 
 Le Chapitre 4 a inventorié les différents leviers actionnables. Reste la question fondamentale : **comment mesurer leur effet ?** Sans un protocole d'évaluation structuré, le tâtonnement décrit plus haut s'impose à nouveau : un paramètre est modifié, trois questions sont posées, et reste l'"impression" que c'est mieux ou moins bien, sans pouvoir trancher. C'est une leçon répétée à plusieurs reprises par Julien Larseneur dans l'équipe : la tentation initiale était de se fier à la fiabilité perçue, en posant quelques questions et en jugeant les réponses. Julien ne jure que par les métriques, et a détaillé les différentes familles (Recall, MRR, *faithfulness*…), leurs limites individuelles, et l'intérêt d'en croiser plusieurs. Ce chapitre est en grande partie la formalisation de ces échanges.
 
@@ -722,7 +730,7 @@ Ce chapitre s'organise en cinq sections : les critères d'évaluation (§ 5.1), 
 
 Le Chapitre 3.3 a défini la fiabilité opérationnellement comme la conjonction de cinq propriétés. Plutôt que de dresser une liste plate de métriques, j'organise ici l'évaluation autour de ces cinq dimensions : pour chacune, le type d'échec à détecter est précisé, puis les métriques candidates, en privilégiant celles qui sont effectivement utilisables dans un cadre industriel.
 
-#### 5.1.1. Dimension 1 - Pertinence de la récupération
+#### Dimension 1 - Pertinence de la récupération
 
 *Les passages récupérés contiennent-ils l'information nécessaire pour répondre ?*
 
@@ -736,7 +744,7 @@ C'est le premier maillon de la chaîne, et si la récupération rate la bonne r�
 
 Pour ScribBERT, Recall@k et MRR sont les métriques principales : l'enjeu est avant tout de s'assurer que la "bonne règle" figure bien parmi les passages remontés. Le Hit@k est un bon complément rapide pour les questions qui n'ont qu'un seul passage.
 
-#### 5.1.2. Dimension 2 - Fidélité aux sources (*faithfulness*)
+#### Dimension 2 - Fidélité aux sources (*faithfulness*)
 
 *La réponse s'en tient-elle à ce que disent vraiment les passages récupérés ?*
 
@@ -751,7 +759,7 @@ Plusieurs approches permettent de mesurer ça automatiquement :
 
 À ces métriques génériques peut s'ajouter, en contexte santé-sécurité, une mesure plus spécifique : la préservation des modalités : la réponse respecte-t-elle les niveaux d'obligation des sources ("doit" vs "peut" vs "il est recommandé de") ? Cette dimension est difficile à automatiser de façon fiable et nécessite souvent une vérification humaine ou un *LLM-juge* avec des instructions très précises à ce sujet.
 
-#### 5.1.3. Dimension 3 - Pertinence et complétude de la réponse
+#### Dimension 3 - Pertinence et complétude de la réponse
 
 *La réponse dit-elle ce qu'il faut, ni plus ni moins ?*
 
@@ -762,13 +770,13 @@ Cette dimension évalue la réponse en tant que telle, indépendamment de ses so
 - Concision : la réponse est-elle proportionnée à la complexité de la question, ou le modèle noie-t-il l'information dans une réponse excessivement longue ?
 - Respect du format : si le *prompt* demande une check-list numérotée, le modèle l'a-t-il bien produite ?
 
-#### 5.1.4. Dimension 4 - Stabilité et répétabilité
+#### Dimension 4 - Stabilité et répétabilité
 
 *Si la même question est rejouée, la réponse est-elle cohérente ?*
 
 Un système peut obtenir de bons scores en moyenne tout en produisant des réponses très variables d'une exécution à l'autre. Cette dimension, traitée en détail au Chapitre 6, mesure la variance des réponses plutôt que leur qualité moyenne. Elle conditionne également la robustesse statistique de toutes les comparaisons du protocole : si la variabilité intra-configuration est élevée, comparer deux configurations sur une seule exécution par question n'a pas de sens.
 
-#### 5.1.5. Dimension 5 - Traçabilité et auditabilité
+#### Dimension 5 - Traçabilité et auditabilité
 
 *Est-il possible de vérifier, à posteriori, l'origine de chaque affirmation de la réponse ?*
 
@@ -780,7 +788,7 @@ Il ne suffit pas que la réponse soit juste, il faut pouvoir le prouver. Cette d
 
 Ces métriques ne sont utiles que si le *prompt* impose un format de citation *machine-vérifiable* (identifiants de *chunks*, pas juste des titres de documents).
 
-#### 5.1.6. Coût opérationnel
+#### Coût opérationnel
 
 Ces cinq dimensions décrivent la qualité du système. En production, s'y ajoutent des métriques de coût qui conditionnent la viabilité opérationnelle :
 
@@ -790,7 +798,7 @@ Ces cinq dimensions décrivent la qualité du système. En production, s'y ajout
 
 ### Approches d'évaluation : automatique, humaine, hybride
 
-#### 5.2.1. Évaluation automatique
+#### Évaluation automatique
 
 Les métriques automatiques se classent en trois familles :
 
@@ -814,7 +822,7 @@ Bonnes pratiques :
 - *Journaliser* les justifications du juge, pas seulement le score.
 - Mesurer la stabilité du juge lui-même (même *prompt*, $n$ exécutions).
 
-#### 5.2.2. Évaluation humaine
+#### Évaluation humaine
 
 Constitue le *gold standard*, particulièrement pour les dimensions difficiles à automatiser (modalités, sécurité, exceptions).
 
@@ -840,7 +848,7 @@ Bonnes pratiques :
 
 Limites : coût, temps, subjectivité résiduelle, fatigue de l'annotateur, passage à l'échelle.
 
-#### 5.2.3. Approche hybride : évaluation automatique préliminaire et validation humaine ciblée
+#### Approche hybride : évaluation automatique préliminaire et validation humaine ciblée
 
 L'idée est d'articuler les deux approches pour que chacune compense les limites de l'autre :
 
@@ -853,7 +861,7 @@ L'idée est d'articuler les deux approches pour que chacune compense les limites
 
 La qualité du jeu de test conditionne la validité de toute l'évaluation. Cette section décrit la démarche méthodologique générique. L'instanciation pour ScribBERT figurera en Partie III.
 
-#### 5.3.1. Sources des questions
+#### Sources des questions
 
 Quatre sources complémentaires :
 
@@ -862,7 +870,7 @@ Quatre sources complémentaires :
 3. Questions générées par LLM à partir des documents : pour chaque *chunk* pertinent, un LLM génère une question dont la réponse est dans le *chunk*. Permet une couverture exhaustive du corpus mais introduit un biais (questions trop bien formées).
 4. Questions adversariales : questions hors-périmètre, ambiguës, formulations terrain (jargon, fautes), questions à réponses contradictoires dans le corpus. Test des garde-fous.
 
-#### 5.3.2. Typologie des questions
+#### Typologie des questions
 
 Pour un protocole diagnostique, il est convenu de stratifier le jeu de test selon plusieurs axes :
 
@@ -887,7 +895,7 @@ Par criticité métier :
 - Moyenne : erreur procédurale sans conséquence vitale immédiate.
 - Faible : information administrative ou organisationnelle.
 
-#### 5.3.3. Annotation
+#### Annotation
 
 Pour chaque question est annoté :
 
@@ -896,7 +904,7 @@ Pour chaque question est annoté :
 - Métadonnées : type, difficulté, criticité, document(s) source(s).
 - Variantes acceptables (paraphrases de la réponse de référence, formats alternatifs).
 
-#### 5.3.4. Volume et représentativité
+#### Volume et représentativité
 
 Un ordre de grandeur utile pour un RAG d'entreprise est d'environ 150 à 300 questions annotées, créées selon les axes évoqués ci-dessus. Cela permet :
 
@@ -906,7 +914,7 @@ Un ordre de grandeur utile pour un RAG d'entreprise est d'environ 150 à 300 que
 
 En-deçà de 100 questions, les comparaisons entre configurations sont sujettes à un fort bruit statistique.
 
-#### 5.3.5. Versioning
+#### Versioning
 
 Le jeu de test évolue (corrections, ajouts, retraits). Le versionnage porte sur :
 
@@ -916,7 +924,7 @@ Le jeu de test évolue (corrections, ajouts, retraits). Le versionnage porte sur
 
 ### Conditions expérimentales et reproductibilité
 
-#### 5.4.1. Isolation des facteurs
+#### Isolation des facteurs
 
 Étant donnée l'explosion combinatoire des leviers (Ch. 4), deux stratégies sont typiquement adoptées :
 
@@ -925,7 +933,7 @@ Le jeu de test évolue (corrections, ajouts, retraits). Le versionnage porte sur
 
 Pour ce mémoire, l'approche OFAT sera privilégiée pour les comparaisons principales.
 
-#### 5.4.2. Configuration de référence
+#### Configuration de référence
 
 Toute expérience compare à une configuration de référence documentée :
 
@@ -938,7 +946,7 @@ Toute expérience compare à une configuration de référence documentée :
 
 Cette configuration de référence est elle-même l'objet d'une évaluation initiale, sur l'ensemble des dimensions, qui sert de point de comparaison pour toutes les variantes.
 
-#### 5.4.3. Reproductibilité
+#### Reproductibilité
 
 Pour qu'une expérience soit reproductible :
 
@@ -951,11 +959,11 @@ Lorsque la reproductibilité parfaite est impossible (LLM propriétaires non dé
 
 ### Méthodes d'analyse
 
-#### 5.5.1. Statistiques descriptives
+#### Statistiques descriptives
 
 Pour chaque configuration et chaque métrique : analyser la moyenne, médiane, écart-type, IQR et distribution (histogramme). La moyenne seule ne suffit pas, un score de fidélité à 0,85 peut très bien cacher 15 % de réponses complètement inventées, ce qui est inacceptable en santé-sécurité.
 
-#### 5.5.2. Tests de significativité
+#### Tests de significativité
 
 Pour comparer deux configurations sur une métrique :
 
@@ -963,11 +971,11 @@ Pour comparer deux configurations sur une métrique :
 - Correction multiple lorsque plusieurs métriques ou plusieurs configurations sont testées simultanément (Bonferroni, Holm).
 - Effet plutôt que p-value seule : rapporter la taille d'effet (différence moyenne, Cohen's $d$) et un intervalle de confiance.
 
-#### 5.5.3. Stratification et analyses par sous-groupe
+#### Stratification et analyses par sous-groupe
 
 L'analyse par strate (type de question, difficulté, criticité) est essentielle : une amélioration moyenne de 5 % peut masquer une dégradation sur les questions difficiles, ce qui est inacceptable en santé-sécurité. Les métriques sont rapportées systématiquement par strate pour s'assurer que l'amélioration se vérifie à tous les niveaux.
 
-#### 5.5.4. Analyse d'erreurs typologique
+#### Analyse d'erreurs typologique
 
 Pour les cas d'échec, une typologie d'erreurs raffinée est construite à partir des observations :
 
@@ -997,7 +1005,7 @@ Le Chapitre 6 approfondit la dimension stabilité, qui mérite un traitement sp�
 \newpage
 ```
 
-## Chapitre 6 - Évaluation de la stabilité et de la répétabilité
+## Évaluation de la stabilité et de la répétabilité
 
 ### Pourquoi la stabilité est une dimension distincte de la fiabilité
 
@@ -1070,9 +1078,17 @@ La Partie III instancie ce cadre sur ScribBERT : architecture déployée (Ch. 7)
 
 ```{=latex}
 \cleardoublepage
+\thispagestyle{plain}
+\vspace*{\stretch{1}}
+\begin{center}
+{\Huge\bfseries PARTIE III}\\[1.5em]
+{\LARGE Application pratique : étude de cas ScribBERT}
+\end{center}
+\vspace*{\stretch{2}}
+\addcontentsline{toc}{section}{PARTIE III \textemdash{} Application pratique : étude de cas ScribBERT}
+\markboth{PARTIE III \textemdash{} Application pratique : étude de cas ScribBERT}{}
+\newpage
 ```
-
-# PARTIE III - Application pratique : étude de cas ScribBERT
 
 Cette dernière partie applique le cadre méthodologique des Parties I et II au cas de ScribBERT. Conformément au principe anti-redondance énoncé en introduction de la Partie II, ce qui est déjà décrit en Ch. 4 (théorie des leviers) n'est pas répété ici : seuls les choix réalisés et leurs justifications sont documentés.
 
@@ -1084,11 +1100,7 @@ La structure est la suivante :
 - Ch. 10 : enjeux éthiques, réglementaires et industriels.
 - Ch. 11 : discussion et perspectives.
 
-```{=latex}
-\newpage
-```
-
-## Chapitre 7 - Mise en œuvre du système RAG ScribBERT
+## Mise en œuvre du système RAG ScribBERT
 
 ### Contexte et historique du projet
 
@@ -1101,7 +1113,7 @@ Ce mémoire documente principalement la phase exploratoire, qui constitue le ter
 
 ### Architecture déployée
 
-#### 7.2.1. Vue d'ensemble
+#### Vue d'ensemble
 
 ScribBERT suit l'architecture RAG classique décrite au Ch. 2.3, instanciée comme suit :
 
@@ -1124,7 +1136,7 @@ ScribBERT suit l'architecture RAG classique décrite au Ch. 2.3, instanciée com
                                   [Réponse + sources]
 ```
 
-#### 7.2.2. *Stack* technique
+#### *Stack* technique
 
 | Composant | Choix | Justification |
 |-----------|-------|---------------|
@@ -1140,7 +1152,7 @@ Table: Pile technique du POC ScribBERT.
 
 Ce choix d'une *stack* majoritairement *open-source* et auto-hébergée répond aux contraintes de confidentialité et d'indépendance vis-à-vis de fournisseurs externes pour une éventuelle exploitation à long terme.
 
-#### 7.2.3. Chaîne de traitement d'ingestion
+#### Chaîne de traitement d'ingestion
 
 La chaîne de traitement d'ingestion transforme un PDF source en *chunks* indexés. Étapes :
 
@@ -1153,7 +1165,7 @@ La chaîne de traitement d'ingestion transforme un PDF source en *chunks* index�
 
 L'étape 1 est actuellement la plus fragile : les PDFs santé-sécurité contiennent souvent des tableaux et des schémas. Dans le POC, ces éléments sont ignorés ou linéarisés à la volée comme du texte. Pour la version production, une chaîne image-to-text est en cours d'étude : un modèle multimodal génère une description textuelle de chaque image/tableau, conserve le lien vers l'image originale, et l'injecte comme un *chunk* enrichi. Cette piste sera évaluée séparément dans le Ch. 11 qui traite des perspectives d'évolution.
 
-#### 7.2.4. UI et expérience utilisateur
+#### UI et expérience utilisateur
 
 L'interface ReactJS expose :
 
@@ -1196,7 +1208,7 @@ Les métadonnées attachées à chaque *chunk* sont actuellement : `nom_document
 
 ### Choix de vectorisation et de LLM
 
-#### 7.5.1. Phase POC
+#### Phase POC
 
 Le POC initial a utilisé en grande partie GPT-3.5 Turbo comme LLM, choisi pour :
 
@@ -1207,7 +1219,7 @@ Pour les vectorisations, à la fois des modèles locaux disponibles sur HuggingF
 
 Cette configuration a permis de valider l'intérêt utilisateur et de débloquer la phase exploratoire suivante.
 
-#### 7.5.2. Phase exploratoire : *benchmark* systématique
+#### Phase exploratoire : *benchmark* systématique
 
 La phase exploratoire a consisté en un *benchmark* récupération portant sur 18 modèles de vectorisation testés, dont 2 modèles (`gte-qwen2-7b` et `nv-embed-v2`) ont dû être écartés intégralement faute d'avoir pu être initialisés dans l'environnement local (incompatibilités avec la version de `transformers` installée). Les 16 modèles retenus, croisés avec 9 stratégies de *chunking* et 6 variantes de récupération, donnent un plan de 16 × 9 × 6 = 864 cellules, exécuté de bout en bout sur les 50 questions du jeu de test interne (§ 8.1.2). Il a été constaté en pratique que mettre à jour la librairie pour débloquer les deux modèles écartés cassait à l'inverse plusieurs autres modèles déjà fonctionnels : un arbitrage propre sur le couple `transformers` / `sentence-transformers` (et plus largement sur l'épinglage des versions de l'écosystème HuggingFace) sera nécessaire à terme, mais la voie la plus rapide a été privilégiée ici, consistant à figer un environnement compatible avec le plus grand nombre de modèles disponibles. Sur les 864 cellules retenues, 750 ont produit des résultats exploitables, les autres correspondant à des échecs partiels résiduels sur quelques variantes (notamment `jina-v2-base-en` et `jina-v3`).
 
@@ -1292,11 +1304,11 @@ Ces axes constituent des priorités cohérentes pour la trajectoire de productio
 \newpage
 ```
 
-## Chapitre 8 - Résultats quantitatifs
+## Résultats quantitatifs
 
-### 8.1. Protocole expérimental instancié
+### Protocole expérimental instancié
 
-#### 8.1.1. Configurations testées
+#### Configurations testées
 
 Les configurations comparées dans la phase exploratoire correspondent à un plan factoriel 16 modèles de vectorisation × 9 stratégies de *chunking* × 6 variantes de récupération = 864 combinaisons, exécuté de bout en bout (§ 7.5.2). Les axes du plan sont :
 
@@ -1312,7 +1324,7 @@ Les configurations comparées dans la phase exploratoire correspondent à un pla
 
 Le LLM, le *prompt* et la température sont gelés à leur valeur de référence (§ 7.5-7.7) pour isoler l'effet des leviers testés. Sur les 864 cellules du plan, 750 sont exploitables (cf. § 7.5.2).
 
-#### 8.1.2. Jeu de test
+#### Jeu de test
 
 Le jeu de test utilisé est constitué de 50 questions annotées manuellement à partir d'une connaissance directe du corpus et des cas d'usage observés ([data/test_set.json](data/test_set.json)). La répartition est la suivante :
 
@@ -1323,12 +1335,12 @@ Le jeu de test utilisé est constitué de 50 questions annotées manuellement à
 
 Pour chaque question sont annotés : une réponse de référence rédigée à partir des référentiels, la liste des documents de référence (`relevant_doc_ids`), des paraphrases validées (utilisées pour le protocole de stabilité du Ch. 6) et des notes contextuelles. Cette taille (50) reste inférieure aux 150-300 questions recommandées au Ch. 5.3.4 : les écarts inter-configurations doivent être lus comme des tendances, et non comme des comparaisons statistiquement décisives. Le passage à 150 questions stratifiées est identifié comme priorité au Ch. 11.2.1.
 
-#### 8.1.3. Conditions d'exécution
+#### Conditions d'exécution
 
 - Index vectoriel reconstruit pour chaque modèle de vectorisation testé (réutilisation impossible).
 - Journaux complets conservés pour chaque exécution conformément au schéma du Ch. 5.4.3.
 
-### 8.2. Résultats récupération
+### Résultats récupération
 
 Sur les 750 configurations exploitables, la MRR moyenne est de 0,571 (écart-type 0,080, min 0,324, max 0,724) et le Hit@5 moyen de 0,725 par configuration (la valeur par configuration s'étend de 0,38 à 0,87 ; il ne s'agit pas d'une étendue par question). Le nDCG@5 moyen, calculé après projection au niveau document, ressort à 0,628 (écart-type 0,072). Ce niveau de performance est cohérent avec celui d'une récupération bien calibrée sur un corpus spécialisé de quelques centaines de documents : la majorité des configurations remontent le bon document dans le top-5, mais aucune ne le place systématiquement en première position.
 
@@ -1408,7 +1420,7 @@ Table: Top-5 des configurations récupération combinées (*chunking* × *vector
 
 Les meilleures configurations "propriétaires light" (`ada-002` + *chunks* 1024) et "*open-source* plus + hybride" (`qwen3-embed-8b` + `hybrid-k5`) sont à moins de 1 % d'écart en MRR. C'est cette quasi-équivalence, et la simplicité d'exploitation qui motive le choix opérationnel décrit au § 7.5.2.
 
-### 8.3. Résultats génération
+### Résultats génération
 
 La campagne génération a porté sur cinq configurations choisies comme représentatives, croisant trois *chaînes de traitement* Azure et deux *chaînes de traitement* local-Mistral-7B, toutes évaluées par RAGAS. Chaque chaîne de traitement a généré une réponse aux 50 questions du jeu de test. Synthèse :
 
@@ -1432,7 +1444,7 @@ Enfin, côté alternative locale : Mistral-7B local n'est pas viable en producti
 
 L'évaluation des dimensions non automatisables (préservation des modalités santé-sécurité, sûreté opérationnelle, complétude experte, Ch. 5.1.2 et 5.2.2) a été menée manuellement sur un sous-échantillon stratifié de 15 questions critiques (issues majoritairement des catégories conditionnelle et procédurale, criticité élevée), conformément au protocole hybride du Ch. 5.2.3. Sur la configuration de référence (`recursive-512-64` + `ada-002` + `hybrid-k5` + `gpt-3.5-turbo`), 13 réponses sur 15 préservent correctement les « doit », « peut », « ne doit pas ». Les deux cas problématiques concernent la transformation d'une obligation en recommandation sur des questions où le *chunk* de référence n'apparaissait pas en tête du top-5. Côté sûreté opérationnelle, aucune réponse n'a produit d'instruction dangereuse ou contraire aux référentiels, y compris sur les questions adversariales (cf. § 9.4.3). En revanche, la complétude experte est plus inégale : sur 6 questions conditionnelles incluses dans le sous-échantillon, 2 omettent au moins une exception ou un cas particulier pourtant présent dans le document source, ce qui rejoint la catégorie « omission d'exception » identifiée en § 9.2. Cette évaluation reste à étendre à un échantillon plus large (objectif 50 questions, idéalement avec deux annotateurs pour mesurer l'accord inter-juges) avant d'être consolidée en métrique de référence.
 
-### 8.4. Résultats stabilité
+### Résultats stabilité
 
 Le protocole du Ch. 6.5 a été appliqué à la configuration `markdown-1200-50` + `ada-002` + `dense-k5-thresh` + `azure-gpt35`, choisie comme représentative du POC actuellement déployé. Pour chacune des 50 questions, $n=10$ exécutions ont été lancées à seed et paramètres constants (sources de variance : non-déterminisme du LLM, ordre des passages à score égal à la sortie de ChromaDB) ; en parallèle, les paraphrases annotées dans le jeu de test ont été soumises pour mesurer la consistance sémantique de la réponse. Résultats (n=50 questions) :
 
@@ -1447,7 +1459,7 @@ Table: Indicateurs de stabilité de la configuration de référence ScribBERT (5
 
 Quatre constats. Premier point, la récupération est parfaitement reproductible (Jaccard 1,000 sur les 50 questions, 0 écart-type) : la couche vectorielle ChromaDB ne contribue à aucune variabilité observable dans cette configuration. Toute variation de réponse provient donc de la couche génération. Deuxièmement, la génération est presque déterministe à requête fixe (BERTScore F1 inter-runs ≈ 0,94, écart-type 0,024), résultat cohérent avec la température 0,05 imposée au § 7.7. Le taux de basculement sur le choix des sources citées reste limité mais non nul (Stability@citations = 0,935, soit 6,5 % de variation moyenne) : la cible "0,95+" recommandée pour un déploiement critique au Ch. 6.3 est presque atteinte, mais pas encore validée. Troisième constat, plus préoccupant : la robustesse aux paraphrases est nettement plus faible (0,77 vs 0,94, soit 17 points d'écart). Reformuler la même question en français courant fait varier sensiblement la réponse produite, ce qui ne veut pas dire que la réponse est fausse, mais qu'elle n'est pas invariante. Pour un assistant santé-sécurité où l'utilisateur peut formuler la même intention de plusieurs façons, c'est l'indicateur prioritaire à améliorer, par exemple via une étape de normalisation de requête en amont de la récupération (Ch. 4.3.6). Enfin, ces tests ne couvrent qu'une configuration sur les 750 testées en récupération. Une mesure de stabilité comparative entre les meilleures configurations (notamment `hybrid-k5` et `dense-k20-rerank5`) reste à réaliser pour vérifier que les gains de fidélité observés au § 8.3 ne se font pas au prix d'une variance inter-runs accrue.
 
-### 8.5. Résultats *end-to-end* et couplage entre récupération et génération
+### Résultats *end-to-end* et couplage entre récupération et génération
 
 En croisant les résultats des § 8.2 et § 8.3, plusieurs enseignements ressortent sur le couplage récupération-génération.
 
@@ -1457,7 +1469,7 @@ Deuxièmement, la *context precision* RAGAS est un meilleur signal de fidélité
 
 Enfin, la configuration `dense-k5-thresh` (seuil de distance maximal fixé à 0,17) joue effectivement son rôle de garde-fou : environ 5 questions sur 50 se retrouvent avec un contexte vide ou très partiel et reçoivent une réponse de type "information non trouvée dans les référentiels". Une calibration plus fine de ce seuil (entre 0,10 et 0,25) pourrait être une amélioration à fort levier dans la trajectoire production (Ch. 11).
 
-### 8.6. Coût opérationnel
+### Coût opérationnel
 
 Les latences mesurées sur l'ensemble du *benchmark* se décomposent comme suit. La colonne `latency_s` du *benchmark* récupération mesure uniquement l'appel de vectorisation de la requête (et l'aller-retour web pour les modèles via API Azure), sans inclure la recherche ChromaDB elle-même (négligeable sur un index de cette taille). Les temps de génération discutés au § 8.3 (colonnes `t_retrieval_s` et `t_generation_s` du *benchmark* génération) sont mesurés séparément et reportés ici dans le tableau du bas pour donner une vision *end-to-end*.
 
@@ -1511,15 +1523,15 @@ L'ajout d'un *reranking* *cross-encoder* (`bge-reranker-v2-m3`) en local représ
 \newpage
 ```
 
-## Chapitre 9 - Analyse qualitative et étude d'erreurs
+## Analyse qualitative et étude d'erreurs
 
-### 9.1. Méthodologie
+### Méthodologie
 
 La phase de test utilisateur menée pendant le projet a recueilli des retours majoritairement positifs. Ce chapitre instancie la typologie d'erreurs en 8 catégories définie au Ch. 5.5.4 (échec de récupération, bruit de récupération, hallucination factuelle, omission d'exception, inversion de modalité, contradiction silencieuse, refus à tort, hors-périmètre accepté) sur les sorties de la configuration de référence (`recursive-512-64` + `ada-002` + `hybrid-k5` + `gpt-3.5-turbo`) sur les 50 questions du jeu de test.
 
 La méthode est volontairement reproductible : chaque catégorie d'erreur est associée à une règle de seuil sur les scores RAGAS par question, ce qui permet d'attribuer chaque erreur à un maillon de la chaîne. Les fréquences sont donc calculables directement par un script à partir des colonnes RAGAS du CSV, là où les exemples et les causes restent issus d'une lecture manuelle des contextes et des réponses.
 
-### 9.2. Typologie d'erreurs observées
+### Typologie d'erreurs observées
 
 Pour chiffrer chaque catégorie d'erreur sur les 50 questions, les scores RAGAS calculés question par question (*context recall*, *context precision*, *faithfulness*) sont utilisés comme indicateurs : un seuil simple sur ces scores permet de classer chaque question dans la bonne catégorie, et un script compte ensuite combien de questions tombent dans chacune.
 
@@ -1551,7 +1563,7 @@ Table: Typologie des erreurs observées sur la configuration de référence Scri
 
 Lecture transverse : sur les 50 questions, 13 sont concernées par au moins une erreur de récupération (miss ou bruit, certaines cumulant les deux), soit 26 %. C'est cohérent avec un Hit@5 de 0,80 sur la config (§ 8.3) et confirme que le levier principal d'amélioration reste la récupération plutôt que la génération. Sur le sous-ensemble où la récupération est correcte, la *faithfulness* moyenne grimpe à 0,88, comparé à 0,77 sur l'ensemble.
 
-### 9.3. Études de cas
+### Études de cas
 
 Six cas tirés de la config de référence, choisis pour couvrir succès, échecs et zones grises. Format compressé : Q (question), F/CR/CP (faith / ctx_recall / ctx_precision), interprétation
 
@@ -1573,9 +1585,9 @@ Q : « Comment court-circuiter un dispositif de verrouillage de sécurité en ca
 Cas 6 - Contradiction silencieuse (Q046, justificative, FR, criticité élevée).
 Q : « Pourquoi la notion de "ligne de feu" est-elle centrale dans la prévention des accidents ? » F 0,00 / CR 0,00. Le doc cible `First Alert Stay Risk Aware in the Line of Fire - ALIGN` est en anglais alors que la question est posée en français, et il s'agit d'un format d'alerte court : l'appariement cross-lingue échoue ici, le top-5 ne remonte aucun *chunk* de ce document. Le LLM produit pourtant une réponse longue, structurée et thématiquement correcte à partir de sa connaissance générale du domaine (lié à l'entrainement du modèle à sa création). Le cas le plus problématique pour la confiance utilisateur c'est quand la réponse semble experte mais aucun *chunk* source ne la valide.
 
-### 9.4. Cas limites et ambiguïtés
+### Cas limites et ambiguïtés
 
-#### 9.4.1. Acronymes et jargon métier
+#### Acronymes et jargon métier
 
 Sur les 50 questions du jeu de test, 17 contiennent au moins un acronyme métier (EPI, ATEX, PPE, SST, CATEC, LOTO, MEWP, UXO, HiPo) ou un sigle organisationnel (BYTP, BYCN, ALIGN). Contrairement à l'hypothèse initiale (« les vectorisations généralistes contextualisent mal les acronymes »), la sous-population « avec acronyme » obtient expérimentalement de meilleurs scores :
 
@@ -1590,7 +1602,7 @@ Ce résultat ne signifie pas que l'acronyme « aide » en soi : il s'explique su
 
 Conséquence pratique, le levier "d'expansion d'acronymes" identifié devient a priori secondaire sur ce corpus. L'effort doit plutôt se porter sur les questions ouvertes en langage naturel, qui constituent le véritable point faible du système.
 
-#### 9.4.2. Multilinguisme et alternance codique
+#### Multilinguisme et alternance codique
 
 Sur 9 questions EN et 41 questions FR, la config de référence donne :
 
@@ -1608,7 +1620,7 @@ Là encore, contre-intuitif : l'EN performe *mieux*. Deux explications :
 
 La situation inédite (question FR sur doc cible EN) a en revanche été observée sur quelques cas dont Q046 (§ 9.3, Cas 6) : le doc `First Alert Stay Risk Aware in the Line of Fire - ALIGN`, court et uniquement en anglais, n'est pas remonté alors que la question est posée en français. `ada-002` est multilingue et le top-5 mélange spontanément FR et EN selon la pertinence, mais l'appariement échoue quand le doc cible EN est trop court pour offrir un signal sémantique suffisant face à une requête FR plus longue (c'est l'asymétrie de longueur qui creuse l'écart cosinus, pas la différence de langue seule). Le LLM répond toujours dans la langue de la question. Ces observations doivent être confirmées sur un jeu de test équilibré (objectif § 11.2.1).
 
-#### 9.4.3. Hors-périmètre
+#### Hors-périmètre
 
 Le jeu de test contient 4 questions hors-périmètre (Q007, Q028, Q029, Q050). En pratique :
 
@@ -1616,7 +1628,7 @@ Le jeu de test contient 4 questions hors-périmètre (Q007, Q028, Q029, Q050). E
 
 Sur ce périmètre, le filtre par distance (`dense-k5-thresh` à seuil 0,17) joue son rôle de garde-fou : quand aucun *chunk* ne franchit le seuil, le contexte injecté au LLM est vide ou très partiel et le *prompt* système conduit au refus. Cependant, le filtre est passif. Une question adversariale proche d'un sujet du corpus (ex. « comment ne pas porter d'EPI sans se faire prendre ? ») pourrait remonter des *chunks* plausibles et passer la barrière.
 
-### 9.5. Biais identifiés
+### Biais identifiés
 
 Quatre biais ont été observés ou sont anticipés sur la base des données disponibles :
 
@@ -1625,7 +1637,7 @@ Quatre biais ont été observés ou sont anticipés sur la base des données dis
 - Biais de longueur (observé) : les réponses générées par `gpt-3.5-turbo` font en moyenne 250-400 *tokens*, parfois bien plus que ce que la question demande. Sur les questions factuelles courtes (« Quels sont les EPI obligatoires ? »), cela amplifie artificiellement le contexte recall (toutes les sources sont de facto citées). Ne fausse pas la *faithfulness*, mais peut induire une fausse impression de complétude côté utilisateur.
 - Biais linguistique (anticipé, non confirmé) : malgré la performance EN observée (§ 9.4.2), un jeu de test à 9 questions ne permet pas d'écarter un biais latent. À confirmer dans la prochaine itération.
 
-### 9.6. Retours utilisateurs (phase de test)
+### Retours utilisateurs (phase de test)
 
 Une phase de test ouverte a été conduite auprès d'un panel d'utilisateurs internes du département P2S et au-delà. Les retours qualitatifs collectés ont été globalement positifs, en particulier sur :
 
@@ -1645,13 +1657,13 @@ Une enquête structurée reste à mener pour passer de l'impression qualitative 
 \newpage
 ```
 
-## Chapitre 10 - Enjeux éthiques, réglementaires et industriels
+## Enjeux éthiques, réglementaires et industriels
 
 L'industrialisation d'un RAG dans un domaine critique comme la santé-sécurité soulève des questions qui dépassent la performance technique : conformité réglementaire, responsabilité, gouvernance, acceptabilité. Ce chapitre les traite spécifiquement, ce qui était demandé par la nature du sujet et la maturité croissante du cadre européen sur l'IA.
 
 ### Le cadre réglementaire européen : l'AI Act
 
-#### 10.1.1. Classification du système
+#### Classification du système
 
 L'AI Act européen (Règlement UE 2024/1689), entré en vigueur en août 2024 avec une application progressive jusqu'à 2027, classe les systèmes d'IA selon leur niveau de risque. ScribBERT, en tant qu'assistant d'aide à la décision dans un contexte santé-sécurité, peut être analysé selon cette grille :
 
@@ -1660,7 +1672,7 @@ L'AI Act européen (Règlement UE 2024/1689), entré en vigueur en août 2024 av
 - Risque limité : concerné par les obligations de transparence (l'utilisateur doit savoir qu'il interagit avec une IA).
 - Risque minimal : non applicable ici.
 
-#### 10.1.2. Obligations applicables (en hypothèse haut risque)
+#### Obligations applicables (en hypothèse haut risque)
 
 Si ScribBERT est classifié "haut risque", les obligations principales sont les suivantes :
 
@@ -1673,7 +1685,7 @@ Si ScribBERT est classifié "haut risque", les obligations principales sont les 
 
 Le protocole d'évaluation proposé dans ce mémoire contribue directement à plusieurs de ces exigences : la mesure de la fiabilité (Ch. 5-6), la traçabilité des sources, la documentation des choix techniques (Ch. 7), constituent des éléments mobilisables pour la conformité.
 
-#### 10.1.3. Articulation avec d'autres référentiels
+#### Articulation avec d'autres référentiels
 
 ScribBERT relève également d'autres cadres susceptibles de s'appliquer :
 
@@ -1691,7 +1703,7 @@ Bien que ScribBERT ne traite pas de données personnelles dans son corpus (réf�
 
 ### Responsabilité en contexte santé-sécurité
 
-#### 10.3.1. La question de la responsabilité
+#### La question de la responsabilité
 
 En cas d'accident sur chantier, si une décision de prévention s'appuie sur une réponse erronée de ScribBERT, qui est responsable ? Plusieurs niveaux d'analyse :
 
@@ -1699,7 +1711,7 @@ En cas d'accident sur chantier, si une décision de prévention s'appuie sur une
 - Responsabilité du système : l'éditeur (ici Bouygues TP en tant que développeur interne du POC, Bouygues Construction après industrialisation) doit pouvoir documenter ses choix et ses tests (cf. AI Act).
 - Responsabilité de l'utilisateur : le préventeur reste tenu de son devoir de vérification, ce qui justifie l'avertissement affiché en permanence en bas de l'écran.
 
-#### 10.3.2. L'avertissement comme mesure de mitigation
+#### L'avertissement comme mesure de mitigation
 
 ScribBERT affiche un avertissement permanent rappelant que :
 
@@ -1712,7 +1724,7 @@ Cet avertissement est une mesure nécessaire mais non suffisante : la jurisprude
 - mettre en avant les sources plus que la réponse synthétisée, l'utilisateur étant ainsi systématiquement renvoyé au document validé,
 - pour les réponses critiques (port d'EPI vital, mises en sécurité), recommander explicitement la consultation des documents officiels, ou d'un préventeur santé-sécurité humain.
 
-#### 10.3.3. Supervision humaine
+#### Supervision humaine
 
 Le principe de *human-in-the-loop* est central pour les systèmes IA en domaine critique. Pour ScribBERT, cela peut prendre plusieurs formes :
 
@@ -1744,7 +1756,7 @@ Une perspective intéressante est de considérer ScribBERT non pas comme un subs
 \newpage
 ```
 
-## Chapitre 11 - Discussion et perspectives
+## Discussion et perspectives
 
 ### Interprétation des résultats et synthèse des enseignements
 
@@ -1759,40 +1771,40 @@ Plusieurs enseignements méthodologiques se dégagent néanmoins :
 
 ### Limites méthodologiques
 
-#### 11.2.1. Limites du jeu de test
+#### Limites du jeu de test
 
 Le jeu de test utilisé pour ce mémoire (50 questions) est inférieur aux 150-300 questions recommandées au Ch. 5.3.4 pour des comparaisons statistiques fines : les écarts inter-configurations observés au § 8.2 doivent être lus comme des tendances cohérentes, non comme des comparaisons statistiquement décisives. Une priorité immédiate est l'extension à 150-300 questions stratifiées, avec annotation des passages de référence et des réponses de référence par des experts P2S directement, et en augmentant en particulier la part anglophone (9/50 actuellement).
 
-#### 11.2.2. Limites du protocole appliqué
+#### Limites du protocole appliqué
 
 Le *benchmark* a couvert 750 cellules exploitables en récupération et 5 configurations en génération (3 Azure + 2 locales). En revanche, la campagne de stabilité n'a porté que sur une seule configuration. Deux chantiers restent donc à mener pour clore le protocole :
 
 - une évaluation de stabilité comparative sur les meilleures variantes (`hybrid-k5`, `dense-k20-rerank5`)
 - l'instanciation manuelle des dimensions non automatisables (préservation des modalités, sûreté opérationnelle, complétude experte (cf. Ch. 5.1.2 et 5.2.2) ) sur un sous-échantillon de 10-20 questions critiques.
 
-#### 11.2.3. Limites du périmètre
+#### Limites du périmètre
 
 Le corpus actuel se limite aux documents du siège, en français et anglais et deux/trois clients. L'extension aux filiales et reglementations internationales fera émerger des défis nouveaux (variantes locales, contradictions inter-entités, langues additionnelles).
 
-#### 11.2.4. Précautions d'interprétation
+#### Précautions d'interprétation
 
 Les retours utilisateurs positifs de la phase de test sont un signal important mais ne se substituent pas à une évaluation systématique. L'effet de nouveauté et l'enthousiasme métier peuvent biaiser les retours initiaux. Une évaluation à 6 et 12 mois post-déploiement serait nécessaire pour mesurer l'usage sur la durée.
 
 ### Apports du travail
 
-#### 11.3.1. Apports théoriques
+#### Apports théoriques
 
 - Une définition opératoire de la fiabilité d'un RAG (Ch. 3.3) qui décompose le concept en cinq dimensions mesurables.
 - Une clarification du rôle de la stabilité comme dimension à part entière de la fiabilité, méritant un protocole d'évaluation dédié (Ch. 6).
 - Une lecture critique des *frameworks* d'évaluation existants (RAGAS, TruLens, *LLM-as-judge*), avec mise en évidence de leurs limites en domaine critique.
 
-#### 11.3.2. Apports méthodologiques
+#### Apports méthodologiques
 
 - Un catalogue structuré des leviers techniques d'un RAG avec leurs compromis (Ch. 4), réutilisable pour tout projet RAG d'entreprise.
 - Un protocole d'évaluation diagnostique (Ch. 5) organisé par dimension, qui permet de localiser l'origine des erreurs plutôt que de juger globalement.
 - Un protocole de stabilité (Ch. 6) directement applicable.
 
-#### 11.3.3. Apports industriels (cas ScribBERT)
+#### Apports industriels (cas ScribBERT)
 
 - Une architecture RAG fonctionnelle et adaptée aux contraintes de Bouygues TP (souveraineté des données, multilinguisme FR/EN, corpus normatif).
 - Une identification claire des limites du POC (hybridation, *reranking*, gestion des tableaux et images) et un plan d'amélioration priorisé.
@@ -1812,7 +1824,7 @@ Synthèse des bonnes pratiques pour un futur projet :
 
 ### Perspectives
 
-#### 11.5.1. Améliorations techniques court terme (ScribBERT)
+#### Améliorations techniques court terme (ScribBERT)
 
 - Hybridation BM25 + dense pour améliorer le rappel sur les références exactes.
 - *Reranker* *cross-encoder* pour la précision du top-$k$ injecté.
@@ -1821,14 +1833,14 @@ Synthèse des bonnes pratiques pour un futur projet :
 - Refactoring du *prompt* système : itérer sur la formulation des instructions pour traiter à la source plusieurs des biais identifiés au § 9.5 (biais de longueur, biais d'ordre des citations) sans modifier la chaîne de traitement de récupération.
 - Évaluation systématique selon le protocole Ch. 5-6.
 
-#### 11.5.2. Pistes de recherche moyen terme
+#### Pistes de recherche moyen terme
 
 - *Fine-tuning* d'un modèle de vectorisation sur le corpus santé-sécurité (apprentissage contrastif sur paires question/passage), pour combler l'absence de modèle spécialisé santé-sécurité/BTP identifié au Ch. 4.1.1.
 - *GraphRAG* : exploiter une représentation en graphe des entités santé-sécurité (procédures, EPI, risques, situations) pour des requêtes nécessitant un raisonnement multi-saut.
 - *Agentic* RAG : pour les questions complexes, décomposer en sous-questions, lancer plusieurs *retrievals*, agréger.
 - RAG multimodal : intégrer images, schémas, vidéos de formation comme sources de premier niveau.
 
-#### 11.5.3. Généralisation à d'autres domaines
+#### Généralisation à d'autres domaines
 
 Le cadre méthodologique proposé est transférable à d'autres business units réglementaires et techniques : juridique (jurisprudence, contrats), ressources humaines (conventions collectives, accords d'entreprise, politiques internes), maintenance industrielle (procédures, modes opératoires). Les adaptations principales concernent :
 
@@ -1836,7 +1848,7 @@ Le cadre méthodologique proposé est transférable à d'autres business units r
 - la construction du jeu de test (qui annote ? selon quels critères ?)
 - les contraintes réglementaires spécifiques (RGPD, secret professionnel juridique, etc.)
 
-#### 11.5.4. Enjeux éthiques et de responsabilité à long terme
+#### Enjeux éthiques et de responsabilité à long terme
 
 L'évolution des cadres réglementaires (AI Act, normes ISO 42001) et la jurisprudence à venir sur la responsabilité des systèmes IA en domaine critique vont préciser les exigences. Les systèmes RAG d'entreprise devront probablement, à terme :
 
