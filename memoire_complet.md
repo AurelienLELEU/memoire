@@ -1,8 +1,8 @@
 ﻿# Remerciements {-}
 
-Mes remerciements vont en premier lieu à Flavien Martin, responsable Système & Appels d'offres au département Prévention Santé-Sécurité de Bouygues Travaux Publics, pour la confiance accordée tout au long de cette alternance, la liberté d'initiative laissée sur le projet ScribBERT, et les échanges réguliers qui ont structuré ma compréhension du métier.
+Mes remerciements vont en premier lieu à Flavien Martin, responsable Système & Appels d'offres au sein du département Prévention Santé-Sécurité de Bouygues Travaux Publics, pour la confiance accordée tout au long de cette alternance, ainsi que la liberté d'initiative laissée sur le projet ScribBERT, et les échanges réguliers qui ont structuré ma compréhension des enjeux métier.
 
-Je remercie également Julien Larseneur, du pôle Intelligence Artificielle de Bouygues Travaux Publics, pour son encadrement technique exigeant et son insistance permanente sur la rigueur méthodologique de l'évaluation. Beaucoup des choix présentés dans ce mémoire sont directement issus de nos discussions.
+Je remercie chaleureusement Julien Larseneur, du pôle Intelligence Artificielle de Bouygues Travaux Publics, pour son encadrement technique exigeant et son insistance sur la rigueur méthodologique de l'évaluation. Beaucoup des choix présentés dans ce mémoire sont directement issus de nos discussions.
 
 Je tiens également à remercier Aurélie Janssens, ma tutrice lors de la première partie de mon alternance et durant les tout débuts du projet ScribBERT, pour son accompagnement initial et la confiance qu'elle m'a accordée pour défricher ce sujet.
 
@@ -10,7 +10,9 @@ J'adresse mes remerciements à Laurent Knoll et Bruno Magnin, respectivement dir
 
 Mes remerciements vont également à Nicolas Derrez et Hervé Dit Lebas pour le prêt de la machine de test qui a rendu possibles les expérimentations locales sur modèles auto-hébergés, et plus largement pour la confiance qu'ils m'ont accordée en mettant ce matériel à disposition.
 
-Je tiens à remercier l'ensemble des équipes du département Prévention Santé-Sécurité pour leur disponibilité lors des phases de test et de retours utilisateurs, ainsi que l'équipe du Pôle Intelligence Artificielle et plus largement le LabTP dans son intégralité pour les nombreux échanges techniques qui ont nourri le projet.
+Je tiens à remercier l'ensemble des équipes du département Prévention Santé-Sécurité ainsi que l'équipe du Pôle Intelligence Artificielle et plus largement le LabTP dans son intégralité pour les nombreux échanges qui ont pu nourrir le projet.
+
+Je tiens enfin à remercier l'ensemble du personnel de l'ecole Hexagone, qui ont pu me fournir un cadre éducatif propice au developpement d'un tel projet.
 
 ```{=latex}
 \cleardoublepage
@@ -18,7 +20,7 @@ Je tiens à remercier l'ensemble des équipes du département Prévention Santé
 
 # Résumé {-}
 
-Ce mémoire propose un cadre méthodologique pour évaluer la cohérence et la fiabilité des systèmes RAG (*Retrieval-Augmented Generation*) déployés en contexte industriel critique. Le cas d'application est ScribBERT, un agent conversationnel développé pour le département Prévention Santé-Sécurité de Bouygues Travaux Publics, destiné à permettre l'interrogation en langage naturel des référentiels santé-sécurité internes. L'enjeu est singulier : dans un domaine où une réponse erronée peut compromettre la sécurité des compagnons sur chantier, une évaluation rigoureuse devient un prérequis au déploiement.
+Ce mémoire propose un cadre méthodologique pour évaluer la cohérence et la fiabilité des systèmes RAG (*Retrieval-Augmented Generation*) déployés en contexte industriel critique. Le cas d'application est ScribBERT, un agent conversationnel développé pour le département Prévention Santé-Sécurité de Bouygues Travaux Publics, destiné à permettre l'interrogation en langage naturel des référentiels santé-sécurité internes. L'enjeu est simple : dans un domaine où une réponse erronée peut compromettre la sécurité des compagnons sur chantier, une évaluation rigoureuse devient un prérequis au déploiement.
 
 Le travail s'articule en trois parties. La première replace le RAG dans la lignée historique de la recherche d'information et formalise les notions de pertinence, de cohérence et de fidélité aux sources. La deuxième construit un protocole d'évaluation reproductible structuré autour de cinq dimensions de la fiabilité (pertinence du *retrieval*, fidélité aux sources, pertinence de la réponse, stabilité, traçabilité), combinant métriques automatiques (Recall@k, MRR, nDCG, *faithfulness* via *LLM-as-judge*) et validation humaine ciblée. La troisième instancie ce protocole sur ScribBERT : *benchmark* des stratégies de *chunking*, des modèles de vectorisation et des configurations de *retrieval*, analyse d'erreurs typologique et étude de stabilité inter-runs.
 
@@ -39,11 +41,11 @@ Les résultats mettent en évidence la nécessité de séparer les erreurs de r�
 
 # Introduction {-}
 
-Les modèles de langage ont profondément changé notre rapport à l'information. En l'espace de quelques années, le monde de l'informatique est passé de systèmes incapables de produire une phrase cohérente à des modèles qui rédigent avec une aisance parfois troublante (assistants conversationnels, génération de contenu, recherche d'information intelligente). Le "boom de l'IA" n'est pas qu'un effet de mode : il transforme concrètement la manière dont les êtres humains produisent, partagent et exploitent la connaissance dans les organisations.
+Les modèles de langage ont profondément changé notre rapport à l'information. En l'espace de quelques années, le monde de l'informatique est passé de systèmes incapables de produire une phrase cohérente à des modèles qui rédigent avec une aisance parfois troublante (assistants conversationnels, génération de contenu, ...). Le "boom de l'IA" n'est pas qu'un effet de mode : il transforme concrètement la manière dont les êtres humains produisent, et exploitent la connaissance dans les organisations.
 
-Mais cette puissance a un revers. Les LLMs (Large Language Models) souffrent de limites bien connues : ils hallucinent (inventent des informations, parfois plausibles, mais fausses), ne citent pas leurs sources de façon fiable, et peinent à intégrer des connaissances récentes ou spécifiques à un domaine. Dans un contexte où la précision compte, et a fortiori quand elle engage la sécurité des personnes, ces défauts deviennent rédhibitoires.
+Les LLMs (Large Language Models) souffrent pourtant de limites bien connues : ils hallucinent (inventent des informations, parfois plausibles, mais fausses), ne citent pas leurs sources de façon fiable, et peinent à intégrer des connaissances récentes ou spécifiques à un domaine. Dans un contexte où la précision compte, et qu'elle engage la sécurité des collaborateurs, ces défauts deviennent rédhibitoires.
 
-C'est pour contourner ces limites qu'une approche hybride s'est imposée : le RAG (*Retrieval-Augmented Generation*), qui couple un mécanisme de recherche documentaire à un modèle génératif.[@Lewis2020] L'idée est simple sur le papier : plutôt que de laisser le modèle "inventer" à partir de sa mémoire interne, des extraits de documents pertinents lui sont fournis, charge à lui de s'y appuyer pour formuler sa réponse. En pratique, c'est nettement plus complexe qu'il n'y paraît, et c'est l'objet de ce mémoire.
+C'est pour contourner ces limites qu'une approche hybride s'est imposée : le RAG (*Retrieval-Augmented Generation*), qui couple un mécanisme de recherche documentaire à un modèle génératif.[@Lewis2020] L'idée est simple sur le papier : plutôt que de laisser le modèle "inventer" à partir de ce qu'il a appris, des extraits de documents lui sont fournis, charge à lui de s'y appuyer pour formuler sa réponse. En pratique, c'est bien plus complexe qu'il n'y paraît.
 
 ScribBERT est né de cette idée. C'est un agent conversationnel RAG développé dans le cadre d'une alternance au département P2S de Bouygues Travaux Publics, dont la fonction est de permettre aux collaborateurs d'interroger en langage naturel les référentiels santé-sécurité internes. Les premiers résultats ont eu un vrai effet "ouahou" : le système répondait de façon pertinente à des questions sur lesquelles un moteur de recherche classique aurait été inutile.
 
