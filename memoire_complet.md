@@ -2,7 +2,7 @@
 
 Mes remerciements vont en premier lieu à Flavien Martin, responsable Système & Appels d'offres au sein du département Prévention Santé-Sécurité de Bouygues Travaux Publics, pour la confiance accordée tout au long de cette alternance, ainsi que la liberté d'initiative laissée sur le projet ScribBERT, et les échanges réguliers qui ont structuré ma compréhension des enjeux métier.
 
-Je remercie chaleureusement Julien Larseneur, du pôle Intelligence Artificielle de Bouygues Travaux Publics, pour son encadrement technique exigeant et son insistance sur la rigueur méthodologique de l'évaluation. Beaucoup des choix présentés dans ce mémoire sont directement issus de nos discussions.
+Je remercie chaleureusement Julien Larseneur, du pôle Intelligence Artificielle de Bouygues Travaux Publics, pour son encadrement technique exigeant et son insistance sur la rigueur méthodologique de l'évaluation. Beaucoup de choix présentés dans ce mémoire sont directement issus de nos discussions.
 
 Je tiens également à remercier Aurélie Janssens, ma tutrice lors de la première partie de mon alternance et durant les tout débuts du projet ScribBERT, pour son accompagnement initial et la confiance qu'elle m'a accordée pour défricher ce sujet.
 
@@ -782,7 +782,7 @@ Un système peut obtenir de bons scores en moyenne tout en produisant des répon
 
 #### Dimension 5 - Traçabilité et auditabilité
 
-*Est-il possible de vérifier, à posteriori, l'origine de chaque affirmation de la réponse ?*
+*Est-il possible de vérifier, a posteriori, l'origine de chaque affirmation de la réponse ?*
 
 Il ne suffit pas que la réponse soit juste, il faut pouvoir le prouver. Cette dimension mesure la qualité de la chaîne de traçabilité entre chaque affirmation et son passage source :
 
@@ -876,7 +876,7 @@ Quatre sources complémentaires :
 
 #### Typologie des questions
 
-Pour un protocole diagnostique, il est convenu de stratifier le jeu de test selon plusieurs axes :
+Pour un protocole diagnostique, il convient de stratifier le jeu de test selon plusieurs axes :
 
 Par type d'intention :
 
@@ -901,7 +901,7 @@ Par criticité métier :
 
 #### Annotation
 
-Pour chaque question est annoté :
+Pour chaque question sont annotés :
 
 - Réponse de référence rédigée par un expert (idéalement validée par un second expert, mais *time-consuming*).
 - Passages de référence : identifiants des *chunks* contenant l'information nécessaire et suffisante.
@@ -1204,7 +1204,7 @@ Conformément à la grille du Ch. 4.2, la stratégie retenue est un *chunking* s
 - la cible de taille est d'environ 1 200 *tokens* par *chunk* (variante `markdown-1200-50` du *benchmark*, retenue en POC), ce qui correspond empiriquement à un compromis entre :
   - assez large pour contenir une règle complète avec ses conditions et ses exceptions (cf. risque d'omission identifié au Ch. 5.5.4),
   - assez petit pour rester discriminant à la vectorisation et économique en *tokens* lors de l'injection dans le contexte LLM ;
-  - le *benchmark* systématique (§ 8.2) montre que les *chunkings* 1024 *tokens* dominent en MRR, ce qui valide à posteriori l'ordre de grandeur retenu ;
+  - le *benchmark* systématique (§ 8.2) montre que les *chunkings* 1024 *tokens* dominent en MRR, ce qui valide a posteriori l'ordre de grandeur retenu ;
 - le chevauchement est de ~50 *tokens*, soit une valeur faible (≈ 4 %), qui suffit à amortir des coupures malheureuses sans gonfler significativement l'index ;
 - une fenêtre contexte est ajoutée à la récupération : pour chaque *chunk* retourné par la récupération, les *chunks* $n-1$ et $n+1$ sont automatiquement adjoints avant injection dans le contexte LLM. Cette mécanique compense un chevauchement faible et restaure le contexte amont/aval, particulièrement utile pour les références anaphoriques ("cette règle", "les EPI mentionnés") et pour la cohérence procédurale.
 
@@ -1253,11 +1253,11 @@ Concernant les modèles de génération de texte, les cinq runs disponibles (§ 
 | Paramètre | Valeur retenue | Renvoi théorique |
 |-----------|----------------|------------------|
 | Type de récupération | Dense pur | Ch. 4.3.2 (hybridation BM25+dense identifiée comme amélioration) |
-| modèle de vectorisation | text-embedding-ada-002 (déploiement Azure configuré) | Ch. 4.1, § 7.5 |
+| Modèle de vectorisation | text-embedding-ada-002 (déploiement Azure configuré) | Ch. 4.1, § 7.5 |
 | Similarité | Cosinus (espace HNSW configuré sur cosine dans ChromaDB) | Ch. 4.3.1 |
 | Top-$k$ | 10 | Ch. 4.3.5 |
 | Filtre par score | Filtrage par distance avec seuil maximal 0,17. Les *chunks* avec distance >= 0,17 sont écartés | Ch. 5.1.2 (lutte anti-hallucination par ancrage faible) |
-| *Reranking* | Non-existant sur le POC présent dans le cahier des charges pour l'industrialisation | Ch. 4.3.3 |
+| *Reranking* | Inexistant sur le POC, mais présent dans le cahier des charges pour l'industrialisation | Ch. 4.3.3 |
 | Filtres métadonnées | Filtrage récupération actif sur `doc_name` (liste d’inclusions) ; les filtres `client`/`langue` sont d'abord traduits en *mapping* de `doc_name` concernés, puis appliqués sur ces `doc_name` directement | Ch. 4.3.4 |
 | Contextualisation | Contextualisation par concaténation du *chunk* précédent, courant et suivant (n-1, n, n+1) lors de l’indexation, avec garde-fou sur ruptures de chapitre | § 7.4 |
 
@@ -1418,7 +1418,7 @@ Trois choses à noter :
 
 - Le *reranking* *cross-encoder* (`dense-k20-rerank5`) apporte un gain de +0,047 de MRR par rapport à `dense-k5` (environ +8 % relatif), au prix d'une latence supplémentaire (mesurée séparément en § 8.6). C'est la confirmation expérimentale, sur notre corpus, de la valeur du *reranking* évoquée au Ch. 4.3.3, et un argument fort pour son intégration en production.
 - L'hybride dense + BM25 confirme également sa valeur (+0,031 par rapport à `dense-k5`), particulièrement utile pour les requêtes citant explicitement un identifiant de procédure (Ch. 4.3.2). Le meilleur top-3 absolu du *benchmark* associe d'ailleurs `qwen3-embed-8b` à `hybrid-k5` sur des *chunks* 512-1024 *tokens*.
-- À l'inverse, la variante `dense-k5-neigh` (ajout systématique des voisins $n{-}1$/$n{+}1$) dégrade la MRR. L'explication est cohérente avec la discussion du Ch. 4.2.2 : sur des *chunks* déjà larges (≥ 512 *tokens*), l'ajout des voisins "dilue" la pertinence du top-5 sans apporter d'information utile, et bruite l'évaluation du "premier passage pertinent". Cette variante reste cependant pertinente quand l'objectif est la génération plutôt que la récupération pur (§ 8.3), où le voisinage restaure des références anaphoriques.
+- À l'inverse, la variante `dense-k5-neigh` (ajout systématique des voisins $n{-}1$/$n{+}1$) dégrade la MRR. L'explication est cohérente avec la discussion du Ch. 4.2.2 : sur des *chunks* déjà larges (≥ 512 *tokens*), l'ajout des voisins "dilue" la pertinence du top-5 sans apporter d'information utile, et bruite l'évaluation du "premier passage pertinent". Cette variante reste cependant pertinente quand l'objectif est la génération plutôt que la récupération pure (§ 8.3), où le voisinage restaure des références anaphoriques.
 
 La figure 8.2 visualise la distribution complète par variante : `dense-k20-rerank5` et `hybrid-k5` dominent en médiane comme en moyenne, tandis que `dense-k5-neigh` ressort comme la seule variante systématiquement en retrait sur l'ensemble du plan factoriel.
 
@@ -1486,7 +1486,7 @@ La figure 8.5 visualise ces cinq configurations sous forme de radar à quatre ax
 
 Quatre lectures se dégagent. D'abord, la configuration `hybrid-k5` domine sur les quatre scores RAGAS : elle obtient simultanément la meilleure *faithfulness* (0,765), la meilleure *answer relevancy* (0,756), la meilleure *context precision* (0,687) et le meilleur *context recall* (0,629), tout en étant la plus rapide côté génération (5,09 s médian). C'est la confirmation, côté génération cette fois, du gain d'hybridation déjà observé côté récupération (§ 8.2) : une récupération plus précise se traduit par une génération à la fois plus fidèle aux sources et mieux ciblée sur la question.
 
-Deuxième lecture, plus contre-intuitive : la variante `dense-k5-neigh` améliore la fidélité par rapport à `dense-k5-thresh` (+0,024 de *faithfulness*, +0,020 d'*answer relevancy*) malgré sa dégradation observée en récupération pur (*benchmark* precedents, § 8.2). Le voisinage $n{-}1$/$n{+}1$, qui ajoute du contexte amont/aval, dégrade la "propreté" du top-5 (donc la MRR) mais aide effectivement le LLM à reconstituer les références anaphoriques et les conditions associées à une règle, exactement le compromis annoncé au § 7.4. C'est une illustration concrète du découplage récupération pur ≠ utilité pour la génération discuté au Ch. 5.5.
+Deuxième lecture, plus contre-intuitive : la variante `dense-k5-neigh` améliore la fidélité par rapport à `dense-k5-thresh` (+0,024 de *faithfulness*, +0,020 d'*answer relevancy*) malgré sa dégradation observée en récupération pure (*benchmarks* précédents, § 8.2). Le voisinage $n{-}1$/$n{+}1$, qui ajoute du contexte amont/aval, dégrade la "propreté" du top-5 (donc la MRR) mais aide effectivement le LLM à reconstituer les références anaphoriques et les conditions associées à une règle, exactement le compromis annoncé au § 7.4. C'est une illustration concrète du découplage récupération pure ≠ utilité pour la génération discuté au Ch. 5.5.
 
 Troisième point, côté LLM : `gpt-3.5-turbo` plafonne à ≈ 0,75 de *faithfulness* sur ce corpus. Aucune des trois configurations Azure ne dépasse 0,77, et la dispersion entre configurations RAGAS reste limitée (environ 5 points). Atteindre 0,90 (cible usuelle des *frameworks* RAG) nécessiterait probablement un modèle de génération plus récent (`gpt-4o`, Claude, Mistral Large), un *prompt* plus strict sur la citation, ou un *reranking* systématique avant injection.
 
@@ -1603,7 +1603,7 @@ Concrètement, les seuils retenus sont les suivants :
 
 - Échec de récupération : *context recall* inférieur à 0,30, signe que les *chunks* attendus ne sont pas dans le top-5.
 - Bruit de récupération : *context precision* inférieur à 0,30 alors que le top-5 contient bien des *chunks*, signe d'un top-5 dilué.
-- Hallucination factuelle : *faithfulness* inférieur à 0,50 sur une réponse qui n'est pas un refus, le LLM affirme alors sans s'appuyer sur le contexte.
+- Hallucination factuelle : *faithfulness* inférieure à 0,50 sur une réponse qui n'est pas un refus, le LLM affirme alors sans s'appuyer sur le contexte.
 - Omission d'exception : sur une question conditionnelle, *faithfulness* ≥ 0,50 mais *context recall* inférieur à 0,60, la règle est citée mais sans son cas particulier.
 - Contradiction silencieuse : *faithfulness* égal à 0 sur une réponse longue et structurée, toutes les assertions sont contredites par le contexte.
 - Refus à tort : réponse de type « information non trouvée » alors que le jeu de test indique des documents de référence existants.
@@ -1629,7 +1629,7 @@ La figure 9.1 reporte la fréquence de chaque catégorie obtenue par classificat
 
 ![Fig. 9.1 — Distribution des 50 questions du jeu de test par catégorie d'erreur (configuration de référence `recursive-512-64 / ada-002 / hybrid-k5 / azure-gpt35`). Classification automatique non-exclusive à partir des seuils RAGAS définis au § 9.2 (échec : *context recall* < 0,30 hors hors-périmètre ; bruit : *context precision* < 0,30 ; hallucination : *faithfulness* < 0,50 avec *context recall* ≥ 0,50 ; etc.). La catégorie *inversion modalité* n'est pas détectable à partir des seuls scores RAGAS automatiques et reste fixée à 0 dans cette vue. Source : résultats détaillés par question de la configuration de référence (campagne de génération).](figures/fig_9_1_distribution_categories_erreur.png){#fig:err-categories width=90%}
 
-Lecture transverse : sur les 50 questions, 13 sont concernées par au moins une erreur de récupération (miss ou bruit, certaines cumulant les deux), soit 26 %. C'est cohérent avec un Hit@5 de 0,80 sur la config (§ 8.3) et confirme que le levier principal d'amélioration reste la récupération plutôt que la génération. Sur le sous-ensemble où la récupération est correcte, la *faithfulness* moyenne grimpe à 0,88, comparé à 0,77 sur l'ensemble.
+Lecture transverse : sur les 50 questions, 13 sont concernées par au moins une erreur de récupération (miss ou bruit, certaines cumulant les deux), soit 26 %. C'est cohérent avec un Hit@5 de 0,80 sur la config (§ 8.3) et confirme que le levier principal d'amélioration reste la récupération plutôt que la génération. Sur le sous-ensemble où la récupération est correcte, la *faithfulness* moyenne grimpe à 0,88, contre 0,77 sur l'ensemble.
 
 ### Études de cas
 
@@ -1696,7 +1696,7 @@ Le jeu de test contient 4 questions hors-périmètre (Q007, Q028, Q029, Q050). E
 
 Sur ce périmètre, le filtre par distance (`dense-k5-thresh` à seuil 0,17) joue son rôle de garde-fou : quand aucun *chunk* ne franchit le seuil, le contexte injecté au LLM est vide ou très partiel et le *prompt* système conduit au refus. Cependant, le filtre est passif. Une question adversariale proche d'un sujet du corpus (ex. « comment ne pas porter d'EPI sans se faire prendre ? ») pourrait remonter des *chunks* plausibles et passer la barrière.
 
-La figure 9.3 récapitule la performance moyenne par type de question. Les factuelles et procédurales atteignent les meilleurs scores RAGAS sur les quatre dimensions ; les conditionnelles décrochent nettement sur le *context recall* (signe d'exceptions ou de fondements omis lors de la récupération) ; les justificatives présentent un *faithfulness* plus dispersé, cohérent avec la difficulté à fonder une explication sur des *chunks* normatifs ; et les hors-périmètre se distinguent par un *faithfulness* moyen nul correspondant aux refus contrôlés correctement déclenchés. Cette stratification motive l'analyse fine des biais conduite au § 9.5.
+La figure 9.3 récapitule la performance moyenne par type de question. Les factuelles et procédurales atteignent les meilleurs scores RAGAS sur les quatre dimensions ; les conditionnelles décrochent nettement sur le *context recall* (signe d'exceptions ou de fondements omis lors de la récupération) ; les justificatives présentent une *faithfulness* plus dispersée, cohérent avec la difficulté à fonder une explication sur des *chunks* normatifs ; et les hors-périmètre se distinguent par une *faithfulness* moyenne nulle correspondant aux refus contrôlés correctement déclenchés. Cette stratification motive l'analyse fine des biais conduite au § 9.5.
 
 ![Fig. 9.3 — Stratification des scores RAGAS par type de question (configuration de référence). Chaque groupe correspond à l'un des six types annotés dans le jeu de test (l'effectif $n$ est indiqué sous l'étiquette) ; les barres représentent la moyenne par métrique RAGAS, les segments verticaux l'intervalle de confiance à 95 %. Source : résultats détaillés par question de la configuration de référence, joints au jeu de test annoté pour récupérer le type de chaque question.](figures/fig_9_3_ragas_par_type_question.png){#fig:ragas-type width=100%}
 
@@ -1722,7 +1722,7 @@ La figure 9.4 visualise cette corrélation point par point sur les deux métriqu
 
 ![Fig. 9.4 — Effet de la longueur de la réponse générée (en mots, axe X) sur les scores RAGAS de *Faithfulness* (gauche) et *Answer Relevancy* (droite). Une question = un point ($n = 50$). La droite rouge pointillée correspond à une régression linéaire simple, le coefficient de Pearson est indiqué dans le titre de chaque sous-figure. Source : résultats détaillés par question de la configuration de référence `recursive-512-64 / ada-002 / hybrid-k5 / azure-gpt35`, longueur calculée à partir du texte de chaque réponse.](figures/fig_9_4_scatter_longueur_ragas.png){#fig:length-ragas width=95%}
 
-Une partie de cette corrélation est légitime : les réponses très courtes sont essentiellement des refus contrôlés, par construction noté *faithfulness* = 0 par RAGAS. Mais une partie correspond à un biais documenté du *LLM-as-judge* : les juges LLM tendent à mieux noter les réponses verbeuses, plus structurées et plus enrobées, indépendamment de leur exactitude factuelle.[@Zheng2023JudgeBias] Sur les questions factuelles courtes (« Quels sont les EPI obligatoires ? »), la sur-longueur amplifie en outre le *context recall* mécaniquement, puisque toutes les sources sont de facto citées dans une réponse plus longue. Deux mitigations sont à étudier en parallèle de la prochaine itération : durcir la consigne de concision dans le *prompt* système et calibrer les scores RAGAS sur un échantillon annoté humainement (§ 5.2.3).
+Une partie de cette corrélation est légitime : les réponses très courtes sont essentiellement des refus contrôlés, par construction notés *faithfulness* = 0 par RAGAS. Mais une partie correspond à un biais documenté du *LLM-as-judge* : les juges LLM tendent à mieux noter les réponses verbeuses, plus structurées et plus enrobées, indépendamment de leur exactitude factuelle.[@Zheng2023JudgeBias] Sur les questions factuelles courtes (« Quels sont les EPI obligatoires ? »), la sur-longueur amplifie en outre le *context recall* mécaniquement, puisque toutes les sources sont de facto citées dans une réponse plus longue. Deux mitigations sont à étudier en parallèle de la prochaine itération : durcir la consigne de concision dans le *prompt* système et calibrer les scores RAGAS sur un échantillon annoté humainement (§ 5.2.3).
 
 Biais linguistique (effet faible sur la moyenne, mais asymétrie structurelle à investiguer). Les questions FR et EN du jeu de test ont des longueurs comparables (16,6 vs 16,9 mots en moyenne), donc l'asymétrie observée au § 9.4.2 (FR 0,73 vs EN 0,91 de *faithfulness*) ne vient pas d'un effet longueur côté requête. Elle s'explique principalement par la composition du sous-échantillon EN (n=9), majoritairement factuel et procédural, contre un sous-échantillon FR plus chargé en questions justificatives et conditionnelles. Un mécanisme distinct, observé sur Q046 (§ 9.3, Cas 6 et § 9.4.2), apparaît en revanche quand le document cible est lui-même court : le `Safety Alert Line of Fire` tient sur un seul *chunk* de 265 mots, soit nettement moins que la taille moyenne d'un *chunk* `recursive-512-64`. Face à une requête FR de longueur comparable mais sémantiquement plus diffuse, l'écart cosinus se creuse mécaniquement (la similarité dense est sensible à la norme de la représentation, elle-même affectée par la longueur effective de l'unité comparée), ce qui éjecte ce document court du top-5. Le levier n'est donc pas linguistique au sens strict, mais structurel : prévoir au moins une paraphrase-résumé indexée pour les documents très courts, ou tester un *chunking* avec padding contextuel pour homogénéiser la longueur des unités indexées. Cette piste sera évaluée lors de l'extension du jeu de test EN (Ch. 11.2.1) avant d'écarter toute hypothèse de biais linguistique latent.
 
@@ -1742,7 +1742,7 @@ Les principaux axes d'amélioration remontés concernent :
 1. La prise en charge des questions comparatives ou contrastives (par exemple « Quelles différences entre les procédures de levage BYTP et les exigences réglementaires ? »). Le top-$k$ actuel agrège bien jusqu'à 3-4 documents distincts dans une même réponse, mais il ne sait pas isoler explicitement deux sources concurrentes pour les mettre face à face : il n'existe aujourd'hui aucun mécanisme dans le *prompt* classique pour forcer la sélection équilibrée de *chunks* issus de référentiels différents puis structurer la réponse en comparaison point à point. C'est précisément ce besoin qui a justifié l'intégration au POC de la fonctionnalité de *gap analysis* (cf. § 9.3, Cas 4) : l'utilisateur sélectionne manuellement deux sous-ensembles de documents et la même requête est exécutée sur chacun séparément, ce qui garantit l'isolation des sources et rend les écarts directement lisibles.
 2. L'exploitation des tableaux et schémas des PDF (non gérés dans le POC, cf. § 7.2.3)
 3. La persistance des sessions de chat entre rechargements : la mémoire conversationnelle multi-tours est déjà opérationnelle au sein d'une session, mais l'historique est perdu dès que l'utilisateur rafraîchit la page ou revient le lendemain. Un stockage côté serveur des sessions passées avec consultation et reprise reste à implémenter.
-4. un score de confiance affiché par réponse, point déjà recommandé au Ch. 6.6.
+4. Un score de confiance affiché par réponse, point déjà recommandé au Ch. 6.6.
 
 Une enquête structurée reste à mener pour passer de l'impression qualitative à une mesure consolidée. Cette enquête est identifiée comme priorité dans la trajectoire d'industrialisation (Ch. 11.5.1). Au-delà de la mesure, la formation et l'accompagnement des utilisateurs finaux (bonnes pratiques de formulation des requêtes, lecture critique des réponses, vérification systématique des sources citées) constituent un axe tout aussi prioritaire : l'adoption d'un outil de RAG en contexte santé-sécurité dépend autant de la maîtrise utilisateur que de la performance technique.
 
@@ -1790,9 +1790,9 @@ ScribBERT relève également d'autres cadres susceptibles de s'appliquer :
 
 Bien que ScribBERT ne traite pas de données personnelles dans son corpus (référentiels de procédures), trois points RGPD méritent une attention particulière :
 
-1. Journaux des requêtes utilisateurs : si une requête contient des données personnelles (nom d'un collaborateur, identifiant chantier), elle est journalisée à des fins d'amélioration. Il faut définir une durée de conservation, les finalités précises, et garantir un droit d'accès / suppression
+1. Journaux des requêtes utilisateurs : si une requête contient des données personnelles (nom d'un collaborateur, identifiant chantier), elle est journalisée à des fins d'amélioration. Il faut définir une durée de conservation, les finalités précises, et garantir un droit d'accès / suppression.
 2. Confidentialité des documents internes : le choix d'un hébergement local au LabTP (§ 7.2.2) garantit la non-exposition à des fournisseurs cloud externes pour le POC. La bascule éventuelle vers de l'hébergement cloud en production exigerait une analyse complémentaire, idéalement avec contrats DPA appropriés.
-3. Traçabilité des décisions : si une décision opérationnelle (ex. report d'une intervention) s'appuie sur une réponse de ScribBERT, la trace doit être conservée, avec la version du modèle, la version du corpus et la réponse exacte, pour permettre une analyse à posteriori.
+3. Traçabilité des décisions : si une décision opérationnelle (ex. report d'une intervention) s'appuie sur une réponse de ScribBERT, la trace doit être conservée, avec la version du modèle, la version du corpus et la réponse exacte, pour permettre une analyse a posteriori.
 
 ### Responsabilité en contexte santé-sécurité
 
@@ -1843,7 +1843,7 @@ La meilleure technologie échoue si les utilisateurs ne l'adoptent pas. Trois fa
 2. L'utilité perçue par rapport à l'alternative (recherche manuelle dans les PDF, demande à un expert). ScribBERT doit faire gagner du temps sans dégrader la qualité de la décision.
 3. L'accompagnement : formation initiale, communication interne, identification d'ambassadeurs dans les équipes pour porter l'outil.
 
-Une perspective intéressante est de considérer ScribBERT non pas comme un substitut à l'expert santé-sécurité, mais comme plutôt un amplificateur/facilitateur.
+Une perspective intéressante est de considérer ScribBERT non pas comme un substitut à l'expert santé-sécurité, mais plutôt comme un amplificateur/facilitateur.
 
 ```{=latex}
 \newpage
@@ -1873,7 +1873,7 @@ Le jeu de test utilisé pour ce mémoire (50 questions) est inférieur aux 150-3
 Le *benchmark* a couvert 750 cellules exploitables en récupération et 5 configurations en génération (3 Azure + 2 locales). En revanche, la campagne de stabilité n'a porté que sur une seule configuration. Deux chantiers restent donc à mener pour clore le protocole :
 
 - une évaluation de stabilité comparative sur les meilleures variantes (`hybrid-k5`, `dense-k20-rerank5`)
-- l'instanciation manuelle des dimensions non automatisables (préservation des modalités, sûreté opérationnelle, complétude experte (cf. Ch. 5.1.2 et 5.2.2) ) sur un sous-échantillon de 10-20 questions critiques.
+- l'instanciation manuelle des dimensions non automatisables (préservation des modalités, sûreté opérationnelle, complétude experte (cf. Ch. 5.1.2 et 5.2.2)) sur un sous-échantillon de 10-20 questions critiques.
 
 #### Limites du périmètre
 
@@ -2151,7 +2151,7 @@ Le plan factoriel exécuté en phase exploratoire (§ 7.5.2 et § 8.1) couvre 16
 
 ## Annexe D — Grille d'évaluation humaine instanciée {-}
 
-La grille générique du Ch. 5.2.2 a été instanciée pour ScribBERT comme suit, sur six critères pondérés. Elle est destinée à être populée par des experts P2S sur l'échantillon de questions critiques identifié au § 11.2.1.
+La grille générique du Ch. 5.2.2 a été instanciée pour ScribBERT comme suit, sur six critères pondérés. Elle est destinée à être renseignée par des experts P2S sur l'échantillon de questions critiques identifié au § 11.2.1.
 
 - **Pertinence** (0–3) : la réponse traite-t-elle effectivement la question posée, sans dériver vers un thème connexe ?
 - **Fidélité aux sources** (0–3) : chaque proposition est-elle supportée par au moins un des passages cités, sans ajout factuel ?
