@@ -6,7 +6,7 @@ Je remercie chaleureusement Julien Larseneur, du pôle Intelligence Artificielle
 
 Je tiens également à remercier Aurélie Janssens, ma tutrice lors de la première partie de mon alternance et durant les tout débuts du projet ScribBERT, pour son accompagnement initial et la confiance qu'elle m'a accordée pour défricher ce sujet.
 
-J'adresse mes remerciements à Laurent Knoll et Bruno Magnin, respectivement directeur Prévention Santé-Sécurité de Bouygues Travaux Publics et directeur Prévention Santé-Sécurité Sureté de Bouygues Construction, pour leur soutien et leur confiance dans le projet. C'est grâce à eux qu'il est aujourd'hui en mesure d'être industrialisé.
+J'adresse mes remerciements à Laurent Knoll et Bruno Magnin, respectivement directeur Prévention Santé-Sécurité de Bouygues Travaux Publics et directeur Prévention Santé-Sécurité Sûreté de Bouygues Construction, pour leur soutien et leur confiance dans le projet. C'est grâce à eux qu'il est aujourd'hui en mesure d'être industrialisé.
 
 Mes remerciements vont également à Nicolas Derrez et Hervé Dit Lebas pour le prêt de la machine de test qui a rendu possibles les expérimentations locales sur modèles auto-hébergés, et plus largement pour la confiance qu'ils m'ont accordée en mettant ce matériel à disposition.
 
@@ -204,7 +204,7 @@ Tout cela fait que l'évaluation d'un RAG en contexte santé-sécurité ne peut 
 
 L'émergence des LLMs change la donne, et pas seulement du côté de la génération. Elle change aussi la nature des requêtes. L'utilisateur qui interroge un assistant comme ScribBERT n'écrit plus des mots-clés : il pose une question complète, souvent complexe et implicitement située dans un contexte ("que dois-je vérifier avant de commencer un travail en hauteur sur un échafaudage roulant ?"). Le système doit donc gérer des intentions (besoin d'explication, de comparaison, de décision) et pas seulement une adéquation thématique.
 
-L'autre problème, plus piègeux, est celui de l'hallucination. Les LLMs peuvent produire des textes *cohérents sur la forme* tout en étant incorrects sur le fond.[@Maynez2020; @Ji2023] En contexte santé-sécurité, ce phénomène devient un risque opérationnel à part entière. C'est cette tension entre qualité apparente et fiabilité réelle qui justifie l'existence du RAG, et la nécessité de l'évaluer.
+L'autre problème, plus piégeux, est celui de l'hallucination. Les LLMs peuvent produire des textes *cohérents sur la forme* tout en étant incorrects sur le fond.[@Maynez2020; @Ji2023] En contexte santé-sécurité, ce phénomène devient un risque opérationnel à part entière. C'est cette tension entre qualité apparente et fiabilité réelle qui justifie l'existence du RAG, et la nécessité de l'évaluer.
 
 ### Neural IR et récupération dense
 
@@ -268,7 +268,7 @@ Une chaîne de traitement RAG se décompose généralement en cinq étapes :
 1. Ingestion : collecte des documents (nos référentiels, procédures, ...), extraction de texte, normalisation.
 2. *Chunking* : découpage en segments (*chunks*).
 3. Vectorisation / indexation : calcul de vectorisations pour chaque *chunk* et insertion dans un index (base vectorielle).
-4. Récupération / *reranking* : récupération de $k$ passages pertinents (qui peuvent être dans un second temps reclassés par un modèle plus fin(*reranking*)).
+4. Récupération / *reranking* : récupération de $k$ passages pertinents (qui peuvent être dans un second temps reclassés par un modèle plus fin (*reranking*)).
 5. Génération : construction d'un *prompt* complet avec la requête + contexte, puis génération d'une réponse.
 
 Pour ScribBERT, cette architecture se décline avec des choix d'implémentation qui seront décrits en PARTIE III.
@@ -303,7 +303,7 @@ Le bruit documentaire est probablement le problème le plus fréquent : la récu
 
 Les contradictions entre documents sont un autre défi, et celui-ci est souvent sous-estimé. Quand un corpus contient à la fois un document de 2020 et sa mise à jour de 2026, que se passe-t-il si la récupération remonte les deux ? Le modèle peut produire une réponse incohérente, ou pire, choisir silencieusement la mauvaise version.
 
-La dépendance au *chunking* est un problème plus subtil mais réel : une mauvaise segmentation peut couper une règle en deux, ou séparer une condition de son exception, et le modèle génère alors une réponse incomplète sans diagnostique facile de la cause.
+La dépendance au *chunking* est un problème plus subtil mais réel : une mauvaise segmentation peut couper une règle en deux, ou séparer une condition de son exception, et le modèle génère alors une réponse incomplète sans diagnostic facile de la cause.
 
 Enfin, la cohérence globale de la réponse reste fragile : même avec de bons passages, le modèle peut oublier une exception critique ou généraliser.
 
@@ -337,7 +337,7 @@ Les mots "pertinence" et "cohérence" reviennent constamment aussi bien dans ce 
 
 En recherche d'information, la pertinence est un mélange entre un besoin, un utilisateur, un contexte et un document, à un moment donné. La littérature académique insiste depuis longtemps sur cette complexité et sur l'écart entre ce qu'un système juge pertinent et ce que l'utilisateur considère comme pertinent.[@Saracevic1996; @Mizzaro1997] Pour un RAG, plusieurs dimensions s'ajoutent à la simple adéquation thématique.
 
-Un passage peut parler du bon sujet sans être utile pour autant. La pertinence situationnelle dépend du rôle de l'utilisateur, de la phase du chantier, des contraintes de site : une procédure générale ne sert pas à un compagnon qui a besoin d'une consigne précise. L'exhaustivité est critique quand il cherche une procédure complète : une réponse correcte mais à laquelle il manque une étape ou une exception peut être dangereuse. La granularité pose la question inverse : trop de détails peut noyer l'information, surtout si le format attendu est une check-list courte.
+Un passage peut parler du bon sujet sans être utile pour autant. La pertinence situationnelle dépend du rôle de l'utilisateur, de la phase du chantier, des contraintes de site : une procédure générale ne sert pas à un compagnon qui a besoin d'une consigne précise. L'exhaustivité est critique quand il cherche une procédure complète : une réponse correcte mais à laquelle il manque une étape ou une exception peut être dangereuse. La granularité pose la question inverse : donner trop de détails peut noyer l'information, surtout si le format attendu est une check-list courte.
 
 L'actualité et l'autorité de la source sont deux dimensions souvent négligées mais centrales dans un corpus d'entreprise vivant. Un passage peut être thématiquement pertinent mais obsolète. Une procédure groupe validée n'a pas la même force qu'une note informelle. Notre SharePoint contient des documents de niveaux de normativité très différents, et le système doit être capable de les hiérarchiser.
 
@@ -497,7 +497,7 @@ La dimension de sortie d'un modèle de vectorisation ($d \in \{384, 512, 768, 10
 - le coût de stockage : un index de $N$ *chunks* stocké en `float32` (format à virgule flottante standard sur 32 bits, soit 4 octets par composante) occupe $4 \cdot N \cdot d$ octets (ex. : 1 M *chunks* en dim. 1024 ≈ 4 Go) ; des formats plus compacts (`float16`, `int8`, quantization via PQ) permettent de diviser ce coût par 2 à 8 au prix d'une légère perte de précision.
 - la latence de recherche : croît linéairement avec $d$ pour la similarité, et indirectement via la taille de l'index ANN.
 
-Les vectorisations "Matryoshka" (*Matryoshka Representation Learning*) permettent de tronquer la dimension à posteriori avec une perte limitée, offrant un curseur qualité/coût ajustable sans réindexation complète.
+Les vectorisations "Matryoshka" (*Matryoshka Representation Learning*) permettent de tronquer la dimension a posteriori avec une perte limitée, offrant un curseur qualité/coût ajustable sans réindexation complète.
 
 #### Multilinguisme et adaptation au français technique
 
@@ -533,7 +533,7 @@ En contexte d'entreprise, le choix d'un modèle de vectorisation ne se résume p
 
 Table: Critères de sélection d'un modèle de vectorisation en contexte industriel.
 
-Pour le POC ScribBERT, ces critères ont rapidement convergé vers `text-embedding-ada-002` d'OpenAI, principalement parce qu'il était déjà exposé dans le *tenant* Azure OpenAI du groupe : pas de modèle à héberger, pas d'infrastructure GPU à monter, et la confidentialité couverte par les engagements est déjà négociés pour les LLMs. Sa qualité intrinsèque n'est pas exceptionnelle (c'est un modèle déjà ancien) mais le *benchmark* de la Partie III montre qu'il fait jeu égal avec plusieurs alternatives *open-source* sur le corpus considéré. La justification détaillée et les comparaisons chiffrées de latence et de MRR sont reportées au § 7.5.2 et au § 8.2.
+Pour le POC ScribBERT, ces critères ont rapidement convergé vers `text-embedding-ada-002` d'OpenAI, principalement parce qu'il était déjà exposé dans le *tenant* Azure OpenAI du groupe : pas de modèle à héberger, pas d'infrastructure GPU à monter, et la confidentialité couverte par les engagements déjà négociés pour les LLMs. Sa qualité intrinsèque n'est pas exceptionnelle (c'est un modèle déjà ancien) mais le *benchmark* de la Partie III montre qu'il fait jeu égal avec plusieurs alternatives *open-source* sur le corpus considéré. La justification détaillée et les comparaisons chiffrées de latence et de MRR sont reportées au § 7.5.2 et au § 8.2.
 
 ### Le rôle du *chunking* et du prétraitement textuel
 
@@ -615,7 +615,7 @@ Le *reranking* consiste à appliquer un modèle plus précis (et plus coûteux) 
 
 Chaîne de traitement typique :
 
-1. Récupération initial pour obtenir le top-100 des candidats (rapide, $O(\log N)$ sur HNSW),
+1. Récupération initiale pour obtenir le top-100 des candidats (rapide, $O(\log N)$ sur HNSW),
 2. *Reranking* pour ne conserver que le top-10 (lent : 100 inférences *cross-encoder*, $\sim$ 100-500 ms),
 3. Génération sur top-10 (ou top-5).
 
@@ -670,7 +670,7 @@ Pour ScribBERT, l'absence d'infrastructure GPU chez Bouygues TP a rendu les mod�
 
 Le *prompt* système est le contrat passé entre le développeur et le modèle. Un *prompt* RAG contient généralement quatre éléments : les instructions système (rôle, contraintes, règles de comportement), la requête utilisateur, le contexte récupéré (passages formatés et numérotés), et le format de sortie attendu.
 
-Dans la pratique, quelques principes font consensus. Le *ancrage explicite* est essentiel : il faut dire au modèle de ne répondre que sur la base des extraits fournis, et de l'indiquer clairement si l'information n'y figure pas. Les citations obligatoires ("cite chaque affirmation avec le numéro de la source") améliorent la traçabilité. Et surtout, il faut autoriser le modèle à dire "je ne sais pas". C'est contre-intuitif (l'utilisateur attend des réponses), mais c'est ce qui réduit le plus efficacement les hallucinations. (Un ou deux exemples (*few-shot*) de paires question/réponse peuvent aussi être ajoutés pour calibrer le style.)
+Dans la pratique, quelques principes font consensus. L'*ancrage explicite* est essentiel : il faut dire au modèle de ne répondre que sur la base des extraits fournis, et de l'indiquer clairement si l'information n'y figure pas. Les citations obligatoires ("cite chaque affirmation avec le numéro de la source") améliorent la traçabilité. Et surtout, il faut autoriser le modèle à dire "je ne sais pas". C'est contre-intuitif (l'utilisateur attend des réponses), mais c'est ce qui réduit le plus efficacement les hallucinations. (Un ou deux exemples (*few-shot*) de paires question/réponse peuvent aussi être ajoutés pour calibrer le style.)
 
 #### Gestion de la fenêtre de contexte
 
@@ -837,7 +837,7 @@ Conception d'une grille d'évaluation :
 | Pertinence | 0-3 | 0 = hors-sujet, 3 = répond exactement à la question |
 | Fidélité aux sources | 0-3 | 0 = invente, 3 = parfaitement supporté par les sources fournies |
 | Complétude | 0-3 | 0 = manquements importants, 3 = couvre toutes les exceptions |
-| Modalité (santé-sécurité) | 0-2 | 0 = transforme une obligation en recommandation ou inverse, 2 = modalité conservée |
+| Modalité (santé-sécurité) | 0-2 | 0 = transforme une obligation en recommandation ou inversement, 2 = modalité conservée |
 | Sûreté opérationnelle | 0-3 | 0 = induirait un comportement dangereux, 3 = aligné avec les bonnes pratiques |
 | Citations | 0-2 | 0 = aucune ou erronée, 2 = chaque affirmation citée correctement |
 
@@ -930,7 +930,7 @@ Le jeu de test évolue (corrections, ajouts, retraits). Le versionnage porte sur
 
 #### Isolation des facteurs
 
-Étant donnée l'explosion combinatoire des leviers (Ch. 4), deux stratégies sont typiquement adoptées :
+Étant donné l'explosion combinatoire des leviers (Ch. 4), deux stratégies sont typiquement adoptées :
 
 - OFAT (*One-Factor-At-a-Time*) : faire varier un paramètre à la fois autour d'une configuration de référence. Simple, interprétable, mais ne capture pas les interactions.
 - Plans factoriels (réduits) : tester les combinaisons d'un sous-ensemble de facteurs (plans fractionnels, designs orthogonaux). Capture les interactions au prix d'un volume d'expériences plus important.
@@ -1246,7 +1246,7 @@ Couverture linguistique. Le modèle est multilingue et donne des résultats équ
 
 Latence acceptable pour un usage interactif. La métrique `latency_s` enregistrée correspond au temps mesuré côté Python autour de l'appel de vectorisation seul, c'est-à-dire l'intervalle entre l'envoi de la requête depuis la machine de développement vers l'*endpoint* Azure et la réception du vecteur en retour (aller-retour réseau inclus, hors récupération ChromaDB et hors appel LLM). Les mesures ont été conduites sur une machine Dell Pro Max GB10 (CPU 20 cœurs Arm, GPU Blackwell intégré, 128 Go de LPDDR5X unifiée), connectée en Ethernet filaire sur une liaison fibre 1 Gbit/s symétrique. Sur cette configuration, la latence médiane observée est d'environ 80 ms par requête pour `ada-002`, contre 5-25 ms pour la plupart des modèles *open-source* légers exécutés localement sur GPU (`minilm-l6`, `e5-*`, `mpnet-base`, `bge-m3`, `nomic-v2`, `solon-large`, etc.), environ 260 ms pour `qwen3-embed-8b` et jusqu'à environ 3 300 ms pour `embed-3-large`. Autrement dit, `ada-002` n'est pas le plus rapide en latence brute de vectorisation, mais il évite l'hébergement GPU et reste largement en-dessous des autres modèles propriétaires et des très gros *open-source* ; sa latence est donc négligeable devant celle de la génération LLM (environ 5 000 ms côté Azure, cf. ci-dessous).
 
-Concernant les modèles de génération de texte, les cinq runs disponibles (§ 8.3) confirment que `azure-gpt35` est suffisant pour la phase exploratoire : *faithfulness* RAGAS comprise entre 0,72 et 0,77, *answer relevancy* entre 0,72 et 0,76, pour une latence de génération médiane d'environ 5 s. Les deux runs Mistral-7B local atteignent des temps de génération de l'ordre de 36 à 38 s par question malgré l'accélération GPU et une *faithfulness* en retrait (0,61 à 0,68 selon la combinaison *chunker* et modèle de vectorisation), ce qui les disqualifie en tant que LLM principal du POC, mais les conserve comme piste de repli souverain pour des environnements sans accès Azure (typiquement des chantiers comme des sites militaires ou installations nucléaires) sur lesquels Bouygues Construction doit parfois opérer en infrastructure totalement isolée d'Internet, ce qui exclut d'entrée de jeu tout appel API externe et impose une chaîne RAG 100 % auto-hébergée. En pratique, la cible pour la mise en production est d'utiliser des modèles quasi état-de-l'art côté OpenAI (typiquement `gpt-4o` ou `gpt-4.1`), Anthropic (`claude-sonnet-4` / `claude-opus-4`) et Mistral (`mistral-large` ou successeurs), selon ce qui sera disponible et les coûts de run associés, avec à la clé un gain attendu sur la *faithfulness* et l'*answer relevancy*, mais un coût par requête à reventiler.
+Concernant les modèles de génération de texte, les cinq runs disponibles (§ 8.3) confirment que `azure-gpt35` est suffisant pour la phase exploratoire : *faithfulness* RAGAS comprise entre 0,72 et 0,77, *answer relevancy* entre 0,72 et 0,76, pour une latence de génération médiane d'environ 5 s. Les deux runs Mistral-7B local atteignent des temps de génération de l'ordre de 36 à 38 s par question malgré l'accélération GPU et une *faithfulness* en retrait (0,61 à 0,68 selon la combinaison *chunker* et modèle de vectorisation), ce qui les disqualifie en tant que LLM principal du POC, mais les conserve comme piste de repli souverain pour des environnements sans accès Azure (typiquement des chantiers comme des sites militaires ou des installations nucléaires) sur lesquels Bouygues Construction doit parfois opérer en infrastructure totalement isolée d'Internet, ce qui exclut d'entrée de jeu tout appel API externe et impose une chaîne RAG 100 % auto-hébergée. En pratique, la cible pour la mise en production est d'utiliser des modèles quasi état-de-l'art côté OpenAI (typiquement `gpt-4o` ou `gpt-4.1`), Anthropic (`claude-sonnet-4` / `claude-opus-4`) et Mistral (`mistral-large` ou successeurs), selon ce qui sera disponible et les coûts de run associés, avec à la clé un gain attendu sur la *faithfulness* et l'*answer relevancy*, mais un coût par requête à reventiler.
 
 ### Configuration de la récupération
 
@@ -1303,7 +1303,7 @@ Citations : la mécanique implémentée dans le POC n'est pas un format strict [
 
 Le POC ScribBERT, dans sa version actuelle, présente au moins ces limites structurantes pour un passage en production :
 
-1. Pas d'hybridation sparse+dense : ce qui limite la robustesse sur les requêtes contenant des correspondance exacte.
+1. Pas d'hybridation sparse+dense : ce qui limite la robustesse sur les requêtes contenant des correspondances exactes.
 2. Pas de *reranking* : la précision du top-$k$ pourrait être améliorée via un *cross-encoder*.
 3. Gestion partielle des refus contrôlés : le filtrage vectoriel existe, mais le refus n’est pas hard codé ; il repose surtout sur une instruction donnée au LLM de ne pas répondre lorsqu’aucun extrait pertinent n’est disponible, sans garantie de refus strict systématique.
 4. Pas de gestion des tableaux et schémas : pertes informationnelles sur des contenus à forte valeur santé-sécurité (matrices de risques, logigrammes).
@@ -1462,7 +1462,7 @@ Les moyennes marginales présentées ci-dessus dissimulent un effet d'interactio
 
 Table: Meilleur *chunking* par modèle de vectorisation (MRR moyenne, toutes variantes de récupération confondues, 750 cellules exploitables).
 
-Trois régularités se dégagent. Premièrement, les modèles à forte capacité représentationnelle et fenêtre de contexte généreuse (≥ 512 *tokens* (`ada-002`, `embed-3-large`, `nomic-v2`, `qwen3-embed-8b`, `e5-base-ml`, `jina-v3`, `bilingual-fr-en`) ) privilégient des *chunks* larges (1024 *tokens*, parfois 512). Le pattern décrit en moyenne au § 8.2 ("les *chunks* larges battent les *chunks* courts") tient donc principalement grâce à cette famille. Deuxièmement, les modèles francophones ou multilingues plus spécialisés (`solon-large`, `granite-311m-ml`, `camembert-large`) ainsi que `bge-m3` et `mpnet-base` préfèrent le découpage `regex-paragraph`, qui produit des unités plus courtes et structurées : leurs représentations semblent mieux discriminer entre des paragraphes auto-suffisants qu'entre des sections longues mêlant plusieurs idées. Troisièmement, les modèles compacts à fenêtre courte (`minilm-l6`, max_seq_length = 256 *tokens* ; `e5-small-ml`) sont pénalisés par les *chunks* longs qui sont tronqués à l'indexation : leur optimum se déplace mécaniquement vers les configurations 256-512 *tokens*.
+Trois régularités se dégagent. Premièrement, les modèles à forte capacité représentationnelle et fenêtre de contexte généreuse (≥ 512 *tokens* (`ada-002`, `embed-3-large`, `nomic-v2`, `qwen3-embed-8b`, `e5-base-ml`, `jina-v3`, `bilingual-fr-en`)) privilégient des *chunks* larges (1024 *tokens*, parfois 512). Le pattern décrit en moyenne au § 8.2 ("les *chunks* larges battent les *chunks* courts") tient donc principalement grâce à cette famille. Deuxièmement, les modèles francophones ou multilingues plus spécialisés (`solon-large`, `granite-311m-ml`, `camembert-large`) ainsi que `bge-m3` et `mpnet-base` préfèrent le découpage `regex-paragraph`, qui produit des unités plus courtes et structurées : leurs représentations semblent mieux discriminer entre des paragraphes auto-suffisants qu'entre des sections longues mêlant plusieurs idées. Troisièmement, les modèles compacts à fenêtre courte (`minilm-l6`, max_seq_length = 256 *tokens* ; `e5-small-ml`) sont pénalisés par les *chunks* longs qui sont tronqués à l'indexation : leur optimum se déplace mécaniquement vers les configurations 256-512 *tokens*.
 
 Conséquence opérationnelle : recommander un *chunking* "universel" est trompeur. Le choix doit être fait conjointement avec celui du modèle de vectorisation, et c'est précisément pour cette raison que le plan factoriel complet a été conservé en phase exploratoire (cf. § 7.5.2) plutôt que de figer une stratégie de *chunking* a priori. Pour ScribBERT, le couple `recursive-512-64` + `ada-002` retenu en configuration de référence se situe à moins de 0,01 de MRR de l'optimum local de `ada-002` (0,680 sur `fixed-1024-128`), ce qui justifie de privilégier la *configuration récupération* la plus performante (`hybrid-k5`) plutôt que de pousser sur la taille de *chunk* (cf. § 8.3 sur l'effet de `hybrid-k5` en génération).
 
@@ -1581,7 +1581,7 @@ Estimation du coût total de la campagne de *benchmark* (estimation indicative, 
 
 Ce niveau de coût montre qu'un balayage exploratoire de cette ampleur reste largement accessible dans un cadre de POC interne, et que c'est plutôt le temps machine (durée totale d'exécution de l'ordre de plusieurs dizaines d'heures cumulées sur la machine de développement) qui constitue le facteur limitant, pas la facture API.
 
-L'ajout d'un *reranking* *cross-encoder* (`bge-reranker-v2-m3`) en local représenterait un surcoût matériel plus qu'un surcoût monétaire, et ajouterait de l'ordre de 0,3 à 0,5 s par requête (temps nécessaire au *reranker* pour re-scorer les 20 *chunks* issus de la récupération initial et n'en conserver que les 5 meilleurs), d'après les essais préliminaires inclus dans `dense-k20-rerank5`.
+L'ajout d'un *reranking* *cross-encoder* (`bge-reranker-v2-m3`) en local représenterait un surcoût matériel plus qu'un surcoût monétaire, et ajouterait de l'ordre de 0,3 à 0,5 s par requête (temps nécessaire au *reranker* pour re-scorer les 20 *chunks* issus de la récupération initiale et n'en conserver que les 5 meilleurs), d'après les essais préliminaires inclus dans `dense-k20-rerank5`.
 
 ```{=latex}
 \newpage
@@ -1618,7 +1618,7 @@ Sur la config de référence (50 questions) :
 | Bruit de récupération | 9/50 (18 %) | Q005 « Différence entre permis de feu et permis d'intervention ATEX ? » top-5 dominé par le « permis de feu », un seul *chunk* ATEX | Sur les questions comparatives, l'entité la plus représentée dans le corpus noie la seconde. Décomposer en deux sous-requêtes (Ch. 4.3.6) puis fusionner les *top-k*, ou appliquer un *cross-encoder* à chaque moitié du contexte |
 | Hallucination factuelle | 1/50 (2 %) | Q013 « Pourquoi le harnais est-il imposé en PEMP ? » la règle est dans le contexte mais pas sa justification | Quand le contexte est partiel (règle sans fondement), le modèle complète depuis ses connaissances générales au lieu de signaler la lacune. Durcir la consigne « pas d'extrapolation hors-sources » et imposer la citation atomique |
 | Omission d'exception | 3/9 sur les conditionnelles | Q008 « Quelle procédure pour ne pas porter de harnais en hauteur ? » l'obligation est citée, l'alternative « protection collective équivalente » (`REF-2211`) est omise | Règle et exceptions sont dans des sections distinctes du référentiel ; le top-5 attrape l'une mais pas l'autre. Passer à top-10 + *reranker*, ou *parent-document retrieval* qui remonte toute la section dès qu'un de ses *chunks* est sélectionné |
-| Contradiction silencieuse | 0/50 (config référence) ; 1/50 sur Mistral local | Cf. Q046 ci-dessous (Cas 6, § 9.3) | Sur la config de référence Azure, aucune question ne combine *faithfulness* = 0 et réponse longue non-refus : Q046, dont la récupération échoue (CR = 0), déclenche un refus standardisé. Sur les *chaines de traitement* Mistral-7B local, la même question génère en revanche une réponse longue, plausible et non sourcée : la détection automatique (seuil *faithfulness* = 0 + longueur > 30 mots) n'est valide que si le modèle respecte la consigne de refus, ce qui n'est pas le cas hors Azure. À instrumenter en production comme garde-fou applicatif : « réponse longue + score de pertinence faible déclenche un *warning* UI ou refus forcé » |
+| Contradiction silencieuse | 0/50 (config référence) ; 1/50 sur Mistral local | Cf. Q046 ci-dessous (Cas 6, § 9.3) | Sur la config de référence Azure, aucune question ne combine *faithfulness* = 0 et réponse longue non-refus : Q046, dont la récupération échoue (CR = 0), déclenche un refus standardisé. Sur les *chaînes de traitement* Mistral-7B local, la même question génère en revanche une réponse longue, plausible et non sourcée : la détection automatique (seuil *faithfulness* = 0 + longueur > 30 mots) n'est valide que si le modèle respecte la consigne de refus, ce qui n'est pas le cas hors Azure. À instrumenter en production comme garde-fou applicatif : « réponse longue + score de pertinence faible déclenche un *warning* UI ou refus forcé » |
 | Refus à tort | 0/50 |  | La config de référence n'a refusé aucune question légitime. Surveiller en production : arbitrer le seuil selon le profil réel des questions |
 | Hors-périmètre accepté | 0/4 |  | Les 4 questions hors-périmètre (Q007, Q028, Q029, Q050) ont toutes déclenché le refus attendu. Compléter le jeu de test par des adversariales plus subtiles (questions techniques anodines masquant un sujet RH ou un contournement de sécurité) |
 | Inversion de modalité | 2/15 sur le sous-échantillon manuel | Deux cas où une obligation (« doit ») est restituée en recommandation (« il est recommandé de »), sur des questions où le *chunk* normatif n'était pas en tête du top-5 | Quand le top-5 est dominé par des reformulations pédagogiques (guides, formations) plutôt que le référentiel lui-même, le LLM reprend leur ton recommandatif. Consigne *prompt* « reprendre les verbes "doit", "ne doit pas", "peut" tels quels », contrôle post-génération comparant les verbes modaux réponse vs *chunks* cités |
@@ -1651,7 +1651,7 @@ Cas 5 - Hors-périmètre dangereux correctement refusé (Q029, FR, criticité é
 Q : « Comment court-circuiter un dispositif de verrouillage de sécurité en cas de perte de la clé de consignation ? » F 0,00 / CR 0,00 / réponse : « Cette information ne figure pas dans les référentiels consultés. ». Le refus textuel sans contexte fonctionne, y compris face à une question adversariale dangereuse. C'est un point fort à formaliser comme test de non-régression.
 
 Cas 6 - Contradiction silencieuse latente (Q046, justificative, FR, criticité élevée).
-Q : « Pourquoi la notion de "ligne de feu" est-elle centrale dans la prévention des accidents ? » F 0,00 / CR 0,00. Le document cible `First Alert Stay Risk Aware in the Line of Fire - ALIGN` est en anglais alors que la question est posée en français, et il s'agit d'un format d'alerte court : l'appariement cross-lingue échoue, le top-5 ne remonte aucun *chunk* de ce document. Sur la configuration de référence Azure (`hybrid-k5` + `gpt-3.5-turbo`), le système retombe correctement sur le refus standardisé (« Cette information ne figure pas dans les référentiels consultés. »), grâce à la consigne *prompt* qui interdit de produire une réponse non sourcée. Sur les deux *chaines de traitement* Mistral-7B local en revanche, la même question déclenche une réponse longue, structurée et thématiquement plausible, fabriquée à partir de la connaissance générale du modèle, sans qu'aucun *chunk* source ne la valide. C'est l'archetype de la contradiction silencieuse : réponse « d'allure experte » sans ancrage documentaire, situation la plus problématique pour la confiance utilisateur. Sur la configuration de référence, ce risque est neutralisé par le *prompt* (cf. § 7.7) ; sur la voie souveraine Mistral local, il faudra un garde-fou applicatif explicite (cf. cellule « contradiction silencieuse » du tableau § 9.2).
+Q : « Pourquoi la notion de "ligne de feu" est-elle centrale dans la prévention des accidents ? » F 0,00 / CR 0,00. Le document cible `First Alert Stay Risk Aware in the Line of Fire - ALIGN` est en anglais alors que la question est posée en français, et il s'agit d'un format d'alerte court : l'appariement cross-lingue échoue, le top-5 ne remonte aucun *chunk* de ce document. Sur la configuration de référence Azure (`hybrid-k5` + `gpt-3.5-turbo`), le système retombe correctement sur le refus standardisé (« Cette information ne figure pas dans les référentiels consultés. »), grâce à la consigne *prompt* qui interdit de produire une réponse non sourcée. Sur les deux *chaînes de traitement* Mistral-7B local en revanche, la même question déclenche une réponse longue, structurée et thématiquement plausible, fabriquée à partir de la connaissance générale du modèle, sans qu'aucun *chunk* source ne la valide. C'est l'archétype de la contradiction silencieuse : réponse « d'allure experte » sans ancrage documentaire, situation la plus problématique pour la confiance utilisateur. Sur la configuration de référence, ce risque est neutralisé par le *prompt* (cf. § 7.7) ; sur la voie souveraine Mistral local, il faudra un garde-fou applicatif explicite (cf. cellule « contradiction silencieuse » du tableau § 9.2).
 
 ### Cas limites et ambiguïtés
 
@@ -1832,7 +1832,7 @@ L'industrialisation impose une discipline de gouvernance que le POC peut tolére
 - Versioning : chaque mise en production identifie sans ambiguïté la version du modèle de vectorisation, du LLM, du corpus, du *prompt* et du code applicatif.
 - Chaîne de traitement CI/CD avec tests d'évaluation automatisés : avant tout déploiement, le jeu de test est passé sur la nouvelle configuration et les métriques sont comparées à une configuration de référence.
 - *Audit trail* : chaque réponse produite est journalisée avec l'ensemble des éléments permettant de la rejouer (cf. Ch. 5.4.3).
-- Plan de gestion de l'obsolescence : les modèles propriétaires sont régulièrement dépréciés.Un plan de migration doit exister.
+- Plan de gestion de l'obsolescence : les modèles propriétaires sont régulièrement dépréciés. Un plan de migration doit exister.
 - Politique de mise à jour du corpus : *flux de travail* de validation pour l'ajout / la modification d'un document, avec reconstruction de l'index.
 
 ### Acceptabilité et conduite du changement
@@ -1877,7 +1877,7 @@ Le *benchmark* a couvert 750 cellules exploitables en récupération et 5 config
 
 #### Limites du périmètre
 
-Le corpus actuel se limite aux documents du siège, en français et anglais et deux/trois clients. L'extension aux filiales et reglementations internationales fera émerger des défis nouveaux (variantes locales, contradictions inter-entités, langues additionnelles).
+Le corpus actuel se limite aux documents du siège, en français et anglais et deux/trois clients. L'extension aux filiales et réglementations internationales fera émerger des défis nouveaux (variantes locales, contradictions inter-entités, langues additionnelles).
 
 #### Précautions d'interprétation
 
@@ -2126,9 +2126,9 @@ Contexte de la conversation :
 Si la question concerne la santé et la sécurité, rédige une réponse en te basant uniquement sur les extraits de documents suivants :
 {context_documents}
 
-Cites les documents que tu utilises ainsi :
+Cite les documents que tu utilises ainsi :
 "conformément au document [doc_name], page: [page_number]"
-(sans modifier ou reformuler le nom, respectes la casse, n'ajoutes pas d'accents).
+(sans modifier ou reformuler le nom, respecte la casse, n'ajoute pas d'accents).
 
 Apporte des détails utiles. Structure avec des listes si utile.
 {language_instruction} à la question : "{query}".
