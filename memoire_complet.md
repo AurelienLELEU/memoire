@@ -1059,7 +1059,7 @@ Un protocole opérationnel pour évaluer la stabilité d'un RAG peut s'organiser
 
 ### Stabilité et confiance utilisateur
 
-La stabilité a aussi une dimension psychologique. Cela a déjà été évoqué plus haut, mais un utilisateur perçoit l'instabilité comme un signe d'incompétence/incertitude du système, même si la réponse moyenne est correcte. Inversement, un système stable mais subtilement biaisé peut générer une fausse confiance. L'utilisateur a confiance dans le systeme, même s'il est stable dans l'échec.
+La stabilité a aussi une dimension psychologique. Cela a déjà été évoqué plus haut, mais un utilisateur perçoit l'instabilité comme un signe d'incompétence/incertitude du système, même si la réponse moyenne est correcte. Inversement, un système stable mais subtilement biaisé peut générer une fausse confiance. L'utilisateur a confiance dans le système, même s'il est stable dans l'échec.
 
 Deux pratiques permettent de réconcilier ces enjeux :
 
@@ -1205,7 +1205,7 @@ Conformément à la grille du Ch. 4.2, la stratégie retenue est un *chunking* s
   - assez large pour contenir une règle complète avec ses conditions et ses exceptions (cf. risque d'omission identifié au Ch. 5.5.4),
   - assez petit pour rester discriminant à la vectorisation et économique en *tokens* lors de l'injection dans le contexte LLM ;
   - le *benchmark* systématique (§ 8.2) montre que les *chunkings* 1024 *tokens* dominent en MRR, ce qui valide à posteriori l'ordre de grandeur retenu ;
-- l'chevauchement est de ~50 *tokens*, soit une valeur faible (≈ 4 %), qui suffit à amortir des coupures malheureuses sans gonfler significativement l'index ;
+- le chevauchement est de ~50 *tokens*, soit une valeur faible (≈ 4 %), qui suffit à amortir des coupures malheureuses sans gonfler significativement l'index ;
 - une fenêtre contexte est ajoutée à la récupération : pour chaque *chunk* retourné par la récupération, les *chunks* $n-1$ et $n+1$ sont automatiquement adjoints avant injection dans le contexte LLM. Cette mécanique compense un chevauchement faible et restaure le contexte amont/aval, particulièrement utile pour les références anaphoriques ("cette règle", "les EPI mentionnés") et pour la cohérence procédurale.
 
 Les métadonnées attachées à chaque *chunk* sont actuellement : `nom_document`, `entité_émettrice`, `langue`, `date du document`.
@@ -1484,7 +1484,7 @@ La figure 8.5 visualise ces cinq configurations sous forme de radar à quatre ax
 
 ![Fig. 8.5 — Profil RAGAS des cinq configurations de génération évaluées, sur les quatre dimensions *Faithfulness*, *Answer Relevancy*, *Context Precision* et *Context Recall* (échelle 0 – 1). Chaque polygone correspond à une configuration libellée par `embedding · retrieval / LLM`. Source : résultats du benchmark generation (50 questions par configuration).](figures/fig_8_5_radar_ragas_5_configs.png){#fig:radar-ragas width=75%}
 
-Quatre lectures se dégagent. D'abord, la configuration `hybrid-k5` domine sur les quatre scores RAGAS : elle obtient simultanément la meilleure *faithfulness* (0,765), la meilleure *answer relevancy* (0,756), la meilleure *context precision* (0,687) et le meilleur *context recall* (0,629), tout en étant la plus rapide côté génération (5,09 s médian). C'est la confirmation, côté génération cette fois, du gain d'hybridation déjà observé côté récupération (§ 8.2) : une récupération plus précis se traduit par une génération à la fois plus fidèle aux sources et mieux ciblée sur la question.
+Quatre lectures se dégagent. D'abord, la configuration `hybrid-k5` domine sur les quatre scores RAGAS : elle obtient simultanément la meilleure *faithfulness* (0,765), la meilleure *answer relevancy* (0,756), la meilleure *context precision* (0,687) et le meilleur *context recall* (0,629), tout en étant la plus rapide côté génération (5,09 s médian). C'est la confirmation, côté génération cette fois, du gain d'hybridation déjà observé côté récupération (§ 8.2) : une récupération plus précise se traduit par une génération à la fois plus fidèle aux sources et mieux ciblée sur la question.
 
 Deuxième lecture, plus contre-intuitive : la variante `dense-k5-neigh` améliore la fidélité par rapport à `dense-k5-thresh` (+0,024 de *faithfulness*, +0,020 d'*answer relevancy*) malgré sa dégradation observée en récupération pur (*benchmark* precedents, § 8.2). Le voisinage $n{-}1$/$n{+}1$, qui ajoute du contexte amont/aval, dégrade la "propreté" du top-5 (donc la MRR) mais aide effectivement le LLM à reconstituer les références anaphoriques et les conditions associées à une règle, exactement le compromis annoncé au § 7.4. C'est une illustration concrète du découplage récupération pur ≠ utilité pour la génération discuté au Ch. 5.5.
 
