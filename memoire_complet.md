@@ -12,7 +12,7 @@ Mes remerciements vont également à Nicolas Derrez et Hervé Dit Lebas pour le 
 
 Je tiens à remercier l'ensemble des équipes du département Prévention Santé-Sécurité ainsi que l'équipe du Pôle Intelligence Artificielle et plus largement le LabTP dans son intégralité pour les nombreux échanges qui ont pu nourrir le projet.
 
-Je tiens enfin à remercier l'ensemble du personnel de l'ecole Hexagone, qui ont pu me fournir un cadre éducatif propice au developpement d'un tel projet.
+Je tiens enfin à remercier l'ensemble du personnel de l'École Hexagone, qui a pu me fournir un cadre éducatif propice au développement d'un tel projet.
 
 ```{=latex}
 \cleardoublepage
@@ -593,7 +593,7 @@ $$\mathrm{sim}(q, d) = \frac{\mathbf{e}_q \cdot \mathbf{e}_d}{\|\mathbf{e}_q\| \
 
 Elle suppose que seule la direction des vecteurs porte le sens (pas la norme). La plupart des modèles modernes sont entraînés sous cette hypothèse (vecteurs L2-normalisés), ce qui rend cosinus et produit scalaire équivalents.
 
-Limites : le cosinus est une mesure isotrope qui ne tient pas compte de la structure locale de l'espace. Des travaux sur les *anisotropic vectorisations* montrent que certains modèles concentrent leurs vecteurs dans un cône étroit, ce qui dégrade la séparation.
+Limites : le cosinus est une mesure isotrope qui ne tient pas compte de la structure locale de l'espace. Des travaux sur les vectorisations anisotropes montrent que certains modèles concentrent leurs vecteurs dans un cône étroit, ce qui dégrade la séparation.
 
 #### Recherche hybride : combiner sparse et dense
 
@@ -662,7 +662,7 @@ Les options se classent en trois catégories :
 
 - LLMs propriétaires (API) : GPT-4 / GPT-4o (OpenAI), Claude 3.5/4 (Anthropic), Gemini (Google), Mistral Large. Excellente qualité, coût marginal par requête/*token*, dépendance à un fournisseur externe et contraintes de confidentialité.
 - LLMs *open-weights* auto-hébergés : Llama 3, Mistral / Mixtral, Qwen, DeepSeek, Gemma. Contrôle total des données, coût d'infrastructure (GPU).
-- LLMs spécialisés : modèles plus petits fine-tunés sur un domaine (ex. modèles biomédicaux). À ce jour, pas d'option santé-sécurité/BTP.
+- LLMs spécialisés : modèles plus petits fine-tunés sur un domaine (ex. modèles biomédicaux). À ce jour, pas d'option appliquée au domaine santé-sécurité et BTP.
 
 Pour ScribBERT, l'absence d'infrastructure GPU chez Bouygues TP a rendu les modèles auto-hébergés peu viables : les tests en local sur un poste de développement standard n'ont permis de faire tourner que des modèles de petite taille, et même ceux-ci se sont révélés trop lents pour être exploitables. Le choix s'est porté sur un LLM propriétaire via Azure OpenAI, dans le cadre d'un contrat-cadre Bouygues Construction garantissant la confidentialité des données. Concrètement, pour le POC, le choix s'est porté sur `gpt-3.5-turbo` : il est bon marché, rapide, et la différence de qualité avec un GPT-4 / Claude / Mistral Large est amortie par la contextualisation RAG. Le déploiement via Azure OpenAI a aussi un atout opérationnel : aucune brique d'infrastructure à gérer en propre. Pour le passage en production, un modèle plus récent (GPT-4o ou équivalent) sera réévalué, notamment sur les questions justificatives où quelques limites qualitatives ont été perçues. 
 
@@ -2104,7 +2104,7 @@ Chaque entrée contient les champs suivants : `id`, `question`, `language`, `typ
 
 - Q001 — *factuelle, élevée, fr* : « Quels sont les EPI obligatoires ? » — réponse de référence portant sur le port du harnais antichute (modalité « obligatoire » à préserver, exception « protection collective équivalente »).
 - Q002 — *procédurale, moyenne, fr* : « Quelle est la procédure à suivre avant toute intervention en espace confiné ? » — réponse multi-étapes (identification, plan de prévention, mesure d'atmosphère, ventilation, surveillance, secours).
-- Q003 — *conditionnelle, difficile, fr* : « Que faire si l'analyse atmosphérique d'un espace confiné détecte une concentration en O₂ inférieure à 19,5 % ? » — modalité critique (interdiction stricte) à conserver.
+- Q003 — *conditionnelle, difficile, fr* : « Que faire si l'analyse atmosphérique d'un espace confiné détecte une concentration en dioxygène inférieure à 19,5 % ? » — modalité critique (interdiction stricte) à conserver.
 - Q004 — *factuelle, moyenne, en* : « What PPE is mandatory for work at height on a rolling scaffold? » — test du multilinguisme et de la récupération cross-lingue.
 - Q005 — *comparative, difficile, fr* : « Quelle différence entre un permis de feu et un permis d'intervention en zone ATEX ? » — agrégation multi-documents.
 - Q006 — *justificative, moyenne, fr* : « Pourquoi le port de bouchons d'oreilles est-il imposé au-delà d'un certain niveau sonore ? » — explication d'une norme avec seuils chiffrés (80 / 85 dB(A)).
