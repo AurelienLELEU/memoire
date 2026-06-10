@@ -146,6 +146,10 @@ Les systèmes IR peuvent aussi reformuler la requête pour améliorer les résul
 
 En parallèle, le *learning-to-rank* a permis d'apprendre des fonctions de classement à partir de données (clics, jugements), avec des approches *pointwise*, *pairwise* et *listwise*.[@Liu2009LTR] Les systèmes industriels combinent aujourd'hui une récupération rapide, un *reranking* plus coûteux (souvent *cross-encoder*) et des signaux métier (popularité, fraîcheur). Le RAG s'insère dans cette logique multi-étage : la majorité des architectures dites *Advanced RAG* documentées dans la littérature reprennent ce schéma à plusieurs niveaux (récupération initiale large, filtrage, *reranking*, génération conditionnée), parfois enrichi de boucles de réflexion ou de mécanismes de décision sur la nécessité de récupérer.[@Gao2024RAGSurvey; @NogueiraCho2019]
 
+```{=latex}
+\newpage
+```
+
 ### Limites du matching lexical
 
 Les méthodes lexicales (booléen, TF-IDF, BM25) reposent sur une hypothèse forte : la pertinence est principalement capturable par la co-occurrence de termes entre requête et document. En pratique, cette hypothèse se heurte à des problèmes bien documentés, observables directement lors des premières itérations de ScribBERT :
