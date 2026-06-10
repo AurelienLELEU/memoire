@@ -154,7 +154,7 @@ En parallèle, le *learning-to-rank* a permis d'apprendre des fonctions de class
 
 Les méthodes lexicales (booléen, TF-IDF, BM25) reposent sur une hypothèse forte : la pertinence est principalement capturable par la co-occurrence de termes entre requête et document. En pratique, cette hypothèse se heurte à des problèmes bien documentés, observables directement lors des premières itérations de ScribBERT :
 
-- Synonymie : deux textes peuvent décrire la même notion avec des termes différents. Dans notre corpus, "harnais antichute" et "EPI antichute" désignent la même chose, mais un matching lexical pur les traite comme des requêtes distinctes.
+- Synonymie : deux textes peuvent décrire la même notion avec des termes différents. Dans notre corpus, "harnais antichute" et "EPI antichute" désignent la même chose, mais un matching lexical pur les traite comme des termes sans lien.
 - Polysémie : un même terme peut renvoyer à des concepts différents selon le contexte (ex. "levage" en planification vs levage en opération terrain).
 - Morphologie et variations : abréviations, variantes métier. Le jargon des chantiers est particulièrement riche en acronymes et en raccourcis que les référentiels n'utilisent pas toujours.
 - Requêtes complexes : les utilisateurs posent rarement des mots-clés isolés. Ils expriment des intentions, des contraintes, des justifications ("que faire si…", "dans quel cas…", "quelles exceptions…"). Les signaux purement lexicaux sont mal équipés pour traiter ces formulations.
@@ -182,7 +182,7 @@ Enfin, des architectures intermédiaires (*late interaction*) comme ColBERT cher
 
 ### Sparse, dense et hybride : familles de récupération
 
-En pratique, les systèmes de récupération se rangent en trois grandes familles. La récupération creuse (BM25, TF-IDF), qui représente les documents dans un espace de très grande dimension. C'est rapide, et ça marche remarquablement bien sur des requêtes contenant des identifiants précis (numéros de procédure, références normatives). La récupération dense projette tout dans un espace compact de vectorisations, plus apte à capturer synonymie et paraphrase, mais plus "opaque". Et l'hybride combine les deux, ce qui est souvent la meilleure option quand le corpus mélange des requêtes techniques et des questions en langage naturel.
+En pratique, les systèmes de récupération se rangent en trois grandes familles. La récupération creuse (BM25, TF-IDF) représente les documents dans un espace de très grande dimension. C'est rapide, et ça marche remarquablement bien sur des requêtes contenant des identifiants précis (numéros de procédure, références normatives). La récupération dense projette tout dans un espace compact de vectorisations, plus apte à capturer synonymie et paraphrase, mais plus "opaque". Et l'hybride combine les deux, ce qui est souvent la meilleure option quand le corpus mélange des requêtes techniques et des questions en langage naturel.
 
 L'étape de récupération peut également être suivie d'un *reranking* : un ensemble large de candidats est d'abord récupéré (rapide), puis un modèle plus précis (souvent un *cross-encoder*) reclasse finement les passages. (Ce point est repris au Chapitre 4.)
 
@@ -206,7 +206,7 @@ Tout cela fait que l'évaluation d'un RAG en contexte santé-sécurité ne peut 
 
 ### Limites des approches traditionnelles face aux LLMs
 
-L'émergence des LLMs change la donne, et pas seulement du côté de la génération. Elle change aussi la nature des requêtes. L'utilisateur qui interroge un assistant comme ScribBERT n'écrit plus des mots-clés : il pose une question complète, souvent complexe et implicitement située dans un contexte ("que dois-je vérifier avant de commencer un travail en hauteur sur un échafaudage roulant ?"). Le système doit donc gérer des intentions (besoin d'explication, de comparaison, de décision) et pas seulement une adéquation thématique.
+L'émergence des LLMs change la donne, et pas seulement du côté de la génération. Elle change aussi la nature des requêtes. L'utilisateur qui interroge un assistant comme ScribBERT n'écrit plus de mots-clés : il pose une question complète, souvent complexe et implicitement située dans un contexte ("que dois-je vérifier avant de commencer un travail en hauteur sur un échafaudage roulant ?"). Le système doit donc gérer des intentions (besoin d'explication, de comparaison, de décision) et pas seulement une adéquation thématique.
 
 L'autre problème, plus piégeux, est celui de l'hallucination. Les LLMs peuvent produire des textes *cohérents sur la forme* tout en étant incorrects sur le fond.[@Maynez2020; @Ji2023] En contexte santé-sécurité, ce phénomène devient un risque opérationnel à part entière. C'est cette tension entre qualité apparente et fiabilité réelle qui justifie l'existence du RAG, et la nécessité de l'évaluer.
 
@@ -375,7 +375,7 @@ Cette définition présente trois intérêts :
 
 ### Pertinence perçue vs pertinence mesurée
 
-Il y a un écart, parfois considérable, entre ce que les métriques disent et ce que l'utilisateur ressent. Parfois, des configurations avec de "bons" scores de récupération produisaient des réponses qui parfois étaient trop vagues ou mal ciblées. Et inversement, des réponses jugées utiles ne correspondaient pas toujours à un Recall@k élevé.
+Il y a un écart, parfois considérable, entre ce que les métriques disent et ce que l'utilisateur ressent. Parfois, des configurations avec de "bons" scores de récupération produisaient des réponses qui étaient trop vagues ou mal ciblées. Et inversement, des réponses jugées utiles ne correspondaient pas toujours à un Recall@k élevé.
 
 Ce décalage impose de travailler sur les deux fronts : les mesures automatiques (utiles pour comparer des variantes, diagnostiquer, itérer) et la perception utilisateur (confiance, effort, satisfaction). Un protocole robuste combine les deux, ce que la littérature appelle triangulation.
 
@@ -405,7 +405,7 @@ Un point récurrent dans la littérature est l'écart entre :
 
 Autrement dit, une bonne récupération ne garantit pas une réponse fidèle, et une réponse fluide ne garantit pas qu'elle soit vraie.
 
-Dans le cas d'un RAG, l'évaluation pertinente doit idéalement être décomposable : elle doit permettre de dire *où* se situe l'échec (récupération, *reranking*, *prompt*, génération) et pas seulement constater que la réponse finale est "bonne" ou "mauvaise".
+Dans le cas d'un RAG, l'évaluation pertinente doit idéalement être décomposable : elle doit permettre de dire *où* se situe l'échec (récupération, *reranking*, *prompt*, génération) et pas seulement de constater que la réponse finale est "bonne" ou "mauvaise".
 
 Pour expliciter la suite, quelques définitions courantes du côté récupération sont rappelées, sur un ensemble de requêtes $Q$. Soit $\mathrm{TopK}(q)$ l'ensemble des $k$ premiers passages récupérés pour la requête $q$, et $\mathrm{Rel}(q)$ l'ensemble des passages pertinents (selon l'annotation).
 
@@ -541,7 +541,7 @@ Pour le POC ScribBERT, ces critères ont rapidement convergé vers `text-embeddi
 
 ### Le rôle du *chunking* et du prétraitement textuel
 
-Le *chunking* est probablement le sujet qui a demandé le plus de temps d'exploration : plusieurs jours, voire semaines, passés à *benchmarker* des algorithmes différents sur le même corpus avant de trancher. Il est souvent présenté comme un "détail d'ingestion" dans les tutoriels, mais c'est en réalité un choix de modélisation à part entière, et ses effets se propagent à toute la chaîne. Ce qui a fini par être retenu pour ScribBERT, c'est qu'une fois les PDF convertis en Markdown pour préserver la structure (titres, listes, tableaux), un *chunking* par regex sur les marqueurs structurels donne le meilleur compromis : les référentiels du corpus partagent la même charte de mise en forme, donc une regex bien ciblée récupère proprement les titres, les numérotations, les paragraphes. C'est également plus rapide à exécuter et plus prévisible qu'un *chunking* sémantique ou à longueur fixe pure.
+Le *chunking* est probablement le sujet qui a demandé le plus de temps d'exploration : plusieurs jours, voire semaines, passés à *benchmarker* des algorithmes différents sur le même corpus avant de trancher. Il est souvent présenté comme un "détail d'ingestion" dans les tutoriels, mais c'est en réalité un choix de modélisation à part entière, dont les effets se propagent à toute la chaîne. Ce qui a fini par être retenu pour ScribBERT, c'est qu'une fois les PDF convertis en Markdown pour préserver la structure (titres, listes, tableaux), un *chunking* par regex sur les marqueurs structurels donne le meilleur compromis : les référentiels du corpus partagent la même charte de mise en forme, donc une regex bien ciblée récupère proprement les titres, les numérotations, les paragraphes. C'est également plus rapide à exécuter et plus prévisible qu'un *chunking* sémantique ou à longueur fixe pure.
 
 #### Stratégies de *chunking*
 
@@ -562,7 +562,7 @@ Deux paramètres clés interagissent :
 - Taille du *chunk* ($T$, en *tokens*) : un chunk trop petit peut mener à une perte de contexte, de l'ambiguïté, perte de l'antécédent ("il", "cette règle") ; à l'inverse d'un chunk trop grand qui amène de la dilution sémantique, une vectorisation moins discriminante, un contexte LLM potentiellement saturé.
 - *Overlap* ($O$, généralement 10-20 % de $T$) : permet d'amortir les coupures malheureuses au prix d'une redondance dans l'index.
 
-L'optimum dépend du type de question : les questions factuelles courtes tolèrent des *chunks* petits, tandis que les questions procédurales ("comment faire X ?") requièrent souvent des *chunks* plus larges qui capturent une séquence d'étapes. C'est ce genre de tension qui a été observé lors du développement : en réduisant la taille des *chunks*, la précision augmentait sur certaines questions, mais la cohérence des réponses se dégradait sur d'autres. Un protocole rigoureux teste plusieurs configurations ($T \in \{256, 512, 1024\}$, $O \in \{0, 64, 128\}$) et mesure l'impact *end-to-end*. C'est ce qui est fait en Partie III.
+L'optimum dépend du type de question : les questions factuelles courtes tolèrent des *chunks* petits, tandis que les questions procédurales ("comment faire X ?") requièrent souvent des *chunks* plus larges qui capturent une séquence d'étapes. C'est ce genre de tensions qui a été observé lors du développement : en réduisant la taille des *chunks*, la précision augmentait sur certaines questions, mais la cohérence des réponses se dégradait sur d'autres. Un protocole rigoureux teste plusieurs configurations ($T \in \{256, 512, 1024\}$, $O \in \{0, 64, 128\}$) et mesure l'impact *end-to-end*. C'est ce qui est fait en Partie III.
 
 #### Préservation de la structure et des métadonnées
 
@@ -1685,7 +1685,7 @@ Sur 9 questions EN et 41 questions FR, la config de référence donne :
 
 Table: Stratification des scores RAGAS par langue de la question.
 
-Là encore, contre-intuitif : l'EN performe *mieux*. Deux explications : 
+Ce résultat est, là encore, contre-intuitif : l'EN performe *mieux*. Deux explications : 
 
 1. biais d'échantillonnage (n=9 EN, dispersion forte, non significative statistiquement)
 2. les questions EN du jeu de test sont majoritairement factuelles ou procédurales claires (« What PPE… », « What permits… », « What is the immediate procedure… »), alors que les FR couvrent plus de questions justificatives ou conditionnelles plus difficiles.
