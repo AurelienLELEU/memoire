@@ -526,7 +526,7 @@ Les deux ne coïncident pas toujours : une vectorisation de qualité qui remonte
 En contexte d'entreprise, le choix d'un modèle de vectorisation ne se résume pas à un score sur un *benchmark*. Une grille de décision multi-critères est nécessaire :
 
 | Critère | Question |
-|---------|----------|
+|--------------------------|----------------------------------------------------------------------------------------------------|
 | Qualité de la récupération | Recall@k sur le corpus de test interne |
 | Couverture linguistique | Le modèle gère-t-il le français et l'anglais ? |
 | Coût | API payante (OpenAI, Cohere) ou auto-hébergé (GPU (*Graphics Processing Unit*)) ? |
@@ -706,7 +706,7 @@ Ces garde-fous n'apparaissent pas spontanément : la première version du *promp
 L'ensemble des leviers présentés peut être résumé dans une matrice qui guidera la conception du protocole expérimental (Chapitre 5) :
 
 | Composant | Leviers principaux | Métriques affectées en priorité |
-|-----------|-------------------|-------------------------------|
+|---------------------|---------------------------------------------|--------------------------------|
 | Vectorisation | Modèle, dimension, langue, *fine-tuning* | Recall@k, MRR, nDCG |
 | *Chunking* | Stratégie, taille, chevauchement, métadonnées | Recall@k, citabilité, fidélité |
 | Récupération | Sparse / dense / hybride, filtres, $k$ | Recall@k, précision contexte |
@@ -837,7 +837,7 @@ Constitue le *gold standard*, particulièrement pour les dimensions difficiles �
 Conception d'une grille d'évaluation :
 
 | Critère | Échelle | Définition |
-|---------|---------|------------|
+|-------------------------|---------|--------------------------------------------------------------------------------------|
 | Pertinence | 0-3 | 0 = hors-sujet, 3 = répond exactement à la question |
 | Fidélité aux sources | 0-3 | 0 = invente, 3 = parfaitement supporté par les sources fournies |
 | Complétude | 0-3 | 0 = manquements importants, 3 = couvre toutes les exceptions |
@@ -988,7 +988,7 @@ L'analyse par strate (type de question, difficulté, criticité) est essentielle
 Pour les cas d'échec, une typologie d'erreurs raffinée est construite à partir des observations :
 
 | Catégorie | Description | Localisation probable |
-|-----------|-------------|----------------------|
+|-------------------------------|--------------------------------------------|------------------------------|
 | Échec de récupération | Aucun passage pertinent dans le top-$k$ | *Vectorisation* / *chunking* / $k$ |
 | Bruit de récupération | Passages tentants mais non applicables | *Vectorisation* / *reranking* |
 | Hallucination factuelle | Affirmation non supportée | Génération / *prompt* |
@@ -1147,7 +1147,7 @@ ScribBERT suit l'architecture RAG classique décrite au Ch. 2.3, instanciée com
 #### *Stack* technique
 
 | Composant | Choix | Justification |
-|-----------|-------|---------------|
+|--------------------|------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
 | Langage serveur | Python 3.11 | Écosystème IA dominant, compatibilité avec la quasi-totalité des bibliothèques de *vectorisation* et LLM |
 | Orchestration RAG | LangChain | Maturité, intégrations préexistantes (*loaders*, *splitters*, *retrievers*, chains) ; permet de basculer à chaud entre différents fournisseurs (hébergement local, cloud) |
 | Calcul tensoriel | PyTorch (via `sentence-transformers` et `transformers`) | Standard de fait pour l'inférence des modèles de vectorisation et des LLMs *open-source* ; bonne intégration GPU sur le *cluster* |
@@ -1185,7 +1185,7 @@ L'interface ReactJS expose :
 ### Description du corpus
 
 | Caractéristique | Valeur |
-|-----------------|--------|
+|---------------------|---------------------------------------------------------------------------|
 | Périmètre | Documents santé-sécurité du siège de Bouygues TP, et de clients/partenaires |
 | Volume | ~200 documents PDF |
 | Langues | ≈ 40 % français, 60 % anglais |
@@ -1255,7 +1255,7 @@ Concernant les modèles de génération de texte, les cinq runs disponibles (§ 
 ### Configuration de la récupération
 
 | Paramètre | Valeur retenue | Renvoi théorique |
-|-----------|----------------|------------------|
+|-------------------------|----------------------------------------------------------------------------------------------------|------------------------------------------------------------|
 | Type de récupération | Dense pur | Ch. 4.3.2 (hybridation BM25+dense identifiée comme amélioration) |
 | Modèle de vectorisation | text-embedding-ada-002 (déploiement Azure configuré) | Ch. 4.1, § 7.5 |
 | Similarité | Cosinus (espace HNSW configuré sur cosine dans ChromaDB) | Ch. 4.3.1 |
@@ -1363,7 +1363,7 @@ Sur les 750 configurations exploitables, la MRR moyenne est de 0,571 (écart-typ
 Effet du modèle de vectorisation (MRR moyenne sur l'ensemble des combinaisons *chunking* × récupération) :
 
 | *Vectorisation* | MRR | Hit@5 | Famille |
-|-----------|-----|-------|---------|
+|-----------------|-----|-------|---------------------------------|
 | `nomic-v2` | 0,639 | 0,808 | multilingue OSS |
 | `qwen3-embed-8b` | 0,633 | 0,785 | multilingue OSS (gros) |
 | `solon-large` | 0,619 | 0,769 | francophone |
@@ -1388,7 +1388,7 @@ Trois observations méritent d'être soulignées. D'abord, les huit meilleurs mo
 Effet de la stratégie de *chunking* (MRR moyenne sur l'ensemble des combinaisons vectorisation × récupération) :
 
 | *Chunking* | MRR | Lecture |
-|----------|-----|---------|
+|-----------------------------|-----|------------------------------------------------------------|
 | `recursive-1024-128` | 0,603 | *chunks* larges respectant la structure = meilleurs résultats |
 | `fixed-1024-128` | 0,597 | *chunks* larges "naïfs" |
 | `recursive-512-64` | 0,586 | bon compromis taille/structure |
@@ -1408,7 +1408,7 @@ La hiérarchie confirme une intuition formulée au Ch. 4.2.2 : sur un corpus nor
 Effet de la variante de récupération (MRR moyenne sur l'ensemble des combinaisons vectorisation × *chunking*) :
 
 | Récupération | MRR | Lecture |
-|-----------|-----|---------|
+|-------------------|-----|----------------------------------------|
 | `dense-k20-rerank5` | 0,612 | *reranking* : meilleur compromis qualité |
 | `hybrid-k5` | 0,596 | hybride dense + BM25 |
 | `dense-k10` | 0,576 | top-$k$ large sans *reranking* |
@@ -1431,7 +1431,7 @@ La figure 8.2 visualise la distribution complète par variante : `dense-k20-rera
 Top 5 des configurations en MRR absolue (sur les 750 configurations testées) :
 
 | *Chunking* | *Vectorisation* | Récupération | MRR | Hit@5 | Recall@5 | nDCG@5 |
-|----------|-----------|-----------|-----|-------|----------|--------|
+|--------------------|-------------------------|-----------------|-----|-------|----------|--------|
 | `fixed-1024-128` | `ada-002` / `embed-3-large` | `dense-k10` | 0,724 | 0,787 | 0,741 | 0,768 |
 | `fixed-512-64` | `qwen3-embed-8b` | `hybrid-k5` | 0,718 | 0,809 | 0,756 | 0,769 |
 | `fixed-1024-128` | `ada-002` / `embed-3-large` | `dense-k5-thresh` | 0,713 | 0,787 | 0,738 | 0,758 |
@@ -1447,7 +1447,7 @@ Les meilleures configurations "propriétaires light" (`ada-002` + *chunks* 1024)
 Les moyennes marginales présentées ci-dessus dissimulent un effet d'interaction qu'il est utile de rendre explicite : le *chunking* optimal n'est pas le même pour tous les modèles. Le tableau ci-dessous reporte, pour chaque modèle de vectorisation, le *chunking* qui maximise la MRR moyenne (toutes variantes de récupération confondues).
 
 | *Vectorisation* | Meilleur *chunking* | MRR | 2ᵉ meilleur *chunking* | MRR |
-|----------------|---------------------|-----|------------------------|-----|
+|-------------------------|--------------------|-----|--------------------|-----|
 | `ada-002` / `embed-3-large` | `fixed-1024-128` | 0,680 | `recursive-1024-128` | 0,658 |
 | `nomic-v2` | `recursive-1024-128` | 0,687 | `fixed-256-0` | 0,649 |
 | `qwen3-embed-8b` | `fixed-512-64` | 0,677 | `fixed-1024-128` | 0,658 |
@@ -1475,7 +1475,7 @@ Conséquence opérationnelle : recommander un *chunking* "universel" est trompeu
 La campagne génération a porté sur cinq configurations choisies comme représentatives, croisant trois *chaînes de traitement* Azure et deux *chaînes de traitement* local-Mistral-7B, toutes évaluées par RAGAS. Chaque chaîne de traitement a généré une réponse aux 50 questions du jeu de test. Synthèse :
 
 | Configuration | LLM | Faith. | Ans. rel. | Ctx. prec. | Ctx. recall | $t_\text{ret}$ médian | $t_\text{gen}$ médian |
-|---------------|-----|--------|-----------|------------|-------------|------------------------|------------------------|
+|--------------------------------------------------|----------------|--------|-----------|------------|-------------|--------------|--------------|
 | `recursive-512-64` / `ada-002` / `hybrid-k5` | gpt-3.5-turbo | 0,765 | 0,756 | 0,687 | 0,629 | 0,08 s | 5,09 s |
 | `markdown-1200-50` / `ada-002` / `dense-k5-neigh` | gpt-3.5-turbo | 0,748 | 0,738 | 0,418 | 0,592 | 0,13 s | 5,58 s |
 | `recursive-512-64` / `e5-base-ml` / `dense-k5-neigh` | Mistral-7B local | 0,681 | 0,652 | 0,418 | 0,512 | 0,05 s | 35,67 s |
@@ -1503,7 +1503,7 @@ L'évaluation des dimensions non automatisables (préservation des modalités sa
 Le protocole du Ch. 6.5 a été appliqué à la configuration `markdown-1200-50` + `ada-002` + `dense-k5-thresh` + `azure-gpt35`, choisie comme représentative du POC actuellement déployé. Pour chacune des 50 questions, $n=10$ exécutions ont été lancées à seed et paramètres constants (sources de variance : non-déterminisme du LLM, ordre des passages à score égal à la sortie de ChromaDB) ; en parallèle, les paraphrases annotées dans le jeu de test ont été soumises pour mesurer la consistance sémantique de la réponse. Résultats (n=50 questions) :
 
 | Indicateur | Moyenne | Écart-type | Min | Max | Lecture |
-|-----------|---------|-----------|-----|-----|---------|
+|--------------------------------------------------------------|---------|------------|-----|-----|--------------------------------------------------------|
 | Stability@retrieval (Jaccard inter-runs sur top-5) | 1,000 | 0,000 | 1,000 | 1,000 | récupération parfaitement déterministe |
 | Stability@citations (Jaccard sur les sources citées en sortie) | 0,935 | 0,110 | 0,550 | 1,000 | quelques variations sur le choix de la source citée |
 | Stability@answer (BERTScore F1 inter-runs sur la réponse) | 0,937 | 0,024 | 0,830 | 1,000 | réponses sémantiquement très proches d'un run à l'autre |
@@ -1536,7 +1536,7 @@ Les latences mesurées sur l'ensemble du *benchmark* se décomposent comme suit.
 Côté récupération (médianes par modèle de vectorisation sur les configurations `dense-k5`) :
 
 | *Vectorisation* | Latence *vectorisation* médiane | Mode d'hébergement |
-|-----------|---------------------------|--------------------|
+|-------------------------------------------------------------------------------------|-----------------------------|------------------|
 | `minilm-l6` / `e5-small-ml` | ~7 ms | local (GPU) |
 | `e5-base-ml` / `mpnet-base` | ~11 ms | local (GPU) |
 | `granite-311m-ml` / `jina-v2-base-en` / `jina-v3` | ~15 ms | local (GPU) |
@@ -1556,7 +1556,7 @@ La figure 8.3 croise ces latences avec la MRR moyenne pour visualiser le comprom
 Côté génération (médianes sur 50 questions, configuration Azure de référence `hybrid-k5` + `gpt-3.5-turbo`) :
 
 | Étape | Médiane | Écart-type |
-|-------|---------|-----------|
+|-------------------------------|--------------|------------------------|
 | *Vectorisation* requête (`ada-002`) | environ 0,08 s | environ 0,02 s |
 | Génération `gpt-3.5-turbo` | 5,09 s | 3,01 s |
 | Total end-to-end | environ 5,2 s | dominé par la génération |
@@ -1617,7 +1617,7 @@ Concrètement, les seuils retenus sont les suivants :
 Sur la config de référence (50 questions) :
 
 | Catégorie d'erreur | Fréquence (config réf) | Exemple représentatif | Interprétation |
-|--------------------|------------------------|-----------------------|--------------------------------------------------|
+|-------------------------|-----------------------------------------------|----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
 | Échec de récupération | 10/50 (20 %) | Q003 « Que faire si l'O2 d'un espace confiné est < 19,5 % ? » le *chunk* de `REF-2223` citant le seuil sort du top-5, remplacé par des *chunks* plus généraux sur la ventilation | Le *chunk* normatif (court, dense) est mal classé face aux *chunks* longs qui répètent le concept large « espace confiné ». Ajouter à l'index une paraphrase titre + résumé pour chaque référentiel, et tester `dense-k20-rerank5`|
 | Bruit de récupération | 9/50 (18 %) | Q005 « Différence entre permis de feu et permis d'intervention ATEX ? » top-5 dominé par le « permis de feu », un seul *chunk* ATEX | Sur les questions comparatives, l'entité la plus représentée dans le corpus noie la seconde. Décomposer en deux sous-requêtes (Ch. 4.3.6) puis fusionner les *top-k*, ou appliquer un *cross-encoder* à chaque moitié du contexte |
 | Hallucination factuelle | 1/50 (2 %) | Q013 « Pourquoi le harnais est-il imposé en PEMP ? » la règle est dans le contexte mais pas sa justification | Quand le contexte est partiel (règle sans fondement), le modèle complète depuis ses connaissances générales au lieu de signaler la lacune. Durcir la consigne « pas d'extrapolation hors-sources » et imposer la citation atomique |
@@ -1664,7 +1664,7 @@ Q : « Pourquoi la notion de "ligne de feu" est-elle centrale dans la préventio
 Sur les 50 questions du jeu de test, 17 contiennent au moins un acronyme métier (EPI, ATEX, PPE, SST, CATEC, LOTO, MEWP, UXO, HiPo) ou un sigle organisationnel (BYTP, BYCN, ALIGN). Contrairement à l'hypothèse initiale (« les vectorisations généralistes contextualisent mal les acronymes »), la sous-population « avec acronyme » obtient expérimentalement de meilleurs scores :
 
 | Sous-population | n | Faith. moyenne | Ctx. recall moyen |
-|------------------|---|----------------|-------------------|
+|-------------------------|----|----------------|-------------------|
 | Questions avec acronyme | 17 | 0,918 | 0,699 |
 | Questions sans acronyme | 33 | 0,686 | 0,593 |
 
@@ -1679,7 +1679,7 @@ Conséquence pratique, le levier d'expansion d'acronymes (évoqué au Ch. 4.3.6 
 Sur 9 questions EN et 41 questions FR, la config de référence donne :
 
 | Langue | n | Faith. moyenne | Ans. relevancy | Ctx. recall |
-|--------|---|----------------|----------------|-------------|
+|--------|----|----------------|----------------|-------------|
 | EN | 9 | 0,913 | 0,950 | 0,690 |
 | FR | 41 | 0,733 | 0,799 | 0,616 |
 
@@ -1715,7 +1715,7 @@ Biais d'ordre d'index (effet faible). ChromaDB en HNSW n'introduit pas de biais 
 Biais de longueur (effet fort, à neutraliser). Les réponses générées par `gpt-3.5-turbo` sur la configuration de référence font en moyenne 177 mots (médiane 170, maximum 481), soit environ 230 *tokens* (jusqu'à plus de 600 pour les réponses les plus développées). La corrélation entre longueur de la réponse et scores RAGAS est très marquée : Pearson $r = +0{,}64$ avec la *faithfulness* et $r = +0{,}63$ avec l'*answer relevancy*. Stratifié par longueur de réponse, l'effet est net :
 
 | Longueur (mots) | n | Faith. moyenne | Ans. relevancy moyen | Ctx. recall moyen |
-|------------------|---|----------------|------------------------|---------------------|
+|------------------------------------|----|----------------|----------------------|-------------------|
 | < 100 (refus + factuelles courtes) | 11 | 0,27 | 0,26 | 0,43 |
 | 100 - 200 | 20 | 0,89 | 0,84 | 0,63 |
 | ≥ 200 | 19 | 0,92 | 0,95 | 0,75 |
