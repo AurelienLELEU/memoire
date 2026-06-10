@@ -1,6 +1,6 @@
 ﻿# Remerciements {-}
 
-Mes remerciements vont en premier lieu à Flavien Martin, responsable Système & Appels d'offres au sein du département Prévention Santé-Sécurité de Bouygues Travaux Publics, pour la confiance accordée tout au long de cette alternance, ainsi que la liberté d'initiative laissée sur le projet ScribBERT, et les échanges réguliers qui ont structuré ma compréhension des enjeux métier.
+Mes remerciements vont en premier lieu à Flavien Martin, responsable Système & Appels d'offres au sein du département Prévention Santé-Sécurité de Bouygues Travaux Publics, pour la confiance accordée, la liberté d'initiative laissée sur le projet ScribBERT, et les échanges réguliers qui ont structuré ma compréhension des enjeux métier.
 
 Je remercie chaleureusement Julien Larseneur, du pôle Intelligence Artificielle de Bouygues Travaux Publics, pour son encadrement technique exigeant et son insistance sur la rigueur méthodologique de l'évaluation. Beaucoup de choix présentés dans ce mémoire sont directement issus de nos discussions.
 
