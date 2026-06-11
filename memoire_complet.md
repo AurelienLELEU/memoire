@@ -51,11 +51,11 @@ C'est pour contourner ces limites qu'une approche hybride s'est imposée : le RA
 
 ScribBERT est né de cette idée. C'est un agent conversationnel RAG développé dans le cadre d'une alternance au département P2S de Bouygues Travaux Publics, dont la fonction est de permettre aux collaborateurs d'interroger en langage naturel les référentiels santé-sécurité internes. Les premiers résultats ont été impressionnants : le système répondait de façon pertinente à des questions sur lesquelles un moteur de recherche classique aurait été inutile.
 
-Seulement voilà : dans le domaine de la santé-sécurité, la performance apparente ne suffit pas. La qualité de l'information transmise engage directement la sécurité des compagnons. Une réponse plausible mais fausse, une procédure mal citée, une obligation transformée en simple recommandation : les conséquences dépassent l'enjeu technique. Chaque réponse doit être exacte, fondée sur les bonnes sources, et vérifiable. D'où la question centrale de ce mémoire : **comment évaluer la cohérence et la fiabilité d'un système RAG ?**
+Seulement voilà : dans le domaine de la santé-sécurité, la performance apparente ne suffit pas. La qualité de l'information transmise engage directement la sécurité des compagnons. Une réponse plausible mais fausse, une procédure mal citée, une obligation transformée en simple recommandation : les conséquences dépassent l'enjeu technique. D'où la question centrale de ce mémoire : **comment évaluer la cohérence et la fiabilité d'un système RAG ?**
 
 La réponse n'est pas triviale. Évaluer un RAG, ce n'est pas comme évaluer un moteur de recherche classique (où il s'agit de vérifier que les bons documents remontent), ni comme évaluer un LLM seul (où seule la qualité du texte est jugée). C'est évaluer une chaîne, et les erreurs peuvent se situer à chaque maillon : mauvais découpage des documents, mauvaise recherche, mauvaise exploitation du contexte par le modèle.
 
-L'objectif de ce mémoire est de proposer une méthode d'évaluation rigoureuse et reproductible de la pertinence, de la cohérence et de la fiabilité d'un système RAG : identifier des critères adaptés, comparer différentes métriques, étudier l'impact des paramètres de la chaîne de traitement et mettre en œuvre ce protocole sur ScribBERT. L'ambition est que ce cadre puisse servir au-delà de ce cas d'usage, dans d'autres contextes documentaires.
+L'objectif de ce mémoire est de proposer une méthode d'évaluation rigoureuse et reproductible de la pertinence, de la cohérence et de la fiabilité d'un système RAG : identifier des critères adaptés, comparer différentes métriques, étudier l'impact des paramètres de la chaîne de traitement et mettre en œuvre ce protocole sur ScribBERT.
 
 La démarche s'organise en trois parties :
 
