@@ -85,17 +85,19 @@
 % --- Total de pages pour la pagination en pied de page ---
 \usepackage{lastpage}
 
-% --- Pages remplies jusqu'en bas ---
-% Par défaut, la classe « article » utilise \raggedbottom : chaque page
-% se termine où le texte se termine naturellement, ce qui peut laisser
-% beaucoup d'espace blanc en bas, surtout quand la page suivante commence
-% par un titre de section (LaTeX préfère pousser le titre à la page
-% suivante plutôt que de le laisser seul en bas).
-% \flushbottom force LaTeX à étirer les espaces verticaux élastiques
-% (autour des titres, entre paragraphes) pour aligner toutes les pages
-% sur la même hauteur. Les pénalités widow/club sont aussi relâchées
-% pour donner plus de souplesse au moteur de coupure.
-\flushbottom
+% --- Gestion des bas de page ---
+% \flushbottom (qui forçait l'alignement strict de toutes les pages sur la
+% même hauteur) crée des trous verticaux disgracieux quand il est combiné
+% avec \floatplacement{figure}{H} et les longtable enveloppées dans une
+% minipage (cf. plus bas) : ces deux briques sont rigides et empêchent
+% LaTeX d'absorber l'étirement ailleurs que dans les espaces inter-
+% paragraphes, ce qui produit de grands blancs entre un tableau et le
+% paragraphe qui le suit. On revient donc à \raggedbottom (comportement
+% par défaut de la classe article) : les pages se terminent où le texte
+% se termine, quitte à laisser un petit blanc en bas, mais sans gros
+% trous au milieu. Les pénalités widow/club restent à 1000 pour éviter
+% qu'une ligne se retrouve seule en haut ou en bas d'une page.
+\raggedbottom
 \widowpenalty=1000
 \clubpenalty=1000
 
