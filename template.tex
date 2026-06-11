@@ -160,6 +160,16 @@
 \setkeys{Gin}{keepaspectratio=true}
 \usepackage{float}
 
+% --- Empêcher les tableaux de se couper sur deux pages ---
+% Pandoc génère les tableaux Markdown en environnement longtable.
+% Envelopper chaque longtable dans une minipage empêche LaTeX de
+% les scinder en milieu de page (au prix d'un débordement en bas de
+% page si le tableau dépasse \textheight, ce qui ne se produit pas
+% dans ce mémoire).
+\usepackage{etoolbox}
+\BeforeBeginEnvironment{longtable}{\noindent\begin{minipage}{\textwidth}}
+\AfterEndEnvironment{longtable}{\end{minipage}\par\medskip}
+
 % --- Liens ---
 \usepackage[colorlinks=true, linkcolor=blue!60!black, citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
 
@@ -247,7 +257,11 @@ $endif$
 
 {\Large\bfseries École Hexagone\par}
 \vspace{0.4cm}
-{\normalsize[\,Logo École Hexagone\,]\par}
+\IfFileExists{figures/logo_hexagone.png}{%
+  \includegraphics[height=3.5cm]{figures/logo_hexagone.png}\par
+}{%
+  {\normalsize[\,Logo École Hexagone\,]\par}%
+}
 \vspace{0.8cm}
 {\large Établissement d'enseignement supérieur privé\par}
 

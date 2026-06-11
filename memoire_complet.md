@@ -26,7 +26,9 @@ Le travail s'articule en trois parties. La première replace le RAG dans la lign
 
 Les résultats mettent en évidence la nécessité de séparer les erreurs de récupération et de génération, de stratifier l'analyse par type et criticité de question, et d'intégrer explicitement la mesure de stabilité dans toute comparaison de configurations. Au-delà de ScribBERT, le cadre proposé est transférable à d'autres déploiements RAG en environnement documentaire spécialisé soumis à des exigences de fiabilité élevées.
 
-```{=latex}
+**Mots-clés :** RAG (*Retrieval-Augmented Generation*), évaluation de systèmes IA, fiabilité, *chunking*, vectorisation, *LLM-as-judge*, santé-sécurité, *retrieval*, stabilité, protocole d'évaluation
+
+```{=latex} 
 \cleardoublepage
 \tableofcontents
 \cleardoublepage
@@ -1997,96 +1999,6 @@ Au moment de la dernière révision de ce mémoire, le projet ScribBERT vient d'
 \cleardoublepage
 ```
 
-# Glossaire des termes anglais {-}
-
-Ce glossaire reprend les termes anglais (mots et expressions) employés dans le mémoire et italicisés dans le texte. Les acronymes (RAG, LLM, BM25, GPT, API, MRR, nDCG, etc.) sont définis directement lors de leur première occurrence dans le corps du texte.
-
-- *agentic* : Qualifie un système d'IA capable d'agir de façon autonome en enchaînant plusieurs actions (recherches, appels d'outils, raisonnements) pour atteindre un objectif.
-- *answer relevance* (variantes : *answer relevancy*) : Pertinence de la réponse : mesure à quel point la réponse générée traite effectivement la question posée (métrique RAGAS).
-- *Approximate Nearest Neighbor* : Recherche du plus proche voisin approximatif : famille d'algorithmes (HNSW, IVF, PQ…) qui accélèrent la recherche vectorielle au prix d'une légère approximation.
-- *audit trail* : Piste d'audit : trace complète et vérifiable des étapes ayant conduit à une réponse (passages récupérés, *prompt*, modèle, paramètres).
-- *backend* : Partie serveur d'une application (logique métier, accès aux données), par opposition au *frontend*.
-- *baseline* : Configuration de référence à laquelle des variantes sont comparées pour mesurer un gain ou une perte.
-- *batching* : Regroupement de plusieurs requêtes ou éléments en un seul lot pour améliorer le débit (souvent au prix de la latence individuelle).
-- *benchmark* : Jeu de données et protocole standardisés permettant de comparer des systèmes ou des modèles sur une tâche donnée.
-- *chatbot* : Agent conversationnel textuel.
-- *chunk* : Segment de texte issu du découpage d'un document, unité de base indexée et récupérée dans un système RAG.
-- *chunker* : Composant logiciel qui réalise le découpage en *chunks*.
-- *chunking* : Étape de découpage des documents en segments (*chunks*) avant indexation.
-- *citation completeness* : Complétude des citations : toutes les affirmations qui devraient être sourcées le sont-elles ?
-- *citation correctness* : Correction des citations : les passages cités existent-ils et soutiennent-ils réellement l'affirmation ?
-- *citation faithfulness* : Fidélité de la citation : le passage cité supporte-t-il bien l'affirmation à laquelle il est rattaché ?
-- *cluster* : Groupe d'éléments homogènes obtenus par regroupement automatique (*clustering*).
-- *code-switching* : Alternance codique : passage spontané d'une langue à l'autre au sein d'un même énoncé (ici, français ↔ anglais dans les requêtes).
-- *context precision* : Précision du contexte : proportion des passages récupérés qui sont effectivement pertinents (métrique RAGAS).
-- *context recall* : Rappel du contexte : proportion de l'information de référence couverte par les passages récupérés (métrique RAGAS).
-- *context relevance* : Pertinence du contexte : mesure de l'utilité globale des passages récupérés pour répondre à la question.
-- *cross-encoder* : Encodeur croisé : modèle qui prend simultanément la requête et le passage en entrée pour produire un score de pertinence fin (utilisé en *reranking*).
-- *custom* : Personnalisé, sur mesure (par opposition à une solution générique « prête à l'emploi »).
-- *dense retrieval* : Recherche dense : récupération de passages via similarité entre vectorisations denses de la requête et des documents.
-- *dual-encoder* : Architecture à deux encodeurs (souvent identiques) qui encodent séparément requête et passage avant comparaison ; synonyme de *bi-encodeur*.
-- *embedding* : Représentation vectorielle dense d'un mot, d'une phrase ou d'un document dans un espace continu.
-- *end-to-end* : Bout en bout : qui couvre l'intégralité de la chaîne, de l'entrée brute jusqu'au résultat final.
-- *endpoint* : Point d'accès réseau (URL) exposant une API.
-- *exact match* : Correspondance exacte : la réponse générée doit être strictement identique à la référence.
-- *faithfulness* : Fidélité : propriété d'une réponse dont toutes les propositions sont effectivement supportées par les passages fournis.
-- *few-shot* : Apprentissage à partir de quelques exemples seulement fournis dans le *prompt*.
-- *fine-tuning* : Affinage : adaptation d'un modèle pré-entraîné à une tâche ou un domaine spécifique via un entraînement supplémentaire.
-- *flip rate* : Taux de bascule : proportion de cas où, d'une exécution à l'autre, le verdict (bon/mauvais, supporté/non supporté…) change.
-- *framework* : Cadriciel : ensemble cohérent d'outils et de conventions facilitant le développement (ex. LangChain, LlamaIndex).
-- *frontend* : Partie cliente d'une application (interface utilisateur), par opposition au *backend*.
-- *gold standard* : Référence absolue : annotation considérée comme la vérité de terrain pour évaluer un système.
-- *GraphRAG* : Variante de RAG s'appuyant sur un graphe de connaissances pour structurer la récupération et l'agrégation d'information.
-- *grounding* : Ancrage explicite d'une génération sur des sources externes vérifiables.
-- *human-in-the-loop* : Humain dans la boucle : protocole où un opérateur humain valide ou corrige les sorties du système.
-- *inline* : En ligne : intégré directement dans le flux (ex. citation insérée dans le texte de la réponse).
-- *late interaction* : Interaction tardive : famille d'architectures (ex. ColBERT) qui combinent l'efficacité d'un *bi-encodeur* avec des interactions fines au niveau des *tokens*.
-- *learning-to-rank* : Apprentissage d'ordonnancement : famille de méthodes apprenant à classer des documents par pertinence à partir de données annotées.
-- *LLM-as-judge* (variante francisée : *LLM-juge*) : LLM utilisé comme évaluateur automatique pour noter d'autres réponses selon une grille.
-- *loader* : Chargeur : composant qui lit des données depuis une source et les rend exploitables.
-- *logger* : Composant logiciel qui enregistre des événements ou des métriques d'exécution.
-- *lost in the middle* : Phénomène par lequel un LLM exploite moins bien les passages situés au milieu d'un long contexte qu'en début ou en fin.
-- *machine-vérifiable* : Vérifiable automatiquement par une machine, sans intervention humaine.
-- *mapping* : Correspondance : table reliant des éléments d'un ensemble à ceux d'un autre.
-- *Massive Text Embedding Benchmark* : MTEB : *benchmark* de référence couvrant de nombreuses tâches d'évaluation des modèles de vectorisation.
-- *Matryoshka Representation Learning* : Famille de vectorisations dont les premières dimensions portent déjà l'essentiel de l'information, permettant une troncature *a posteriori*.
-- *Mean Reciprocal Rank* : Rang réciproque moyen (MRR) : moyenne des inverses du rang du premier document pertinent.
-- *multi-query* : Stratégie consistant à reformuler la requête en plusieurs variantes pour augmenter le rappel de la récupération.
-- *One-Factor-At-a-Time* : OFAT : protocole expérimental consistant à ne faire varier qu'un seul paramètre à la fois, toutes choses égales par ailleurs.
-- *open-source* (variante : *open-weights* quand seuls les poids sont diffusés, sans le code d'entraînement) : À code source (et/ou poids) ouvert.
-- *output* : Sortie d'un système.
-- *overlap* : Recouvrement : portion de texte commune entre deux *chunks* consécutifs, qui amortit les coupures.
-- *parent-document retrieval* : Récupération du document parent : de petits *chunks* sont indexés mais le passage parent plus large est retourné au LLM.
-- *parser* : Analyseur syntaxique : composant qui transforme une entrée brute en structure exploitable.
-- *pipeline* : Chaîne de traitement composée d'étapes successives.
-- *prompt* : Instruction ou message fourni en entrée à un LLM pour orienter sa génération.
-- *query expansion* : Expansion de requête : enrichissement automatique de la requête par des termes liés (synonymes, paraphrases).
-- *query likelihood* : Modèle probabiliste estimant la vraisemblance que la requête ait été générée par un document.
-- *query rewriting* : Réécriture de requête par un modèle (correction, normalisation, reformulation).
-- *Reciprocal Rank Fusion* : RRF : méthode robuste de fusion de plusieurs classements via la somme des inverses des rangs.
-- *reranker* : Composant qui effectue le *reranking* (souvent un *cross-encoder*).
-- *reranking* : Reclassement d'un petit ensemble de candidats par un modèle plus précis (et plus coûteux) que le *retriever* initial.
-- *retrieval* : Récupération : phase consistant à retrouver, dans un index, les passages pertinents pour une requête.
-- *retriever* : Composant chargé de la récupération.
-- *screening* : Tri préliminaire : présélection rapide de candidats avant analyse plus poussée.
-- *siamese networks* : Réseaux siamois : architecture à deux branches partageant les mêmes poids, utilisée pour apprendre des similarités.
-- *sparse retrieval* : Recherche creuse : récupération fondée sur des représentations à très haute dimension et majoritairement nulles (BM25, TF-IDF).
-- *splitter* : Découpeur : composant qui segmente un texte en *chunks*.
-- *stack* (ou pile technologique) : ensemble des outils, bibliothèques et services utilisés dans un projet.
-- *step-back prompting* : Stratégie consistant à reformuler la question en une question plus générale avant la recherche, pour mieux ancrer la réponse.
-- *tenant* : Locataire : isolement logique d'un client dans une infrastructure mutualisée (ex. *tenant* Azure).
-- *time-consuming* : Chronophage.
-- *token* : Unité élémentaire de texte manipulée par un LLM (mot, sous-mot ou caractère selon le *tokenizer*).
-- *top-k* : Les $k$ premiers résultats d'un classement (ex. top-5 passages récupérés).
-- *top-p* : Échantillonnage *top-p* (ou *nucleus sampling*) : limite la génération aux *tokens* dont la masse de probabilité cumulée atteint $p$.
-- *Vision Language Model* : VLM : modèle multimodal qui traite conjointement images et texte.
-- *watermark* : Filigrane : signal discret inséré dans une sortie pour en tracer l'origine.
-- *workflow* : Flux de travail : séquence d'étapes coordonnées composant un processus.
-
-```{=latex}
-\cleardoublepage
-```
-
 # Bibliographie {-}
 
 ::: {#refs}
@@ -2165,5 +2077,108 @@ La grille générique du Ch. 5.2.2 a été instanciée pour ScribBERT comme suit
 - **Citations** (0–2) : chaque affirmation est-elle rattachée à une citation existante, pertinente et vérifiable (`doc_name` + page) ?
 
 Score total sur 16. Annotations à l'aveugle sur la configuration testée. Mesure d'accord inter-annotateurs visée : Kappa de Cohen ≥ 0,7.
+
+## Annexe E — Glossaire des termes anglais {-}
+
+Ce glossaire reprend les termes anglais (mots et expressions) employés dans le mémoire et italicisés dans le texte. Les acronymes (RAG, LLM, BM25, GPT, API, MRR, nDCG, etc.) sont définis directement lors de leur première occurrence dans le corps du texte.
+
+- *Advanced RAG* : Famille d'architectures RAG « avancées » qui dépassent le schéma *retriever-reader* basique en empilant plusieurs étages (récupération large, filtrage, *reranking*, génération conditionnée), parfois enrichies de boucles de réflexion ou de décision sur la nécessité de récupérer.
+- *agentic* : Qualifie un système d'IA capable d'agir de façon autonome en enchaînant plusieurs actions (recherches, appels d'outils, raisonnements) pour atteindre un objectif.
+- *answer relevance* (variantes : *answer relevancy*) : Pertinence de la réponse : mesure à quel point la réponse générée traite effectivement la question posée (métrique RAGAS).
+- *Approximate Nearest Neighbor* : Recherche du plus proche voisin approximatif : famille d'algorithmes (HNSW, IVF, PQ…) qui accélèrent la recherche vectorielle au prix d'une légère approximation.
+- *audit trail* : Piste d'audit : trace complète et vérifiable des étapes ayant conduit à une réponse (passages récupérés, *prompt*, modèle, paramètres).
+- *backend* : Partie serveur d'une application (logique métier, accès aux données), par opposition au *frontend*.
+- *baseline* : Configuration de référence à laquelle des variantes sont comparées pour mesurer un gain ou une perte.
+- *batching* : Regroupement de plusieurs requêtes ou éléments en un seul lot pour améliorer le débit (souvent au prix de la latence individuelle).
+- *benchmark* : Jeu de données et protocole standardisés permettant de comparer des systèmes ou des modèles sur une tâche donnée.
+- *chatbot* : Agent conversationnel textuel.
+- *chunk* : Segment de texte issu du découpage d'un document, unité de base indexée et récupérée dans un système RAG.
+- *chunker* : Composant logiciel qui réalise le découpage en *chunks*.
+- *chunking* : Étape de découpage des documents en segments (*chunks*) avant indexation.
+- *citation completeness* : Complétude des citations : toutes les affirmations qui devraient être sourcées le sont-elles ?
+- *citation correctness* : Correction des citations : les passages cités existent-ils et soutiennent-ils réellement l'affirmation ?
+- *citation faithfulness* : Fidélité de la citation : le passage cité supporte-t-il bien l'affirmation à laquelle il est rattaché ?
+- *cluster* : Groupe d'éléments homogènes obtenus par regroupement automatique (*clustering*).
+- *code-switching* : Alternance codique : passage spontané d'une langue à l'autre au sein d'un même énoncé (ici, français ↔ anglais dans les requêtes).
+- *context precision* : Précision du contexte : proportion des passages récupérés qui sont effectivement pertinents (métrique RAGAS).
+- *context recall* : Rappel du contexte : proportion de l'information de référence couverte par les passages récupérés (métrique RAGAS).
+- *context relevance* : Pertinence du contexte : mesure de l'utilité globale des passages récupérés pour répondre à la question.
+- *cross-encoder* : Encodeur croisé : modèle qui prend simultanément la requête et le passage en entrée pour produire un score de pertinence fin (utilisé en *reranking*).
+- *custom* : Personnalisé, sur mesure (par opposition à une solution générique « prête à l'emploi »).
+- *dense retrieval* : Recherche dense : récupération de passages via similarité entre vectorisations denses de la requête et des documents.
+- *dual-encoder* : Architecture à deux encodeurs (souvent identiques) qui encodent séparément requête et passage avant comparaison ; synonyme de *bi-encodeur*.
+- *embedding* : Représentation vectorielle dense d'un mot, d'une phrase ou d'un document dans un espace continu.
+- *end-to-end* : Bout en bout : qui couvre l'intégralité de la chaîne, de l'entrée brute jusqu'au résultat final.
+- *endpoint* : Point d'accès réseau (URL) exposant une API.
+- *exact match* : Correspondance exacte : la réponse générée doit être strictement identique à la référence.
+- *faithfulness* : Fidélité : propriété d'une réponse dont toutes les propositions sont effectivement supportées par les passages fournis.
+- *few-shot* : Apprentissage à partir de quelques exemples seulement fournis dans le *prompt*.
+- *fine-tuning* : Affinage : adaptation d'un modèle pré-entraîné à une tâche ou un domaine spécifique via un entraînement supplémentaire.
+- *flip rate* : Taux de bascule : proportion de cas où, d'une exécution à l'autre, le verdict (bon/mauvais, supporté/non supporté…) change.
+- *framework* : Cadriciel : ensemble cohérent d'outils et de conventions facilitant le développement (ex. LangChain, LlamaIndex).
+- *frontend* : Partie cliente d'une application (interface utilisateur), par opposition au *backend*.
+- *gap analysis* : Analyse d'écarts : fonctionnalité permettant de lancer la même requête sur plusieurs sous-ensembles de documents sélectionnés et de comparer les réponses obtenues pour visualiser les différences entre référentiels.
+- *gold standard* : Référence absolue : annotation considérée comme la vérité de terrain pour évaluer un système.
+- *GraphRAG* : Variante de RAG s'appuyant sur un graphe de connaissances pour structurer la récupération et l'agrégation d'information.
+- *grounding* : Ancrage explicite d'une génération sur des sources externes vérifiables.
+- *groundedness* : Synonyme anglo-saxon de la fidélité aux sources : propriété d'une réponse dont les propositions sont justifiées par les passages effectivement fournis (proche de *faithfulness*).
+- *hard negatives* : Exemples négatifs « difficiles » utilisés à l'entraînement d'un modèle de vectorisation : passages thématiquement proches d'un positif mais non pertinents, qui forcent le modèle à mieux discriminer.
+- *human-in-the-loop* : Humain dans la boucle : protocole où un opérateur humain valide ou corrige les sorties du système.
+- *inline* : En ligne : intégré directement dans le flux (ex. citation insérée dans le texte de la réponse).
+- *late interaction* : Interaction tardive : famille d'architectures (ex. ColBERT) qui combinent l'efficacité d'un *bi-encodeur* avec des interactions fines au niveau des *tokens*.
+- *leaderboards* : Tableaux de classement publics comparant les performances de modèles sur un *benchmark* donné (ex. MTEB).
+- *learning-to-rank* : Apprentissage d'ordonnancement : famille de méthodes apprenant à classer des documents par pertinence à partir de données annotées.
+- *listwise* : Approche d'apprentissage d'ordonnancement (*learning-to-rank*) qui optimise directement le classement d'une liste entière de documents, par opposition aux approches *pointwise* (un score par document) et *pairwise* (comparaison par paires).
+- *LLM-as-judge* (variante francisée : *LLM-juge*) : LLM utilisé comme évaluateur automatique pour noter d'autres réponses selon une grille.
+- *loader* : Chargeur : composant qui lit des données depuis une source et les rend exploitables.
+- *logger* : Composant logiciel qui enregistre des événements ou des métriques d'exécution.
+- *lost in the middle* : Phénomène par lequel un LLM exploite moins bien les passages situés au milieu d'un long contexte qu'en début ou en fin.
+- *machine-vérifiable* : Vérifiable automatiquement par une machine, sans intervention humaine.
+- *mapping* : Correspondance : table reliant des éléments d'un ensemble à ceux d'un autre.
+- *Massive Text Embedding Benchmark* : MTEB : *benchmark* de référence couvrant de nombreuses tâches d'évaluation des modèles de vectorisation.
+- *Matryoshka Representation Learning* : Famille de vectorisations dont les premières dimensions portent déjà l'essentiel de l'information, permettant une troncature *a posteriori*.
+- *max tokens* : Borne supérieure du nombre de *tokens* qu'un LLM peut générer en sortie pour une requête donnée.
+- *Mean Reciprocal Rank* : Rang réciproque moyen (MRR) : moyenne des inverses du rang du premier document pertinent.
+- *Memex* : Concept de bureau documentaire mécanisé proposé par Vannevar Bush en 1945, souvent considéré comme l'ancêtre conceptuel de la recherche d'information moderne.
+- *multi-query* : Stratégie consistant à reformuler la requête en plusieurs variantes pour augmenter le rappel de la récupération.
+- *multi-stage* : Architecture de récupération en plusieurs étages successifs (récupération large, *reranking*, sélection finale), qui combine efficacité et précision.
+- *One-Factor-At-a-Time* : OFAT : protocole expérimental consistant à ne faire varier qu'un seul paramètre à la fois, toutes choses égales par ailleurs.
+- *open-source* (variante : *open-weights* quand seuls les poids sont diffusés, sans le code d'entraînement) : À code source (et/ou poids) ouvert.
+- *output* : Sortie d'un système.
+- *overlap* : Recouvrement : portion de texte commune entre deux *chunks* consécutifs, qui amortit les coupures.
+- *pairwise* : Approche d'apprentissage d'ordonnancement (*learning-to-rank*) qui apprend à comparer des paires de documents et à préférer le plus pertinent.
+- *parent-document retrieval* : Récupération du document parent : de petits *chunks* sont indexés mais le passage parent plus large est retourné au LLM.
+- *parser* : Analyseur syntaxique : composant qui transforme une entrée brute en structure exploitable.
+- *pipeline* : Chaîne de traitement composée d'étapes successives.
+- *pointwise* : Approche d'apprentissage d'ordonnancement (*learning-to-rank*) qui prédit indépendamment un score de pertinence par document, sans tenir compte des autres candidats.
+- *prompt* : Instruction ou message fourni en entrée à un LLM pour orienter sa génération.
+- *query expansion* : Expansion de requête : enrichissement automatique de la requête par des termes liés (synonymes, paraphrases).
+- *query likelihood* : Modèle probabiliste estimant la vraisemblance que la requête ait été générée par un document.
+- *query rewriting* : Réécriture de requête par un modèle (correction, normalisation, reformulation).
+- *Reciprocal Rank Fusion* : RRF : méthode robuste de fusion de plusieurs classements via la somme des inverses des rangs.
+- *recursive splitter* : Découpeur récursif (notamment *recursive character text splitter* de LangChain) qui tente d'abord les séparateurs « forts » (paragraphes, phrases) avant de tomber sur du découpage caractère par caractère.
+- *relevance feedback* : Retour de pertinence : technique IR consistant à reformuler ou enrichir une requête à partir des documents jugés pertinents lors d'une première itération.
+- *reranker* : Composant qui effectue le *reranking* (souvent un *cross-encoder*).
+- *reranking* : Reclassement d'un petit ensemble de candidats par un modèle plus précis (et plus coûteux) que le *retriever* initial.
+- *retrieval* : Récupération : phase consistant à retrouver, dans un index, les passages pertinents pour une requête.
+- *retriever* : Composant chargé de la récupération.
+- *retriever-reader* : Architecture historique des systèmes de questions-réponses en deux étages : un module de récupération sélectionne des passages, puis un module de lecture en extrait la réponse.
+- *screening* : Tri préliminaire : présélection rapide de candidats avant analyse plus poussée.
+- *seed* : Valeur d'initialisation d'un générateur pseudo-aléatoire : son fixage permet la reproductibilité des résultats d'une exécution à l'autre.
+- *siamese networks* : Réseaux siamois : architecture à deux branches partageant les mêmes poids, utilisée pour apprendre des similarités.
+- *sparse retrieval* : Recherche creuse : récupération fondée sur des représentations à très haute dimension et majoritairement nulles (BM25, TF-IDF).
+- *splitter* : Découpeur : composant qui segmente un texte en *chunks*.
+- *stack* (ou pile technologique) : ensemble des outils, bibliothèques et services utilisés dans un projet.
+- *step-back prompting* : Stratégie consistant à reformuler la question en une question plus générale avant la recherche, pour mieux ancrer la réponse.
+- *tenant* : Locataire : isolement logique d'un client dans une infrastructure mutualisée (ex. *tenant* Azure).
+- *term specificity* : Spécificité d'un terme : mesure introduite par Sparck Jones (1972) du caractère discriminant d'un mot dans une collection ; fondement théorique de l'IDF.
+- *time-consuming* : Chronophage.
+- *token* : Unité élémentaire de texte manipulée par un LLM (mot, sous-mot ou caractère selon le *tokenizer*).
+- *tokenizer* : Tokeniseur : composant qui découpe un texte brut en *tokens* selon un vocabulaire et un algorithme donnés (BPE, WordPiece, SentencePiece, etc.).
+- *top-k* : Les $k$ premiers résultats d'un classement (ex. top-5 passages récupérés).
+- *top-p* : Échantillonnage *top-p* (ou *nucleus sampling*) : limite la génération aux *tokens* dont la masse de probabilité cumulée atteint $p$.
+- *Vision Language Model* : VLM : modèle multimodal qui traite conjointement images et texte.
+- *watermark* : Filigrane : signal discret inséré dans une sortie pour en tracer l'origine.
+- *workflow* : Flux de travail : séquence d'étapes coordonnées composant un processus.
 
 
