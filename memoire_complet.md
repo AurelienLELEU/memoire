@@ -1,6 +1,8 @@
 ﻿# Remerciements {-}
 
-Mes remerciements vont en premier lieu à Flavien Martin, responsable Système & Appels d'offres au sein du département Prévention Santé-Sécurité de Bouygues Travaux Publics, pour la confiance accordée, la liberté d'initiative laissée sur le projet ScribBERT, et les échanges réguliers qui ont structuré ma compréhension des enjeux métier.
+Ce mémoire doit beaucoup à des personnes sans lesquelles le projet ScribBERT n'aurait pas pris la forme qu'il a aujourd'hui.
+
+Je remercie en premier lieu Flavien Martin, responsable Système & Appels d'offres au sein du département Prévention Santé-Sécurité de Bouygues Travaux Publics, pour la confiance qu'il m'a accordée, la liberté d'initiative dont j'ai pu disposer sur ce projet, et les échanges réguliers qui ont structuré ma compréhension des enjeux métier.
 
 Je remercie chaleureusement Julien Larseneur, du pôle Intelligence Artificielle de Bouygues Travaux Publics, pour son encadrement technique exigeant et son insistance sur la rigueur méthodologique de l'évaluation. Beaucoup de choix présentés dans ce mémoire sont directement issus de nos discussions.
 
@@ -8,11 +10,9 @@ Je tiens également à remercier Aurélie Janssens, ma tutrice lors de la premi�
 
 J'adresse mes remerciements à Laurent Knoll et Bruno Magnin, respectivement directeur Prévention Santé-Sécurité de Bouygues Travaux Publics et directeur Prévention Santé-Sécurité Sûreté de Bouygues Construction, pour leur soutien et leur confiance dans le projet. C'est grâce à eux qu'il est aujourd'hui en mesure d'être industrialisé.
 
-Mes remerciements vont également à Nicolas Derrez et Hervé Dit Lebas pour le prêt de la machine de test qui a rendu possibles les expérimentations locales sur modèles auto-hébergés, et plus largement pour la confiance qu'ils m'ont accordée en mettant ce matériel à disposition.
+Je remercie également Nicolas Derrez et Hervé Dit Lebas pour le prêt de la machine de test qui a rendu possibles les expérimentations locales sur modèles auto-hébergés, et plus largement pour la confiance qu'ils m'ont accordée en mettant ce matériel à disposition.
 
-Je tiens à remercier l'ensemble des équipes du département Prévention Santé-Sécurité ainsi que l'équipe du Pôle Intelligence Artificielle et plus largement le LabTP dans son intégralité pour les nombreux échanges qui ont pu nourrir le projet.
-
-Je tiens enfin à remercier l'ensemble du personnel de l'École Hexagone, qui a pu me fournir un cadre éducatif propice au développement d'un tel projet.
+Mes remerciements vont enfin à l'ensemble des équipes du département Prévention Santé-Sécurité, à l'équipe du Pôle Intelligence Artificielle et au LabTP dans son intégralité pour les nombreux échanges qui ont nourri ce projet, ainsi qu'à l'ensemble du personnel de l'École Hexagone pour le cadre éducatif propice au développement d'un tel travail.
 
 ```{=latex}
 \cleardoublepage
