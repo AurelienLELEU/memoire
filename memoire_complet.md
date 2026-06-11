@@ -547,6 +547,8 @@ Pour le POC ScribBERT, ces critères ont rapidement convergé vers `text-embeddi
 
 Le *chunking* est probablement le sujet qui a demandé le plus de temps d'exploration : plusieurs jours, voire semaines, passés à *benchmarker* des algorithmes différents sur le même corpus avant de trancher. Il est souvent présenté comme un "détail d'ingestion" dans les tutoriels, mais c'est en réalité un choix de modélisation à part entière, dont les effets se propagent à toute la chaîne. Ce qui a fini par être retenu pour ScribBERT, c'est qu'une fois les PDF convertis en Markdown pour préserver la structure (titres, listes, tableaux), un *chunking* par regex sur les marqueurs structurels donne le meilleur compromis : les référentiels du corpus partagent la même charte de mise en forme, donc une regex bien ciblée récupère proprement les titres, les numérotations, les paragraphes. C'est également plus rapide à exécuter et plus prévisible qu'un *chunking* sémantique ou à longueur fixe pure.
 
+\needspace{10\baselineskip}
+
 #### Stratégies de *chunking*
 
 Plusieurs approches existent, chacune avec ses compromis :
