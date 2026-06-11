@@ -1419,7 +1419,9 @@ Effet du mode de récupération (MRR moyenne sur l'ensemble des combinaisons vec
 | `dense-k5-neigh` | 0,510 | dégrade la MRR malgré le voisinage |
 
 Table: Performance moyenne par variante de récupération (MRR sur 750 cellules exploitables).
-\begin{samepage}
+
+\needspace{14\baselineskip}
+
 Trois choses à noter :
 
 - Le *reranking* *cross-encoder* (`dense-k20-rerank5`) apporte un gain de +0,047 de MRR par rapport à `dense-k5` (environ +8 % relatif), au prix d'une latence supplémentaire (mesurée séparément en § 8.6). C'est la confirmation expérimentale, sur notre corpus, de la valeur du *reranking* évoquée au Ch. 4.3.3, et un argument fort pour son intégration en production.
@@ -1427,7 +1429,7 @@ Trois choses à noter :
 - À l'inverse, la variante `dense-k5-neigh` (ajout systématique des voisins $n{-}1$/$n{+}1$) dégrade la MRR. L'explication est cohérente avec la discussion du Ch. 4.2.2 : sur des *chunks* déjà larges (≥ 512 *tokens*), l'ajout des voisins "dilue" la pertinence du top-5 sans apporter d'information utile, et bruite l'évaluation du "premier passage pertinent". Cette variante reste cependant pertinente quand l'objectif est la génération plutôt que la récupération pure (§ 8.3), où le voisinage restaure des références anaphoriques.
 
 La figure 8.2 visualise la distribution complète par variante : `dense-k20-rerank5` et `hybrid-k5` dominent en médiane comme en moyenne, tandis que `dense-k5-neigh` ressort comme la seule variante systématiquement en retrait sur l'ensemble du plan factoriel.
-\end{samepage}
+
 ![Fig. 8.2. Distribution du MRR par variante de récupération, sur les 750 configurations exploitables. Chaque point représente une combinaison *chunking* × *vectorisation* (jitter horizontal pour visibilité) ; les boîtes représentent les quartiles, le losange rouge la moyenne. Variantes ordonnées selon la liste théorique du Ch. 4.3. Source : résultats du *benchmark* récupération.](figures/fig_8_2_barplot_mrr_par_variante_recuperation.png){#fig:bar-mrr-retrieval width=90%}
 
 Top 5 des configurations en MRR absolue (sur les 750 configurations testées) :
