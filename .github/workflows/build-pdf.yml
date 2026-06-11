@@ -38,6 +38,8 @@ jobs:
             --citeproc \
             --bibliography=references.bib \
             --csl=apa.csl \
+            --metadata=link-citations=true \
+            --metadata=link-bibliography=true \
             --variable title="Évaluer la cohérence et la fiabilité d'un système RAG : étude de cas ScribBERT" \
             --variable author="Aurélien Leleu" \
             --variable date="2025-2026" \
@@ -54,6 +56,8 @@ jobs:
             --citeproc \
             --bibliography=references.bib \
             --csl=apa.csl \
+            --metadata=link-citations=true \
+            --metadata=link-bibliography=true \
             --variable title="Évaluer la cohérence et la fiabilité d'un système RAG : étude de cas ScribBERT" \
             --variable author="Aurélien Leleu" \
             --variable date="2025-2026" \
