@@ -95,11 +95,27 @@
 % paragraphe qui le suit. On revient donc à \raggedbottom (comportement
 % par défaut de la classe article) : les pages se terminent où le texte
 % se termine, quitte à laisser un petit blanc en bas, mais sans gros
-% trous au milieu. Les pénalités widow/club restent à 1000 pour éviter
-% qu'une ligne se retrouve seule en haut ou en bas d'une page.
+% trous au milieu. Les pénalités widow/club sont portées à 10000
+% (interdiction stricte) pour empêcher qu'une ligne se retrouve seule
+% en haut ou en bas d'une page, ce qui évite notamment qu'un item de
+% liste soit coupé en plein milieu de son contenu : LaTeX préfèrera
+% alors casser proprement entre deux items, ou pousser tout l'item à
+% la page suivante.
 \raggedbottom
-\widowpenalty=1000
-\clubpenalty=1000
+\widowpenalty=10000
+\clubpenalty=10000
+% \displaywidowpenalty couvre le cas analogue autour des formules ;
+% \brokenpenalty interdit la coupure d'un mot par un tiret en fin de
+% page (un mot coupé reporté à la page suivante est très peu lisible).
+\displaywidowpenalty=10000
+\brokenpenalty=10000
+% Pénalité entre items de liste : valeur modérée pour éviter qu'une
+% liste courte (2-3 items) soit fractionnée entre deux pages, sans
+% interdire totalement la coupure d'une liste longue.
+\makeatletter
+\@itempenalty=-50
+\@beginparpenalty=-50
+\makeatother
 
 % --- Titres : forcer \paragraph et \subparagraph à passer à la ligne ---
 % Par défaut LaTeX rend \paragraph (= #### Markdown) en titre « run-in »,
