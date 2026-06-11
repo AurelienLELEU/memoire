@@ -570,6 +570,8 @@ Deux paramètres clés interagissent :
 
 L'optimum dépend du type de question : les questions factuelles courtes tolèrent des *chunks* petits, tandis que les questions procédurales ("comment faire X ?") requièrent souvent des *chunks* plus larges qui capturent une séquence d'étapes. C'est ce genre de tensions qui a été observé lors du développement : en réduisant la taille des *chunks*, la précision augmentait sur certaines questions, mais la cohérence des réponses se dégradait sur d'autres. Un protocole rigoureux teste plusieurs configurations ($T \in \{256, 512, 1024\}$, $O \in \{0, 64, 128\}$) et mesure l'impact *end-to-end*. C'est ce qui est fait en Partie III.
 
+\needspace{10\baselineskip}
+
 #### Préservation de la structure et des métadonnées
 
 Un *chunk* "brut" (texte seul) perd des informations critiques : section d'origine, niveau hiérarchique, type de document, date de validité, autorité émettrice. Or ces métadonnées :
