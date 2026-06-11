@@ -159,6 +159,23 @@
 % contraignant et préserve les proportions d'origine.
 \setkeys{Gin}{keepaspectratio=true}
 \usepackage{float}
+% --- Empêcher les figures de "flotter" loin de leur point d'insertion ---
+% Pandoc émet par défaut \begin{figure} sans option de placement, ce qui
+% laisse LaTeX choisir [tbp] et peut déplacer une figure de plusieurs pages,
+% jusqu'à l'insérer au milieu d'un paragraphe sans rapport (ex. Fig. 9.5
+% atterrissant dans la discussion de Fig. 9.4). On force le placement [H]
+% (Here, exactement où la figure est écrite dans le source) du package float.
+\floatplacement{figure}{H}
+
+% --- Légendes de figure/tableau : supprimer le préfixe auto "Figure N – " ---
+% Toutes les figures et tableaux du mémoire portent déjà une numérotation
+% manuelle dans la légende (« Fig. 8.4. ... », « Table: ... »). Sans le
+% paramétrage ci-dessous, LaTeX ajoute en plus son propre compteur, ce qui
+% produit des libellés doublonnés du type « Figure 12 – Fig. 9.5. ... ».
+% On supprime donc le label et le séparateur générés par LaTeX, pour ne
+% garder que le texte rédigé dans le source markdown.
+\usepackage{caption}
+\captionsetup{labelformat=empty, labelsep=none}
 
 % --- Empêcher les tableaux de se couper sur deux pages ---
 % Pandoc génère les tableaux Markdown en environnement longtable.
