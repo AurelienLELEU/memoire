@@ -548,7 +548,7 @@ Les deux ne coïncident pas toujours : une vectorisation de qualité qui remonte
 En contexte d'entreprise, le choix d'un modèle de vectorisation ne se résume pas à un score sur un *benchmark*. Une grille de décision multi-critères est nécessaire :
 
 | Critère | Question |
-|--------------------------|----------------------------------------------------------------------------------------------------|
+|------------------------------------|-----------------------------------------------------------------------------------------------|
 | Qualité de la récupération | Recall@k sur le corpus de test interne |
 | Couverture linguistique | Le modèle gère-t-il le français et l'anglais ? |
 | Coût | API payante (OpenAI, Cohere) ou auto-hébergé (GPU (*Graphics Processing Unit*)) ? |
@@ -732,7 +732,7 @@ Ces garde-fous n'apparaissent pas spontanément : la première version du *promp
 L'ensemble des leviers présentés peut être résumé dans une matrice qui guidera la conception du protocole expérimental (Chapitre 5) :
 
 | Composant | Leviers principaux | Métriques affectées en priorité |
-|---------------------|---------------------------------------------|--------------------------------|
+|------------------------------|--------------------------------------------------|---------------------------------|
 | Vectorisation | Modèle, dimension, langue, *fine-tuning* | Recall@k, MRR, nDCG |
 | *Chunking* | Stratégie, taille, chevauchement, métadonnées | Recall@k, citabilité, fidélité |
 | Récupération | Sparse / dense / hybride, filtres, $k$ | Recall@k, précision contexte |
@@ -863,7 +863,7 @@ Constitue le *gold standard*, particulièrement pour les dimensions difficiles �
 Conception d'une grille d'évaluation :
 
 | Critère | Échelle | Définition |
-|-------------------------|---------|--------------------------------------------------------------------------------------|
+|------------------------------------|---------|---------------------------------------------------------------------------------|
 | Pertinence | 0-3 | 0 = hors-sujet, 3 = répond exactement à la question |
 | Fidélité aux sources | 0-3 | 0 = invente, 3 = parfaitement supporté par les sources fournies |
 | Complétude | 0-3 | 0 = manquements importants, 3 = couvre toutes les exceptions |
@@ -1016,7 +1016,7 @@ L'analyse par strate (type de question, difficulté, criticité) est essentielle
 Pour les cas d'échec, une typologie d'erreurs raffinée est construite à partir des observations :
 
 | Catégorie | Description | Localisation probable |
-|-------------------------------|--------------------------------------------|------------------------------|
+|---------------------------------------|--------------------------------------------|--------------------------------------|
 | Échec de récupération | Aucun passage pertinent dans le top-$k$ | *Vectorisation* / *chunking* / $k$ |
 | Bruit de récupération | Passages tentants mais non applicables | *Vectorisation* / *reranking* |
 | Hallucination factuelle | Affirmation non supportée | Génération / *prompt* |
@@ -1175,7 +1175,7 @@ ScribBERT suit l'architecture RAG classique décrite au Ch. 2.3, instanciée com
 #### *Stack* technique
 
 | Composant | Choix | Justification |
-|--------------------|------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+|---------------------------------------------|------------------------------------------------------|----------------------------------------------------------------------|
 | Langage serveur | Python 3.11 | Écosystème IA dominant, compatibilité avec la quasi-totalité des bibliothèques de *vectorisation* et LLM |
 | Orchestration RAG | LangChain | Maturité, intégrations préexistantes (*loaders*, *splitters*, *retrievers*, chains) ; permet de basculer à chaud entre différents fournisseurs (hébergement local, cloud) |
 | Calcul tensoriel | PyTorch (via `sentence-transformers` et `transformers`) | Standard de fait pour l'inférence des modèles de vectorisation et des LLMs *open-source* ; bonne intégration GPU sur le *cluster* |
@@ -1283,7 +1283,7 @@ Concernant les modèles de génération de texte, les cinq runs disponibles (§ 
 ### Configuration de la récupération
 
 | Paramètre | Valeur retenue | Renvoi théorique |
-|-------------------------|----------------------------------------------------------------------------------------------------|------------------------------------------------------------|
+|--------------------------------------------------|---------------------------------------------------------------------------------------|------------------------------------------------------------|
 | Type de récupération | Dense pur | Ch. 4.3.2 (hybridation BM25+dense identifiée comme amélioration) |
 | Modèle de vectorisation | text-embedding-ada-002 (déploiement Azure configuré) | Ch. 4.1, § 7.5 |
 | Similarité | Cosinus (espace HNSW configuré sur cosine dans ChromaDB) | Ch. 4.3.1 |
@@ -1463,7 +1463,7 @@ La figure 8.3 visualise la distribution complète par variante : `dense-k20-rera
 Top 5 des configurations en MRR absolue (sur les 750 configurations testées) :
 
 | *Chunking* | *Vectorisation* | Récupération | MRR | Hit@5 | Recall@5 | nDCG@5 |
-|--------------------|-------------------------|-----------------|-----|-------|----------|--------|
+|----------------------------|------------------------|------------------------|------|-------|----------|--------|
 | `fixed-1024-128` | `ada-002` / `embed-3-large` | `dense-k10` | 0,724 | 0,787 | 0,741 | 0,768 |
 | `fixed-512-64` | `qwen3-embed-8b` | `hybrid-k5` | 0,718 | 0,809 | 0,756 | 0,769 |
 | `fixed-1024-128` | `ada-002` / `embed-3-large` | `dense-k5-thresh` | 0,713 | 0,787 | 0,738 | 0,758 |
@@ -1479,7 +1479,7 @@ Les meilleures configurations "propriétaires light" (`ada-002` + *chunks* 1024)
 Les moyennes marginales présentées ci-dessus dissimulent un effet d'interaction qu'il est utile de rendre explicite : le *chunking* optimal n'est pas le même pour tous les modèles. Le tableau ci-dessous reporte, pour chaque modèle de vectorisation, le *chunking* qui maximise la MRR moyenne (toutes variantes de récupération confondues).
 
 | *Vectorisation* | Meilleur *chunking* | MRR | 2ᵉ meilleur *chunking* | MRR |
-|-------------------------|--------------------|-----|--------------------|-----|
+|-----------------------------|------------------------------|-----|------------------------------|-----|
 | `ada-002` / `embed-3-large` | `fixed-1024-128` | 0,680 | `recursive-1024-128` | 0,658 |
 | `nomic-v2` | `recursive-1024-128` | 0,687 | `fixed-256-0` | 0,649 |
 | `qwen3-embed-8b` | `fixed-512-64` | 0,677 | `fixed-1024-128` | 0,658 |
@@ -1651,7 +1651,7 @@ Concrètement, les seuils retenus sont les suivants :
 Sur la config de référence (50 questions) :
 
 | Catégorie d'erreur | Fréquence (config réf) | Exemple représentatif | Interprétation |
-|-------------------------|-----------------------------------------------|----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+|--------------------------------|------------------------------------|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
 | Échec de récupération | 10/50 (20 %) | Q003 « Que faire si l'O2 d'un espace confiné est < 19,5 % ? » le *chunk* de `REF-2223` citant le seuil sort du top-5, remplacé par des *chunks* plus généraux sur la ventilation | Le *chunk* normatif (court, dense) est mal classé face aux *chunks* longs qui répètent le concept large « espace confiné ». Ajouter à l'index une paraphrase titre + résumé pour chaque référentiel, et tester `dense-k20-rerank5` |
 | Bruit de récupération | 9/50 (18 %) | Q005 « Différence entre permis de feu et permis d'intervention ATEX ? » top-5 dominé par le « permis de feu », un seul *chunk* ATEX | Sur les questions comparatives, l'entité la plus représentée noie la seconde. Décomposer en sous-requêtes (Ch. 4.3.6) ou appliquer un *cross-encoder* sur chaque moitié du contexte |
 | Hallucination factuelle | 1/50 (2 %) | Q013 « Pourquoi le harnais est-il imposé en PEMP ? » la règle est dans le contexte mais pas sa justification | Quand le contexte est partiel, le modèle complète depuis sa connaissance générale au lieu de signaler la lacune. Durcir la consigne « pas d'extrapolation hors-sources » et imposer la citation atomique |
@@ -1660,7 +1660,7 @@ Sur la config de référence (50 questions) :
 Table: Erreurs liées à la récupération (configuration de référence ScribBERT, 50 questions).
 
 | Catégorie d'erreur | Fréquence (config réf) | Exemple représentatif | Interprétation |
-|-------------------------|-----------------------------------------------|----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+|--------------------------------|------------------------------------|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
 | Contradiction silencieuse | 0/50 (config référence) ; 1/50 sur Mistral local | Cf. Q046 ci-dessous (Cas 6, § 9.3) | Sur la config de référence Azure, aucune contradiction silencieuse détectée. Sur les *chaînes* Mistral-7B local, le risque réapparaît (réponse longue plausible sans source) : prévoir un garde-fou applicatif (refus forcé si *faithfulness* nul et réponse longue) |
 | Refus à tort | 0/50 |  | La config de référence n'a refusé aucune question légitime. À surveiller en production pour arbitrer le seuil selon le profil réel des questions |
 | Hors-périmètre accepté | 0/4 |  | Les 4 questions hors-périmètre (Q007, Q028, Q029, Q050) ont toutes déclenché le refus attendu. Compléter le jeu de test par des adversariales plus subtiles |
