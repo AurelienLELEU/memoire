@@ -57,6 +57,8 @@ La réponse n'est pas triviale. Évaluer un RAG, ce n'est pas comme évaluer un 
 
 L'objectif de ce mémoire est de proposer une méthode d'évaluation rigoureuse et reproductible de la pertinence, de la cohérence et de la fiabilité d'un système RAG : identifier des critères adaptés, comparer différentes métriques, étudier l'impact des paramètres de la chaîne de traitement et mettre en œuvre ce protocole sur ScribBERT.
 
+\needspace{9\baselineskip}
+
 La démarche s'organise en trois parties :
 
 - Partie I - Cadre conceptuel et théorique : les fondements du RAG, l'histoire de la recherche d'information, et les notions de pertinence et de cohérence qui sous-tendent l'évaluation.
