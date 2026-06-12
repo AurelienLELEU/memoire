@@ -77,6 +77,8 @@ ScribBERT vise à permettre à n'importe quel collaborateur d'interroger ce corp
 
 Un cadrage important sur le rôle de l'outil : ScribBERT n'est pas une *barrière de sécurité* au sens des référentiels santé-sécurité, qui réservent ce terme à des dispositifs techniques validés (interlocks, détection de gaz, harnais, garde-corps, etc.). Il s'inscrit en amont, comme un facilitateur d'accès au référentiel applicable. La criticité du système ne vient donc pas de la nature de l'outil lui-même mais des décisions qu'il alimente : c'est cette médiation par l'humain qui justifie à la fois l'exigence d'évaluation présentée dans ce mémoire et les garde-fous discutés au Ch. 10 (avertissement permanent, citations vérifiables, refus contrôlé, supervision humaine).
 
+\needspace{14\baselineskip}
+
 Quatre conséquences directes de ce cadre applicatif structurent la suite du mémoire :
 
 - la criticité métier impose des exigences de fiabilité fortes : même s'il n'est pas un dispositif de sécurité technique, un assistant santé-sécurité qui se trompe peut induire en erreur une décision de prévention, ce qui n'est pas simplement gênant ;
@@ -190,7 +192,7 @@ Enfin, des architectures intermédiaires (*late interaction*) comme ColBERT cher
 
 ### Sparse, dense et hybride : familles de récupération
 
-En pratique, les systèmes de récupération se rangent en trois grandes familles. La récupération creuse (BM25, TF-IDF) représente les documents dans un espace de très grande dimension. Ces systèmes sont rapides et fonctionnent remarquablement bien sur des requêtes contenant des identifiants précis (numéros de procédure, références normatives). La récupération dense projette tout dans un espace compact de vectorisations, plus apte à capturer synonymie et paraphrase, mais plus "opaque". Et l'hybride combine les deux, ce qui est souvent la meilleure option quand le corpus mélange des requêtes techniques et des questions en langage naturel.
+En pratique, les systèmes de récupération se rangent en trois grandes familles. La récupération creuse (BM25, TF-IDF) représente les documents dans un espace de très grande dimension. Ces systèmes sont rapides et fonctionnent remarquablement bien sur des requêtes contenant des identifiants précis (numéros de procédure, références normatives). La récupération dense projette tout dans un espace compact de vectorisations, plus apte à capturer synonymie et paraphrase, mais plus "opaque". Et l'hybride combine les deux, ce qui est souvent la meilleure option quand le corpus mélange requêtes techniques et questions en langage naturel.
 
 L'étape de récupération peut également être suivie d'un *reranking* : un ensemble large de candidats est d'abord récupéré (rapide), puis un modèle plus précis (souvent un *cross-encoder*) reclasse finement les passages. (Ce point est repris au Chapitre 4.)
 
