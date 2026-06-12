@@ -1647,7 +1647,7 @@ Concrètement, les seuils retenus sont les suivants :
 - Échec de récupération : *context recall* inférieur à 0,30, signe que les *chunks* attendus ne sont pas dans le top-5.
 - Bruit de récupération : *context precision* inférieur à 0,30 alors que le top-5 contient bien des *chunks*, signe d'un top-5 dilué.
 - Hallucination factuelle : *faithfulness* inférieure à 0,50 sur une réponse qui n'est pas un refus, le LLM affirme alors sans s'appuyer sur le contexte.
-- Omission d'exception : sur une question conditionnelle, *faithfulness* ≥ 0,50 mais *context recall* inférieur à 0,60, la règle est citée mais sans son cas particulier.
+- Omission d'exception : *faithfulness* ≥ 0,50 et *context recall* ≥ 0,50, mais *answer relevancy* < 0,50, signe que la règle est correctement restituée depuis le contexte mais que la réponse manque le cas particulier visé par la question (typiquement les conditionnelles à présupposé).
 - Contradiction silencieuse : *faithfulness* égal à 0 sur une réponse longue et structurée, toutes les assertions sont contredites par le contexte.
 - Refus à tort : réponse de type « information non trouvée » alors que le jeu de test indique des documents de référence existants.
 - Hors-périmètre accepté : question annotée hors-périmètre à laquelle le système répond au lieu de refuser.
@@ -1660,7 +1660,7 @@ Sur la config de référence (50 questions) :
 | Échec de récupération | 10/50 (20%) | Q003 « Que faire si l'O2 d'un espace confiné est < 19,5% ? » le *chunk* de `REF-2223` citant le seuil sort du top-5, remplacé par des *chunks* plus généraux sur la ventilation | Le *chunk* normatif (court, dense) est mal classé face aux *chunks* longs qui répètent le concept large « espace confiné ». Ajouter à l'index une paraphrase titre + résumé pour chaque référentiel, et tester `dense-k20-rerank5` |
 | Bruit de récupération | 9/50 (18%) | Q005 « Différence entre permis de feu et permis d'intervention ATEX ? » top-5 dominé par le « permis de feu », un seul *chunk* ATEX | Sur les questions comparatives, l'entité la plus représentée noie la seconde. Décomposer en sous-requêtes (Ch. 4.3.6) ou appliquer un *cross-encoder* sur chaque moitié du contexte |
 | Hallucination factuelle | 1/50 (2%) | Q013 « Pourquoi le harnais est-il imposé en PEMP ? » la règle est dans le contexte mais pas sa justification | Quand le contexte est partiel, le modèle complète depuis sa connaissance générale au lieu de signaler la lacune. Durcir la consigne « pas d'extrapolation hors-sources » et imposer la citation atomique |
-| Omission d'exception | 2/9 sur les conditionnelles | Q008 « Quelle procédure pour ne pas porter de harnais en hauteur ? » l'obligation est citée, l'alternative « protection collective équivalente » (`REF-2211`) est omise | Règle et exceptions sont dans des sections distinctes ; le top-5 attrape l'une mais pas l'autre. Passer à top-10 + *reranker*, ou *parent-document retrieval* |
+| Omission d'exception | 2/50 (4%) | Q008 « Quelle procédure pour ne pas porter de harnais en hauteur ? » l'obligation est citée, l'alternative « protection collective équivalente » (`REF-2211`) est omise | Règle et exceptions sont dans des sections distinctes ; le top-5 attrape l'une mais pas l'autre. Passer à top-10 + *reranker*, ou *parent-document retrieval* |
 
 Table: Erreurs liées à la récupération (configuration de référence ScribBERT, 50 questions).
 
