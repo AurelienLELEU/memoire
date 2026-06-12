@@ -1535,7 +1535,7 @@ L'évaluation des dimensions non automatisables (préservation des modalités sa
 Le protocole du Ch. 6.5 a été appliqué à la configuration `markdown-1200-50` + `ada-002` + `dense-k5-thresh` + `azure-gpt35`, choisie comme représentative du POC actuellement déployé. Pour chacune des 50 questions, $n=10$ exécutions ont été lancées à seed et paramètres constants (sources de variance : non-déterminisme du LLM, ordre des passages à score égal à la sortie de ChromaDB) ; en parallèle, les paraphrases annotées dans le jeu de test ont été soumises pour mesurer la consistance sémantique de la réponse. Résultats (n=50 questions) :
 
 | Indicateur | Moyenne | Écart-type | Min | Max | Lecture |
-|----------------------------------------------------------|-----------|------------|------|------|--------------------------------------------------------|
+|--------------------------------------------------------|-------------|------------|------|------|-------------------------------------------------------|
 | Stability@retrieval (Jaccard inter-runs sur top-5) | 1,000 | 0,000 | 1,000 | 1,000 | récupération parfaitement déterministe |
 | Stability@citations (Jaccard sur les sources citées en sortie) | 0,935 | 0,110 | 0,550 | 1,000 | quelques variations sur le choix de la source citée |
 | Stability@answer (BERTScore F1 inter-runs sur la réponse) | 0,937 | 0,024 | 0,830 | 1,000 | réponses sémantiquement très proches d'un run à l'autre |
