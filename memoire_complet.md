@@ -47,7 +47,7 @@ Les modèles de langage ont profondément changé notre rapport à l'information
 
 Les LLMs (Large Language Models) souffrent pourtant de limites bien connues : ils hallucinent (inventent des informations, parfois plausibles, mais fausses), ne citent pas leurs sources de façon fiable, et peinent à intégrer des connaissances récentes ou spécifiques à un domaine. Dans un contexte où la précision compte et engage la sécurité des collaborateurs, ces défauts deviennent rédhibitoires.
 
-C'est pour contourner ces limites qu'une approche hybride s'est imposée : le RAG (*Retrieval-Augmented Generation*), qui couple un mécanisme de recherche documentaire à un modèle génératif.[@Lewis2020] L'idée est simple sur le papier : plutôt que de laisser le modèle "inventer" à partir de ce qu'il a appris, des extraits de documents lui sont fournis, charge à lui de s'y appuyer pour formuler sa réponse. En pratique, c'est bien plus complexe qu'il n'y paraît.
+C'est pour contourner ces limites qu'une approche hybride s'est imposée : le RAG (*Retrieval-Augmented Generation*), qui couple un mécanisme de recherche documentaire à un modèle génératif [@Lewis2020]. L'idée est simple sur le papier : plutôt que de laisser le modèle "inventer" à partir de ce qu'il a appris, des extraits de documents lui sont fournis, charge à lui de s'y appuyer pour formuler sa réponse. En pratique, c'est bien plus complexe qu'il n'y paraît.
 
 ScribBERT est né de cette idée. C'est un agent conversationnel RAG développé dans le cadre d'une alternance au département P2S de Bouygues Travaux Publics, dont la fonction est de permettre aux collaborateurs d'interroger en langage naturel les référentiels santé-sécurité internes. Les premiers résultats ont été impressionnants : le système répondait de façon pertinente à des questions sur lesquelles un moteur de recherche classique aurait été inutile.
 
@@ -105,11 +105,11 @@ Deux constats structurent cette partie :
 
 Avant de parler de RAG, il faut comprendre d'où vient la recherche d'information, puisque ses systèmes en héritent grandement, y compris dans leurs limites.
 
-La recherche d'information (IR) s'est construite autour d'un problème en apparence simple : étant donné un besoin (une requête) et une collection de documents, comment ordonner ces documents par pertinence ?[@Manning2008] L'idée d'un accès mécanisé à l'information remonte à l'après-guerre, avec le concept de *Memex* imaginé par Vannevar Bush.[@Bush1945]
+La recherche d'information (IR) s'est construite autour d'un problème en apparence simple : étant donné un besoin (une requête) et une collection de documents, comment ordonner ces documents par pertinence [@Manning2008]? L'idée d'un accès mécanisé à l'information remonte à l'après-guerre, avec le concept de *Memex* imaginé par Vannevar Bush [@Bush1945].
 
 Les premières approches opérationnelles étaient lexicales : un document est un sac de mots, une requête est une contrainte sur ces mots. Le modèle booléen (AND/OR/NOT) est le plus élémentaire : explicable et contrôlable, mais il ne classe pas les résultats et ne gère pas bien les besoins graduels.
 
-L'IR moderne s'est ensuite structurée autour de la notion de classement et d'évaluation systématique. Le paradigme de Cranfield[@Cleverdon1967] a joué un rôle déterminant : constituer un corpus, un ensemble de requêtes, et des jugements de pertinence pour comparer des systèmes. Plus tard, les campagnes TREC ont industrialisé cette logique d'évaluation à grande échelle.[@VoorheesHarman2005]
+L'IR moderne s'est ensuite structurée autour de la notion de classement et d'évaluation systématique. Le paradigme de Cranfield [@Cleverdon1967] a joué un rôle déterminant : constituer un corpus, un ensemble de requêtes, et des jugements de pertinence pour comparer des systèmes. Plus tard, les campagnes TREC ont industrialisé cette logique d'évaluation à grande échelle [@VoorheesHarman2005].
 
 Les modèles vectoriels ont ensuite introduit une représentation plus graduelle : documents et requêtes sont représentés comme des vecteurs, et la similarité est souvent mesurée via un calcul de similarité cosinus. Une pondération bien connue est le TF-IDF, qui combine une mesure de fréquence locale (*term frequency*) et une mesure de rareté globale (*inverse document frequency*). Formellement :
 
@@ -117,36 +117,36 @@ $$\mathrm{tfidf}(t, d) = \mathrm{tf}(t,d) \times \log\left(\frac{N}{\mathrm{df}(
 
 où $N$ est le nombre total de documents et $\mathrm{df}(t)$ le nombre de documents contenant le terme $t$.
 
-L'idée d'IDF comme signal de discrimination d'un terme remonte à des travaux fondateurs sur le *term specificity*.[@SparckJones1972] Le vector space model (VSM) popularisé par Salton et al. a ensuite fourni un cadre pratique et encore omniprésent pour pondérer et comparer requêtes et documents.[@Salton1975]
+L'idée d'IDF comme signal de discrimination d'un terme remonte à des travaux fondateurs sur le *term specificity*[@SparckJones1972]. Le vector space model (VSM) popularisé par Salton et al. a ensuite fourni un cadre pratique et encore omniprésent pour pondérer et comparer requêtes et documents [@Salton1975].
 
-À partir des années 1990-2000, les approches probabilistes (notamment BM25) se sont imposées comme standard industriel : elles offrent un excellent compromis performance/simplicité et une robustesse sur des corpus variés.[@RobertsonZaragoza2009] BM25 peut être vu comme une amélioration de TF-IDF qui normalise explicitement par la longueur du document et introduit des hyperparamètres supplémentaires.
+À partir des années 1990-2000, les approches probabilistes (notamment BM25) se sont imposées comme standard industriel : elles offrent un excellent compromis performance/simplicité et une robustesse sur des corpus variés [@RobertsonZaragoza2009]. BM25 peut être vu comme une amélioration de TF-IDF qui normalise explicitement par la longueur du document et introduit des hyperparamètres supplémentaires.
 
 $$\mathrm{BM25}(q, d) = \sum_{t \in q} \mathrm{idf}(t) \cdot \frac{\mathrm{tf}(t,d) \cdot (k_1+1)}{\mathrm{tf}(t,d) + k_1 \cdot \left(1-b + b\cdot \frac{|d|}{\mathrm{avgdl}}\right)}$$
 
 avec $k_1$ et $b$ des paramètres de calibration, $|d|$ la longueur du document et $\mathrm{avgdl}$ la longueur moyenne.
 
-Enfin, une autre famille importante, très utilisée en pratique, est celle des modèles de langage pour l'IR, dans laquelle la probabilité qu'un document génère une requête est estimée (approches *query likelihood*), avec des techniques de lissage et de retour pseudo-pertinent.[@PonteCroft1998; @LavrenkoCroft2001]
+Enfin, une autre famille importante, très utilisée en pratique, est celle des modèles de langage pour l'IR, dans laquelle la probabilité qu'un document génère une requête est estimée (approches *query likelihood*), avec des techniques de lissage et de retour pseudo-pertinent[@PonteCroft1998; @LavrenkoCroft2001].
 
 Ces modèles "classiques" (BM25, *query likelihood*, variantes) restent extrêmement compétitifs, notamment sur des corpus techniques où les indices lexicaux (références, numéros de procédure, intitulés normatifs) apportent des signaux précieux.
 
 #### Évaluer un système de recherche : pourquoi les métriques comptent
 
-Les *chaînes de traitement* RAG héritent directement de l'IR un point crucial : l'évaluation dépend du protocole. La performance d'un moteur ne peut pas être "résumée" par un seul score sans préciser la tâche, la définition de pertinence, le nombre de résultats considérés ($k$), et la nature binaire ou graduée des jugements.[@Manning2008; @BaezaYates2011; @Croft2010; @VoorheesHarman2005]
+Les *chaînes de traitement* RAG héritent directement de l'IR un point crucial : l'évaluation dépend du protocole. La performance d'un moteur ne peut pas être "résumée" par un seul score sans préciser la tâche, la définition de pertinence, le nombre de résultats considérés ($k$), et la nature binaire ou graduée des jugements[@Manning2008; @BaezaYates2011; @Croft2010; @VoorheesHarman2005].
 
 Dans sa forme la plus simple, deux mesures se distinguent :
 
 - la précision (proportion de résultats pertinents parmi les résultats retournés),
 - le rappel (proportion des résultats pertinents retrouvés parmi tous les pertinents existants).
 
-En recherche classée, des métriques au rang sont utilisées : Precision@k, Recall@k, ainsi que des métriques de classement global comme nDCG (qui gère naturellement la pertinence graduée).[@JarvelinKekalainen2002]
+En recherche classée, des métriques au rang sont utilisées : Precision@k, Recall@k, ainsi que des métriques de classement global comme nDCG (qui gère naturellement la pertinence graduée) [@JarvelinKekalainen2002].
 
 Ce point est central pour le mémoire : changer la définition de pertinence (thématique vs situationnelle) modifie les scores de récupération, et la qualité perçue aussi.
 
 #### Retour, reformulation et *learning-to-rank*
 
-Les systèmes IR peuvent aussi reformuler la requête pour améliorer les résultats. Le *relevance feedback* et ses variantes (pseudo-relevance feedback, expansion de requête) augmentent le rappel (*recall*) mais peuvent introduire du bruit.[@Rocchio1971] Dans un RAG, ce compromis est amplifié : une expansion mal calibrée risque de récupérer des passages thématiquement proches mais non applicables.
+Les systèmes IR peuvent aussi reformuler la requête pour améliorer les résultats. Le *relevance feedback* et ses variantes (pseudo-relevance feedback, expansion de requête) augmentent le rappel (*recall*) mais peuvent introduire du bruit [@Rocchio1971]. Dans un RAG, ce compromis est amplifié : une expansion mal calibrée risque de récupérer des passages thématiquement proches mais non applicables.
 
-En parallèle, le *learning-to-rank* a permis d'apprendre des fonctions de classement à partir de données (clics, jugements), avec des approches *pointwise*, *pairwise* et *listwise*.[@Liu2009LTR] Les systèmes industriels combinent aujourd'hui une récupération rapide, un *reranking* plus coûteux (souvent *cross-encoder*) et des signaux métier (popularité, fraîcheur). Le RAG s'insère dans cette logique multi-étage : la majorité des architectures dites *Advanced RAG* documentées dans la littérature reprennent ce schéma à plusieurs niveaux (récupération initiale large, filtrage, *reranking*, génération conditionnée), parfois enrichi de boucles de réflexion ou de mécanismes de décision sur la nécessité de récupérer.[@Gao2024RAGSurvey; @NogueiraCho2019]
+En parallèle, le *learning-to-rank* a permis d'apprendre des fonctions de classement à partir de données (clics, jugements), avec des approches *pointwise*, *pairwise* et *listwise* [@Liu2009LTR]. Les systèmes industriels combinent aujourd'hui une récupération rapide, un *reranking* plus coûteux (souvent *cross-encoder*) et des signaux métier (popularité, fraîcheur). Le RAG s'insère dans cette logique multi-étage : la majorité des architectures dites *Advanced RAG* documentées dans la littérature reprennent ce schéma à plusieurs niveaux (récupération initiale large, filtrage, *reranking*, génération conditionnée), parfois enrichi de boucles de réflexion ou de mécanismes de décision sur la nécessité de récupérer [@Gao2024RAGSurvey; @NogueiraCho2019].
 
 ```{=latex}
 \newpage
@@ -170,25 +170,25 @@ Deux compléments sont importants pour comprendre pourquoi ces limites deviennen
 
 ### Vers la recherche sémantique : représentations distribuées et vectorisations
 
-L'idée de dépasser le matching lexical n'est pas nouvelle. Dès les années 1990, l'indexation sémantique latente (LSI/LSA) projetait termes et documents dans un espace de dimension réduite via factorisation matricielle (SVD), dans l'espoir de capturer des corrélations entre termes et de réduire les problèmes de synonymie.[@Deerwester1990]
+L'idée de dépasser le matching lexical n'est pas nouvelle. Dès les années 1990, l'indexation sémantique latente (LSI/LSA) projetait termes et documents dans un espace de dimension réduite via factorisation matricielle (SVD), dans l'espoir de capturer des corrélations entre termes et de réduire les problèmes de synonymie [@Deerwester1990].
 
-Le vrai tournant est venu avec les vectorisations neuronales. Word2Vec (Mikolov et al., 2013) a montré qu'il était possible d'apprendre des représentations de mots denses, de faible dimension, où les mots apparaissant dans des contextes similaires se retrouvent proches dans l'espace vectoriel.[@Mikolov2013] GloVe a proposé une approche alternative combinant statistiques globales et optimisation locale.[@Pennington2014] Ces modèles avaient cependant une limite importante : un mot n'avait qu'un seul vecteur, indépendamment de la phrase. Le mot "levage" avait la même représentation qu'il s'agisse d'une opération de chantier ou d'une phase de planification.
+Le vrai tournant est venu avec les vectorisations neuronales. Word2Vec (Mikolov et al., 2013) a montré qu'il était possible d'apprendre des représentations de mots denses, de faible dimension, où les mots apparaissant dans des contextes similaires se retrouvent proches dans l'espace vectoriel [@Mikolov2013]. GloVe a proposé une approche alternative combinant statistiques globales et optimisation locale [@Pennington2014]. Ces modèles avaient cependant une limite importante : un mot n'avait qu'un seul vecteur, indépendamment de la phrase. Le mot "levage" avait la même représentation qu'il s'agisse d'une opération de chantier ou d'une phase de planification.
 
-Les modèles de type Transformers, et BERT en particulier, ont "résolu" ce problème en introduisant des représentations contextualisées : la représentation d'un *token* dépend désormais de la phrase entière.[@Vaswani2017; @Devlin2019] C'est ce qui a ouvert la voie à la recherche sémantique moderne.
+Les modèles de type Transformers, et BERT en particulier, ont "résolu" ce problème en introduisant des représentations contextualisées : la représentation d'un *token* dépend désormais de la phrase entière [@Vaswani2017; @Devlin2019]. C'est ce qui a ouvert la voie à la recherche sémantique moderne.
 
-Dans la pratique, l'usage IR/RAG requiert surtout des vectorisations de phrases/passages (*sentence or passage embeddings*). Les approches de type bi-encodeur (ou *dual-encoder*) encodent requête et passage séparément, puis comparent leurs vecteurs (souvent cosinus ou produit scalaire). Sentence-BERT (SBERT) a été une contribution clé pour obtenir des vectorisations de phrases efficaces via apprentissage contrastif et *siamese networks*.[@ReimersGurevych2019] Des travaux plus récents (ex. SimCSE) montrent que des schémas contrastifs simples peuvent déjà produire de très bons espaces de vectorisation.[@Gao2021]
+Dans la pratique, l'usage IR/RAG requiert surtout des vectorisations de phrases/passages (*sentence or passage embeddings*). Les approches de type bi-encodeur (ou *dual-encoder*) encodent requête et passage séparément, puis comparent leurs vecteurs (souvent cosinus ou produit scalaire). Sentence-BERT (SBERT) a été une contribution clé pour obtenir des vectorisations de phrases efficaces via apprentissage contrastif et *siamese networks* [@ReimersGurevych2019]. Des travaux plus récents (ex. SimCSE) montrent que des schémas contrastifs simples peuvent déjà produire de très bons espaces de vectorisation [@Gao2021].
 
-À l'inverse, les *cross-encoders* concatènent requête et passage et produisent un score de pertinence en tenant compte finement des interactions token-à-token, mais ils coûtent beaucoup plus cher à l'inférence. Ils sont souvent utilisés en *reranking* sur un petit nombre de candidats.[@NogueiraCho2019]
+À l'inverse, les *cross-encoders* concatènent requête et passage et produisent un score de pertinence en tenant compte finement des interactions token-à-token, mais ils coûtent beaucoup plus cher à l'inférence. Ils sont souvent utilisés en *reranking* sur un petit nombre de candidats [@NogueiraCho2019].
 
-Enfin, des architectures intermédiaires (*late interaction*) comme ColBERT cherchent à concilier précision (interactions fines) et efficacité (indexation) via des représentations token-level compressées.[@KhattabZaharia2020]
+Enfin, des architectures intermédiaires (*late interaction*) comme ColBERT cherchent à concilier précision (interactions fines) et efficacité (indexation) via des représentations token-level compressées [@KhattabZaharia2020].
 
 ### Sparse, dense et hybride : familles de récupération
 
-En pratique, les systèmes de récupération se rangent en trois grandes familles. La récupération creuse (BM25, TF-IDF) représente les documents dans un espace de très grande dimension. C'est rapide, et ça marche remarquablement bien sur des requêtes contenant des identifiants précis (numéros de procédure, références normatives). La récupération dense projette tout dans un espace compact de vectorisations, plus apte à capturer synonymie et paraphrase, mais plus "opaque". Et l'hybride combine les deux, ce qui est souvent la meilleure option quand le corpus mélange des requêtes techniques et des questions en langage naturel.
+En pratique, les systèmes de récupération se rangent en trois grandes familles. La récupération creuse (BM25, TF-IDF) représente les documents dans un espace de très grande dimension. Ces systèmes sont rapides et fonctionnent remarquablement bien sur des requêtes contenant des identifiants précis (numéros de procédure, références normatives). La récupération dense projette tout dans un espace compact de vectorisations, plus apte à capturer synonymie et paraphrase, mais plus "opaque". Et l'hybride combine les deux, ce qui est souvent la meilleure option quand le corpus mélange des requêtes techniques et des questions en langage naturel.
 
 L'étape de récupération peut également être suivie d'un *reranking* : un ensemble large de candidats est d'abord récupéré (rapide), puis un modèle plus précis (souvent un *cross-encoder*) reclasse finement les passages. (Ce point est repris au Chapitre 4.)
 
-Au-delà de cette typologie, un point technique essentiel pour les systèmes denses est l'indexation par recherche du plus proche voisin approximatif (*Approximate Nearest Neighbor*, ANN). À grande échelle, il est impossible de comparer une requête à tous les vecteurs. Des structures dédiées (HNSW, IVF, PQ…) sont donc utilisées pour accélérer la recherche au prix d'une approximation contrôlée.[@MalkovYashunin2018; @Johnson2019]
+Au-delà de cette typologie, un point technique essentiel pour les systèmes denses est l'indexation par recherche du plus proche voisin approximatif (*Approximate Nearest Neighbor*, ANN). À grande échelle, il est impossible de comparer une requête à tous les vecteurs. Des structures dédiées (HNSW, IVF, PQ…) sont donc utilisées pour accélérer la recherche au prix d'une approximation contrôlée [@MalkovYashunin2018; @Johnson2019].
 
 Cette approximation a une conséquence méthodologique : la performance de récupération dépend non seulement du modèle de vectorisation, mais aussi de la configuration de l'index (paramètres HNSW, quantization, etc.). Dans un protocole d'évaluation, il est donc important de distinguer :
 
@@ -202,7 +202,7 @@ Tout ce qui précède s'applique à la recherche sémantique en général. Mais 
 
 La criticité de l'erreur est d'un autre ordre : une réponse plausible mais fausse n'est pas juste inutile, elle est potentiellement dangereuse. La granularité des sources est aussi un défi : un même thème peut être traité dans une règle générale groupe, une procédure filiale, et un mode opératoire chantier, avec des niveaux de détail et d'autorité différents (sans parler des documents clients et réglementaires).
 
-Il faut ajouter des phénomènes fréquents dans les corpus internes et que les *benchmarks* académiques ne capturent pas : des procédures longues et composites où un *chunk* peut contenir les bons mots-clés mais être la mauvaise section ; des niveaux d'obligation subtils (la différence entre "recommandé" et "obligatoire", entre "interdit" et "déconseillé", peut avoir des conséquences très concrètes).
+Il faut ajouter des phénomènes fréquents dans les corpus internes que les *benchmarks* académiques ne capturent pas : des procédures longues et composites où un *chunk* peut contenir les bons mots-clés mais être la mauvaise section ; des niveaux d'obligation subtils (la différence entre "recommandé" et "obligatoire", entre "interdit" et "déconseillé", peut avoir des conséquences très concrètes).
 
 Tout cela fait que l'évaluation d'un RAG en contexte santé-sécurité ne peut pas se limiter à la proximité sémantique.
 
@@ -210,19 +210,19 @@ Tout cela fait que l'évaluation d'un RAG en contexte santé-sécurité ne peut 
 
 L'émergence des LLMs change la donne, et pas seulement du côté de la génération. Elle change aussi la nature des requêtes. L'utilisateur qui interroge un assistant comme ScribBERT n'écrit plus de mots-clés : il pose une question complète, souvent complexe et implicitement située dans un contexte ("que dois-je vérifier avant de commencer un travail en hauteur sur un échafaudage roulant ?"). Le système doit donc gérer des intentions (besoin d'explication, de comparaison, de décision) et pas seulement une adéquation thématique.
 
-L'autre problème, plus piégeux, est celui de l'hallucination. Les LLMs peuvent produire des textes *cohérents sur la forme* tout en étant incorrects sur le fond.[@Maynez2020; @Ji2023] En contexte santé-sécurité, ce phénomène devient un risque opérationnel à part entière. C'est cette tension entre qualité apparente et fiabilité réelle qui justifie l'existence du RAG, et la nécessité de l'évaluer.
+L'autre problème, plus piégeux, est celui de l'hallucination. Les LLMs peuvent produire des textes *cohérents sur la forme* tout en étant incorrects sur le fond [@Maynez2020; @Ji2023]. En contexte santé-sécurité, ce phénomène devient un risque opérationnel à part entière. C'est cette tension entre qualité apparente et fiabilité réelle qui justifie l'existence du RAG, et la nécessité de l'évaluer.
 
 ### Neural IR et récupération dense
 
-Avec les modèles Transformers, la récupération dense a pris son essor. L'idée est d'encoder requêtes et passages avec un bi-encodeur (deux BERT indépendants) et de les comparer par similarité vectorielle. DPR (Karpukhin et al., 2020) a montré que cette approche pouvait surpasser BM25 sur des *benchmarks* de QA (*Question/Answer*) ouverts.[@Karpukhin2020] Les gains suivants ont surtout été obtenus via des stratégies d'entraînement avec *hard negatives* et des travaux comme ORQA[@Lee2019ORQA] et ANCE[@Xiong2020ANCE], non détaillés ici.
+Avec les modèles Transformers, la récupération dense a pris son essor. L'idée est d'encoder requêtes et passages avec un bi-encodeur (deux BERT indépendants) et de les comparer par similarité vectorielle. DPR (Karpukhin et al., 2020) a montré que cette approche pouvait surpasser BM25 sur des *benchmarks* de QA (*Question/Answer*) ouverts [@Karpukhin2020]. Les gains suivants ont surtout été obtenus via des stratégies d'entraînement avec *hard negatives* et des travaux comme ORQA[@Lee2019ORQA] et ANCE[@Xiong2020ANCE], non détaillés ici.
 
-La question pratique pour un cas comme ScribBERT est directe : **un modèle entraîné sur des données web généralistes est-il adapté à un vocabulaire métier ?** Le *benchmark* BEIR a montré une dégradation significative des performances hors domaine d'entraînement.[@Thakur2021BEIR] Cette question sera traitée en Partie II.
+La question pratique pour un cas comme ScribBERT est directe : **un modèle entraîné sur des données web généralistes est-il adapté à un vocabulaire métier ?** Le *benchmark* BEIR a montré une dégradation significative des performances hors domaine d'entraînement [@Thakur2021BEIR]. Cette question sera traitée en Partie II.
 
 ### De la récupération dense au RAG : la convergence historique
 
 La trajectoire décrite dans ce chapitre, du lexical aux vectorisations puis à la récupération dense, mène à l'idée de coupler un *retriever* dense à un modèle génératif. Sur le moment, chaque étape a nécessité des contributions distinctes, et ce n'est qu'à partir de 2020 que la filiation devient explicite.
 
-Le paradigme *retriever-reader* a d'abord été popularisé par DrQA (Chen et al., 2017), puis ORQA[@Lee2019ORQA] et REALM[@Guu2020] ont progressivement intégré le *retriever* dans la boucle d'apprentissage. RAG (Lewis et al., 2020) couplait un générateur BART à un *retriever* DPR, avec deux variantes (RAG-Sequence et RAG-Token)[@Lewis2020], et Fusion-in-Decoder (Izacard & Grave, 2021) a ensuite montré que l'injection de davantage de passages dans le décodeur permettait d'améliorer encore les résultats.[@IzacardGrave2021]
+Le paradigme *retriever-reader* a d'abord été popularisé par DrQA (Chen et al., 2017), puis ORQA [@Lee2019ORQA] et REALM [@Guu2020] ont progressivement intégré le *retriever* dans la boucle d'apprentissage. Le RAG (Lewis et al., 2020) couplait un générateur BART à un *retriever* DPR avec deux variantes : RAG-Sequence, RAG-Token [@Lewis2020], et Fusion-in-Decoder (Izacard & Grave, 2021) a ensuite montré que l'injection de davantage de passages dans le décodeur permettait d'améliorer encore les résultats [@IzacardGrave2021].
 
 Le RAG n'est pas une invention isolée mais l'aboutissement d'une lignée de recherche en IR.
 
@@ -241,7 +241,7 @@ Plus formellement, le *Retrieval-Augmented* Generation désigne une famille d'ar
 - un moteur de recherche retrouve des documents, mais ne produit pas de réponse rédigée ;
 - un LLM seul rédige, mais peut inventer ou s'appuyer sur des connaissances obsolètes.
 
-Le RAG combine les deux. Historiquement, cette idée s'inscrit dans la lignée des systèmes retriever-reader (DrQA, ORQA) où un module récupère des passages et un second les exploite.[@Chen2017DrQA; @Karpukhin2020]
+Le RAG combine les deux. Historiquement, cette idée s'inscrit dans la lignée des systèmes retriever-reader (DrQA, ORQA) où un module récupère des passages et un second les exploite [@Chen2017DrQA; @Karpukhin2020].
 
 Sur le plan formel, le RAG peut se modéliser comme un problème de génération conditionnelle où les passages récupérés jouent un rôle intermédiaire :
 
@@ -261,11 +261,11 @@ En pratique, parcourir tous les passages du corpus est impossible : cette somme 
 
 La question "pourquoi un RAG plutôt qu'un *fine-tuning* ?" est revenue plusieurs fois dans les discussions autour de ScribBERT, et le choix s'est fait assez naturellement, mais il mérite d'être explicité.
 
-Le *fine-tuning* consiste à adapter les poids d'un modèle sur des données spécifiques. Le modèle obtenu "sait" les choses directement, sans avoir besoin de consulter des documents au moment de la requête. En théorie cela semble convaincant. En pratique, dans un contexte comme le nôtre, c'est difficilement tenable : nos procédures évoluent régulièrement, et réentraîner un modèle à chaque mise à jour documentaire serait trop coûteux et non traçable (les sources mobilisées par le modèle pour répondre resteraient inconnues). Une étude comparative récente confirme ce constat empiriquement : sur des tâches d'injection de connaissances nouvelles, le RAG surpasse systématiquement le *fine-tuning* supervisé, et plus encore lorsque l'information est rare ou évolutive.[@Ovadia2024FTvsRAG]
+Le *fine-tuning* consiste à adapter les poids d'un modèle sur des données spécifiques. Le modèle obtenu "sait" les choses directement, sans avoir besoin de consulter des documents au moment de la requête. En théorie cela semble convaincant. En pratique, dans un contexte comme le nôtre, c'est difficilement tenable : nos procédures évoluent régulièrement, et réentraîner un modèle à chaque mise à jour documentaire serait trop coûteux et non traçable (les sources mobilisées par le modèle pour répondre resteraient inconnues). Une étude comparative récente confirme ce constat empiriquement : sur des tâches d'injection de connaissances nouvelles, le RAG surpasse systématiquement le *fine-tuning* supervisé, et plus encore lorsque l'information est rare ou évolutive [@Ovadia2024FTvsRAG].
 
 Le RAG, à l'inverse, conserve un modèle généraliste et injecte du contexte documentaire à la volée. Pour mettre à jour un document, il "suffit" de réindexer. Et pour savoir d'où vient une réponse, il "suffit" d'inspecter les passages récupérés.
 
-Cela dit, le RAG ne nous interdit pas de faire du *fine-tuning*. Un *fine-tuning* léger peut servir à calibrer le ton, tandis que le RAG gère l'accès aux connaissances. La littérature récente insiste d'ailleurs sur cette complémentarité.[@Gao2024RAGSurvey]
+Cela dit, le RAG ne nous interdit pas de faire du *fine-tuning*. Un *fine-tuning* léger peut servir à calibrer le ton, tandis que le RAG gère l'accès aux connaissances. La littérature récente insiste d'ailleurs sur cette complémentarité [@Gao2024RAGSurvey].
 
 ### Architecture type d'une chaîne de traitement RAG
 
@@ -285,7 +285,7 @@ Plusieurs logiques de segmentation se distinguent :
 
 - Segmentation structurelle (titres, sections, listes) : adaptée aux procédures et aux référentiels, car elle suit la logique documentaire.
 - Segmentation à longueur fixe : robuste et simple, mais peut casser des définitions ou séparer condition/exception.
-- Segmentation thématique (topic segmentation) : vise à découper selon des ruptures de sujet ; des approches classiques existent (ex. TextTiling).[@Hearst1997]
+- Segmentation thématique (topic segmentation) : vise à découper selon des ruptures de sujet ; des approches classiques existent (ex. TextTiling) [@Hearst1997].
 
 Le *chunking* influence directement :
 
@@ -315,7 +315,7 @@ Enfin, la cohérence globale de la réponse reste fragile : même avec de bons p
 
 Ces difficultés justifient une évaluation à deux niveaux (qualité de la récupération *et* qualité de la génération), car un bon score sur l'un ne garantit pas un bon résultat sur l'autre (bien qu'une mauvaise récupération ne facilite pas une bonne génération évidemment).
 
-Plusieurs variantes architecturales cherchent à répondre à ces défis : le RAG "classique" de Lewis et al.[@Lewis2020], REALM qui intègre la récupération dans la pré-formation[@Guu2020], ou encore Fusion-in-Decoder (FiD) qui concatène de nombreux passages et laisse le décodeur fusionner l'information.[@IzacardGrave2021] Toutes illustrent un même dilemme : donner plus de passages au LLM augmente le rappel potentiel, mais aussi le risque de contradictions, de dilution, et augmente le coût.
+Plusieurs variantes architecturales cherchent à répondre à ces défis : le RAG "classique" de Lewis et al.[@Lewis2020], REALM qui intègre la récupération dans la pré-formation [@Guu2020], ou encore Fusion-in-Decoder (FiD) qui concatène de nombreux passages et laisse le décodeur fusionner l'information [@IzacardGrave2021]. Toutes illustrent un même dilemme : donner plus de passages au LLM augmente le rappel potentiel, mais aussi le risque de contradictions, de dilution, et augmente le coût.
 
 En pratique, les systèmes robustes adoptent une architecture *multi-stage* qui répond directement à ce dilemme : une récupération large (top-$k$ élevé) maximise le rappel, un *reranking* par *cross-encoder* augmente ensuite la précision sur ce petit ensemble candidat[@NogueiraCho2019], et une sélection/assemblage finale respecte la limite de contexte du générateur. Chaque étage a un effet direct sur la fidélité : une récupération trop large sans *reranking* augmente le bruit, un *reranking* mal calibré peut favoriser des passages "proches" mais moins normatifs, et une sélection trop agressive peut écarter des passages qui auraient été utiles.
 
@@ -325,7 +325,7 @@ Citer une source ne suffit pas. Les tests menés sur ScribBERT ont révélé des
 
 ### RAG et mémoire : connaissances paramétriques vs non-paramétriques
 
-Deux types de mémoire se distinguent : la "mémoire paramétrique" d'un LLM (ses poids) et la "mémoire non-paramétrique" (une base documentaire externe, interrogée à la volée). Un modèle assez gros peut stocker beaucoup de faits dans ses paramètres[@Roberts2020], mais avec des limites évidentes en mise à jour et vérifiabilité (expliquées plus tôt). Pour ScribBERT, la mémoire non-paramétrique est préférée parce qu'elle est auditable : les documents consultés sont identifiables, et leur mise à jour ne touche pas au modèle.
+Deux types de mémoire se distinguent : la "mémoire paramétrique" d'un LLM (ses poids) et la "mémoire non-paramétrique" (une base documentaire externe, interrogée à la volée). Un modèle assez gros peut stocker beaucoup de faits dans ses paramètres [@Roberts2020], mais avec des limites évidentes en mise à jour et vérifiabilité (expliquées plus tôt). Pour ScribBERT, la mémoire non-paramétrique est préférée parce qu'elle est auditable : les documents consultés sont identifiables, et leur mise à jour ne touche pas au modèle.
 
 ### Pourquoi la notion de "source" est centrale en contexte santé-sécurité
 
@@ -341,13 +341,13 @@ Les mots "pertinence" et "cohérence" reviennent constamment aussi bien dans ce 
 
 ### Définir la pertinence : une notion multi-dimensionnelle
 
-En recherche d'information, la pertinence est un mélange entre un besoin, un utilisateur, un contexte et un document, à un moment donné. La littérature académique insiste depuis longtemps sur cette complexité et sur l'écart entre ce qu'un système juge pertinent et ce que l'utilisateur considère comme pertinent.[@Saracevic1996; @Mizzaro1997] Pour un RAG, plusieurs dimensions s'ajoutent à la simple adéquation thématique.
+En recherche d'information, la pertinence est un mélange entre un besoin, un utilisateur, un contexte et un document, à un moment donné. La littérature académique insiste depuis longtemps sur cette complexité et sur l'écart entre ce qu'un système juge pertinent et ce que l'utilisateur considère comme pertinent [@Saracevic1996; @Mizzaro1997]. Pour un RAG, plusieurs dimensions s'ajoutent à la simple adéquation thématique.
 
 Un passage peut parler du bon sujet sans être utile pour autant. La pertinence situationnelle dépend du rôle de l'utilisateur, de la phase du chantier, des contraintes de site : une procédure générale ne sert pas à un compagnon qui a besoin d'une consigne précise. L'exhaustivité est critique quand il cherche une procédure complète : une réponse correcte mais à laquelle il manque une étape ou une exception peut être dangereuse. La granularité pose la question inverse : donner trop de détails peut noyer l'information, surtout si le format attendu est une check-list courte.
 
 L'actualité et l'autorité de la source sont deux dimensions souvent négligées mais centrales dans un corpus d'entreprise vivant. Un passage peut être thématiquement pertinent mais obsolète. Une procédure groupe validée n'a pas la même force qu'une note informelle. Notre SharePoint contient des documents de niveaux de normativité très différents, et le système doit être capable de les hiérarchiser.
 
-Enfin, les évaluations purement offline ignorent souvent la pertinence interactive : l'utilisateur reformule, lit les sources, change de stratégie, et l'utilité dépend de ce processus.[@IngwersenJarvelin2005; @Borlund2003] Pour ScribBERT, cela suggère de compléter les métriques automatiques par des signaux d'usage : taux de reformulation, temps pour obtenir une réponse utile, cas où l'utilisateur doit escalader vers un expert.
+Enfin, les évaluations purement offline ignorent souvent la pertinence interactive : l'utilisateur reformule, lit les sources, change de stratégie, et l'utilité dépend de ce processus [@IngwersenJarvelin2005; @Borlund2003]. Pour ScribBERT, cela suggère de compléter les métriques automatiques par des signaux d'usage : taux de reformulation, temps pour obtenir une réponse utile, cas où l'utilisateur doit escalader vers un expert.
 
 ### Définir la cohérence : du texte à la fidélité aux sources
 
@@ -387,23 +387,21 @@ Sur le plan méthodologique, cela rejoint l'idée de séparer évaluation intrin
 
 L'évaluation des systèmes RAG s'est structurée autour de plusieurs axes :
 
-1. Évaluation récupération : métriques classiques (Recall@k, nDCG, MRR) sur des jeux de test annotés.[@JarvelinKekalainen2002]
-2. Évaluation génération : métriques de similarité (BLEU/ROUGE) peu adaptées à la QA ouverte ; métriques sémantiques (BERTScore, BLEURT) ; métriques de factualité (ex. TruthfulQA, FactScore) visant à quantifier l'alignement factuel des sorties.[@Lin2021TruthfulQA; @Min2023FactScore]
+1. Évaluation récupération : métriques classiques (Recall@k, nDCG, MRR) sur des jeux de test annotés [@JarvelinKekalainen2002].
+2. Évaluation génération : métriques de similarité (BLEU/ROUGE) peu adaptées à la QA ouverte ; métriques sémantiques (BERTScore, BLEURT) ; métriques de factualité (ex. TruthfulQA, FactScore) visant à quantifier l'alignement factuel des sorties [@Lin2021TruthfulQA; @Min2023FactScore].
 3. Évaluation "*end-to-end*" : *frameworks* dédiés au RAG (ex. RAGAS, TruLens, LangSmith) qui tentent de décomposer la qualité en sous-scores (*context relevance*, *answer relevance*, *faithfulness*, citation, etc.).
 4. *LLM-as-judge* : utiliser un LLM pour noter des réponses selon une grille (G-Eval, Prometheus). Puissant mais nécessite une gouvernance stricte (biais, fuite d'informations, reproductibilité).
 
-Les *benchmarks* de récupération généralistes (BEIR) et les *leaderboards* de vectorisations (MTEB) ont également contribué à standardiser la comparaison de modèles et à clarifier l'écart entre performance sur des tâches "web" et performance sur des corpus spécialisés.[@Thakur2021BEIR; @Muennighoff2023MTEB]
+Les *benchmarks* de récupération généralistes (BEIR) et les *leaderboards* de vectorisations (MTEB) ont également contribué à standardiser la comparaison de modèles et à clarifier l'écart entre performance sur des tâches "web" et performance sur des corpus spécialisés [@Thakur2021BEIR; @Muennighoff2023MTEB].
 
 Pour la génération, plusieurs métriques basées sur des modèles pré-entraînés se sont imposées :
 
-- BERTScore pour mesurer une similarité sémantique token-level.[@Zhang2020BERTScore]
-- BLEURT comme score appris de similarité/qualité.[@Sellam2020BLEURT]
+- BERTScore pour mesurer une similarité sémantique token-level [@Zhang2020BERTScore].
+- BLEURT comme score appris de similarité/qualité [@Sellam2020BLEURT].
 
-Cependant, ces métriques ne suffisent pas à capturer la fidélité aux sources. C'est pourquoi des travaux récents sur la factualité/hallucination (ex. en résumé) sont souvent mobilisés comme base conceptuelle.[@Maynez2020; @Ji2023]
+Cependant, ces métriques ne suffisent pas à capturer la fidélité aux sources. C'est pourquoi des travaux récents sur la factualité/hallucination (ex. en résumé) sont souvent mobilisés comme base conceptuelle [@Maynez2020; @Ji2023].
 
-Un point récurrent dans la littérature est l'écart entre :
-
-- la performance de récupération et la performance de génération (usage correct des sources).
+Un point récurrent dans la littérature est l'écart entre la performance de récupération et la performance de génération (usage correct des sources).
 
 Autrement dit, une bonne récupération ne garantit pas une réponse fidèle, et une réponse fluide ne garantit pas qu'elle soit vraie.
 
@@ -429,7 +427,7 @@ $$\mathrm{DCG@k} = \sum_{i=1}^{k} \frac{2^{rel_i}-1}{\log_2(i+1)}\quad;\quad \ma
 
 Dans le cadre de ce mémoire, les annotations sont binaires ($rel_i \in \{0,1\}$) : la formule se réduit alors à $\mathrm{DCG@k} = \sum_{i=1}^{k} \mathbb{1}[i\in \mathrm{Rel}(q)] / \log_2(i+1)$, qui correspond à l'implémentation utilisée dans le code (`src/evaluation/retrieval_metrics.py`, fonction `ndcg_at_k`). Le calcul s'effectue après projection au niveau document ($\mathrm{Rel}(q)$ et $\mathrm{TopK}(q)$ sont dédupliqués par `doc_id` avant comparaison), de manière à ce qu'un même document représenté par plusieurs *chunks* dans le top-$k$ ne soit pas compté plusieurs fois.
 
-Ces métriques sont au cœur de l'IR évaluative moderne.[@JarvelinKekalainen2002]
+Ces métriques sont au cœur de l'IR évaluative moderne [@JarvelinKekalainen2002].
 
 L'intérêt pour le RAG est de relier ces scores à la qualité finale : par exemple, un Recall@k faible limite mécaniquement la fidélité, car la preuve n'entre jamais dans le contexte.
 
@@ -491,7 +489,7 @@ Le modèle de vectorisation est la base d'un RAG dense. C'est lui qui détermine
 
 Le paysage des modèles de vectorisation évolue rapidement. Au moment de l'écriture, plusieurs familles peuvent être distinguées :
 
-- Modèles *open-source* dérivés de BERT et SBERT : famille `sentence-transformers` (`all-MiniLM-L6-v2`, `all-mpnet-base-v2`, etc.), qui constitue une référence *open-source* largement utilisée.[@ReimersGurevych2019]
+- Modèles *open-source* dérivés de BERT et SBERT : famille `sentence-transformers` (`all-MiniLM-L6-v2`, `all-mpnet-base-v2`, etc.), qui constitue une référence *open-source* largement utilisée [@ReimersGurevych2019].
 - Modèles multilingues *open-source* : `multilingual-e5` (Microsoft), `BGE-M3` (BAAI), `Jina embeddings v3`, qui visent à couvrir un grand nombre de langues avec un seul modèle.
 - Modèles français ou multilingues spécialisés : `Solon` (Lajavaness), `CamemBERT`-based encoders, `Sentence-CamemBERT`, utiles pour la composante française du corpus ; mais le corpus de Bouygues TP étant bilingue (cf. 4.1.3), un modèle multilingue couvrant aussi bien le français que l'anglais reste souvent préférable.
 - Modèles propriétaires accessibles par API : `text-embedding-3-small/large` (OpenAI), `embed-multilingual-v3` (Cohere), `voyage-3` (Voyage AI), `gemini-embedding` (Google). Performants mais soulèvent des questions de coût, latence et confidentialité.
@@ -514,7 +512,7 @@ Le corpus de ScribBERT est bilingue : les référentiels internes Bouygues TP ex
 1. Modèle multilingue généraliste : robuste sur plusieurs langues, mais souvent moins fin sur les nuances techniques d'une langue donnée.
 2. Modèle multilingue de grande taille avec instruction tuning : E5, BGE, qui combine couverture linguistique et qualité.
 
-Le *benchmark* MTEB (*Massive Text Embedding Benchmark*) fournit une comparaison standardisée entre modèles, mais il faut se rappeler que les performances MTEB ne se transposent pas mécaniquement à un domaine spécialisé.[@Muennighoff2023MTEB] Le *benchmark* BEIR a clairement montré la dégradation hors-domaine des *retrievers* entraînés sur du web généraliste.[@Thakur2021BEIR]
+Le *benchmark* MTEB (*Massive Text Embedding Benchmark*) fournit une comparaison standardisée entre modèles, mais il faut se rappeler que les performances MTEB ne se transposent pas mécaniquement à un domaine spécialisé [@Muennighoff2023MTEB]. Le *benchmark* BEIR a clairement montré la dégradation hors-domaine des *retrievers* entraînés sur du web généraliste [@Thakur2021BEIR].
 
 #### Évaluation intrinsèque vs extrinsèque
 
@@ -623,7 +621,7 @@ Pour ScribBERT, l'hypothèse forte est qu'un utilisateur citant explicitement "P
 
 #### *Reranking* par *cross-encoder*
 
-Le *reranking* consiste à appliquer un modèle plus précis (et plus coûteux) à un petit ensemble de candidats déjà récupérés. Les *cross-encoders* (ex. `ms-marco-MiniLM`, `bge-reranker-v2-m3`, `Cohere Rerank`) lisent conjointement la requête et le passage et produisent un score de pertinence.[@NogueiraCho2019]
+Le *reranking* consiste à appliquer un modèle plus précis (et plus coûteux) à un petit ensemble de candidats déjà récupérés. Les *cross-encoders* (ex. `ms-marco-MiniLM`, `bge-reranker-v2-m3`, `Cohere Rerank`) lisent conjointement la requête et le passage et produisent un score de pertinence [@NogueiraCho2019].
 
 Chaîne de traitement typique :
 
@@ -819,7 +817,7 @@ Ces cinq dimensions décrivent la qualité du système. En production, s'y ajout
 Les métriques automatiques se classent en trois familles :
 
 - Lexicales (BLEU, ROUGE, METEOR, *exact match*) : peu adaptées à la QA générative car elles pénalisent la paraphrase légitime. Utiles uniquement pour des réponses très courtes et factuelles.
-- Vectorielles (BERTScore, BLEURT, similarité cosinus des vectorisations de réponse) : capturent mieux la similarité sémantique. Limitation : peuvent juger "proches" deux réponses dont l'une contient une erreur factuelle subtile.[@Zhang2020BERTScore; @Sellam2020BLEURT]
+- Vectorielles (BERTScore, BLEURT, similarité cosinus des vectorisations de réponse) : capturent mieux la similarité sémantique. Limitation : peuvent juger "proches" deux réponses dont l'une contient une erreur factuelle subtile [@Zhang2020BERTScore; @Sellam2020BLEURT].
 - LLM-based / LLM-as-judge : un LLM note la réponse selon une grille (G-Eval, Prometheus, RAGAS, TruLens). Approche dominante pour le RAG aujourd'hui : flexible, capable de juger la fidélité, la complétude, la modalité.
 
 Avantages : passage à l'échelle (millions de requêtes), reproductibilité (à seed et *prompt* fixés), coût marginal réduit.
@@ -1749,7 +1747,7 @@ La figure 9.4 visualise cette corrélation point par point sur les deux métriqu
 
 ![Fig. 9.4. Effet de la longueur de la réponse générée (en mots, axe X) sur les scores RAGAS de *Faithfulness* (gauche) et *Answer Relevancy* (droite). Une question = un point ($n = 50$). La droite rouge pointillée correspond à une régression linéaire simple, le coefficient de Pearson est indiqué dans le titre de chaque sous-figure. Source : résultats détaillés par question de la configuration de référence `recursive-512-64 / ada-002 / hybrid-k5 / azure-gpt35`, longueur calculée à partir du texte de chaque réponse.](figures/fig_9_4_scatter_longueur_ragas.png){#fig:length-ragas width=95%}
 
-Une partie de cette corrélation est légitime : les réponses très courtes sont essentiellement des refus contrôlés, par construction notés *faithfulness* = 0 par RAGAS. Mais une partie correspond à un biais documenté du *LLM-as-judge* : les juges LLM tendent à mieux noter les réponses verbeuses, plus structurées et plus enrobées, indépendamment de leur exactitude factuelle.[@Zheng2023JudgeBias] Sur les questions factuelles courtes (« Quels sont les EPI obligatoires ? »), la sur-longueur amplifie en outre le *context recall* mécaniquement, puisque toutes les sources sont de facto citées dans une réponse plus longue. Deux mitigations sont à étudier en parallèle de la prochaine itération : durcir la consigne de concision dans le *prompt* système et calibrer les scores RAGAS sur un échantillon annoté humainement (§ 5.2.3).
+Une partie de cette corrélation est légitime : les réponses très courtes sont essentiellement des refus contrôlés, par construction notés *faithfulness* = 0 par RAGAS. Mais une partie correspond à un biais documenté du *LLM-as-judge* : les juges LLM tendent à mieux noter les réponses verbeuses, plus structurées et plus enrobées, indépendamment de leur exactitude factuelle [@Zheng2023JudgeBias]. Sur les questions factuelles courtes (« Quels sont les EPI obligatoires ? »), la sur-longueur amplifie en outre le *context recall* mécaniquement, puisque toutes les sources sont de facto citées dans une réponse plus longue. Deux mitigations sont à étudier en parallèle de la prochaine itération : durcir la consigne de concision dans le *prompt* système et calibrer les scores RAGAS sur un échantillon annoté humainement (§ 5.2.3).
 
 Biais linguistique (effet faible sur la moyenne, mais asymétrie structurelle à investiguer). Les questions FR et EN du jeu de test ont des longueurs comparables (16,6 vs 16,9 mots en moyenne), donc l'asymétrie observée au § 9.4.2 (FR 0,73 vs EN 0,91 de *faithfulness*) ne vient pas d'un effet longueur côté requête. Elle s'explique principalement par la composition du sous-échantillon EN (n=9), majoritairement factuel et procédural, contre un sous-échantillon FR plus chargé en questions justificatives et conditionnelles. Un mécanisme distinct, observé sur Q046 (§ 9.3, Cas 6 et § 9.4.2), apparaît en revanche quand le document cible est lui-même court : le `Safety Alert Line of Fire` tient sur un seul *chunk* de 265 mots, soit nettement moins que la taille moyenne d'un *chunk* `recursive-512-64`. Face à une requête FR de longueur comparable mais sémantiquement plus diffuse, l'écart cosinus se creuse mécaniquement (la similarité dense est sensible à la norme de la représentation, elle-même affectée par la longueur effective de l'unité comparée), ce qui éjecte ce document court du top-5. Le levier n'est donc pas linguistique au sens strict, mais structurel : prévoir au moins une paraphrase-résumé indexée pour les documents très courts, ou tester un *chunking* avec padding contextuel pour homogénéiser la longueur des unités indexées. Cette piste sera évaluée lors de l'extension du jeu de test EN (Ch. 11.2.1) avant d'écarter toute hypothèse de biais linguistique latent.
 
