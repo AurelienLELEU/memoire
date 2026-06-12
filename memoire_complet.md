@@ -1317,39 +1317,10 @@ prompt = (
     f"{context_documents}\n"
     f"Cite les documents que tu utilises ainsi : "
     f'« conformément au document [doc_name], page : [page_number] » '
-    f"(sans modifier ni reformuler le nom, respecte la casse, "
-    f"n'ajoute pas d'accents). "
+    f"(sans modifier ni reformuler le nom, respecte la casse,
+      n'ajoute pas d'accents). "
     f"Apporte des détails utiles. Structure avec des listes si utile. "
     f'{language_instruction} à la question : "{query}".'
-)
-```
-```python
-prompt = (
-    f"Contexte de la conversation :\n{context_elements}\n\n"
-    f"Si la question concerne la santé et la sécurité, rédige une réponse "
-    f"en te basant uniquement sur les extraits de documents suivants :\n"
-    f"{context_documents}\n"
-    f"Cite les documents que tu utilises ainsi : "
-    f'« conformément au document [doc_name], page : [page_number] » '
-    f"(sans modifier ni reformuler le nom, respecte la casse,\
-      "n'ajoute pas d'accents). "
-    f"Apporte des détails utiles. Structure avec des listes si utile. "
-    f'{language_instruction} à la question : "{query}".'
-)
-```
-```python
-prompt = (
-      """
-    f"Contexte de la conversation :\n{context_elements}\n\n"
-    f"Si la question concerne la santé et la sécurité, rédige une réponse "
-    f"en te basant uniquement sur les extraits de documents suivants :\n"
-    f"{context_documents}\n"
-    f"Cite les documents que tu utilises ainsi : "
-    f'« conformément au document [doc_name], page : [page_number] » '
-    f"(sans modifier ni reformuler le nom, respecte la casse, n'ajoute pas d'accents). "
-    f"Apporte des détails utiles. Structure avec des listes si utile. "
-    f'{language_instruction} à la question : "{query}".'
-    """
 )
 ```
 
@@ -1416,7 +1387,7 @@ Pour chaque question sont annotés : une réponse de référence rédigée à pa
 
 Sur les 750 configurations exploitables, la MRR moyenne est de 0,571 (écart-type 0,080, min 0,324, max 0,724) et le Hit@5 moyen de 0,725 par configuration (la valeur par configuration s'étend de 0,38 à 0,87 ; il ne s'agit pas d'une étendue par question). Le nDCG@5 moyen, calculé après projection au niveau document, ressort à 0,628 (écart-type 0,072). Ce niveau de performance est cohérent avec celui d'une récupération bien calibrée sur un corpus spécialisé de quelques centaines de documents : la majorité des configurations remontent le bon document dans le top-5, mais aucune ne le place systématiquement en première position. La figure 8.1 visualise cette dispersion sur l'ensemble du plan factoriel.
 
-![Fig. 8.1. Distribution du MRR sur les 750 configurations exploitables du *benchmark* récupération (histogramme et densité). Trait rouge : médiane (0,58) ; bande rouge clair : intervalle interquartile [0,51 ; 0,63]. Les configurations extrémales (meilleure et pire) sont annotées avec leur triplet *chunking* / vectorisation / récupération. Source : résultats du *benchmark* récupération (750 cellules exploitables sur les 864 du plan factoriel).](figures/fig_8_4_distribution_mrr.png){#fig:dist-mrr width=90%}
+![Fig. 8.1. Distribution du MRR sur les 750 configurations exploitables du *benchmark* récupération (histogramme et densité). Trait rouge : médiane (0,58) ; bande rouge clair : intervalle interquartile [0,51 ; 0,63]. Les configurations extrémales (meilleure et pire) sont annotées avec leur triplet *chunking* / vectorisation / récupération. Source : résultats du *benchmark* récupération (750 cellules exploitables sur les 864 du plan factoriel).](figures/fig_8_1_distribution_mrr.png){#fig:dist-mrr width=90%}
 
 Effet du modèle de vectorisation (MRR moyenne sur l'ensemble des combinaisons *chunking* × récupération) :
 
@@ -1461,7 +1432,7 @@ Table: Performance moyenne par stratégie de *chunking* (MRR sur 750 cellules ex
 
 La hiérarchie confirme une intuition formulée au Ch. 4.2.2 : sur un corpus normatif, les *chunks* larges (1024 *tokens*) battent les *chunks* courts, parce qu'ils préservent les blocs "condition + règle + exception" qui constituent l'unité de sens utile. Le *chunking* sémantique, plus coûteux à l'ingestion, n'apporte pas de gain mesurable ici. La figure 8.2 croise les deux axes (modèle × *chunking*) et fait apparaître plusieurs « îlots » de performance, en particulier le quadrant supérieur gauche qui associe les modèles à plus forte capacité représentationnelle (`nomic-v2`, `ada-002`, `embed-3-large`, `qwen3-embed-8b`) aux *chunkings* récursifs et fixes de 1024 *tokens*.
 
-![Fig. 8.2. MRR moyen par modèle de *vectorisation* (lignes) et stratégie de *chunking* (colonnes). Chaque cellule agrège la moyenne sur les six variantes de récupération testées (n ≤ 6 par cellule). Modèles et *chunkings* sont ordonnés par MRR global décroissant ; échelle de couleur 0,30 – 0,75. Source : résultats du *benchmark* récupération (750 cellules exploitables sur 864).](figures/fig_8_1_heatmap_mrr_modele_chunking.png){#fig:heatmap-mrr width=100%}
+![Fig. 8.2. MRR moyen par modèle de *vectorisation* (lignes) et stratégie de *chunking* (colonnes). Chaque cellule agrège la moyenne sur les six variantes de récupération testées (n ≤ 6 par cellule). Modèles et *chunkings* sont ordonnés par MRR global décroissant ; échelle de couleur 0,30 – 0,75. Source : résultats du *benchmark* récupération (750 cellules exploitables sur 864).](figures/fig_8_2_heatmap_mrr_modele_chunking.png){#fig:heatmap-mrr width=100%}
 
 Effet du mode de récupération (MRR moyenne sur l'ensemble des combinaisons vectorisation × *chunking*) :
 
@@ -1486,7 +1457,7 @@ Trois choses à noter :
 
 La figure 8.3 visualise la distribution complète par variante : `dense-k20-rerank5` et `hybrid-k5` dominent en médiane comme en moyenne, tandis que `dense-k5-neigh` ressort comme la seule variante systématiquement en retrait sur l'ensemble du plan factoriel.
 
-![Fig. 8.3. Distribution du MRR par variante de récupération, sur les 750 configurations exploitables. Chaque point représente une combinaison *chunking* × *vectorisation* (jitter horizontal pour visibilité) ; les boîtes représentent les quartiles, le losange rouge la moyenne. Variantes ordonnées selon la liste théorique du Ch. 4.3. Source : résultats du *benchmark* récupération.](figures/fig_8_2_barplot_mrr_par_variante_recuperation.png){#fig:bar-mrr-retrieval width=90%}
+![Fig. 8.3. Distribution du MRR par variante de récupération, sur les 750 configurations exploitables. Chaque point représente une combinaison *chunking* × *vectorisation* (jitter horizontal pour visibilité) ; les boîtes représentent les quartiles, le losange rouge la moyenne. Variantes ordonnées selon la liste théorique du Ch. 4.3. Source : résultats du *benchmark* récupération.](figures/fig_8_3_barplot_mrr_par_variante_recuperation.png){#fig:bar-mrr-retrieval width=90%}
 
 \needspace{12\baselineskip}
 
@@ -1548,7 +1519,7 @@ Table: Résultats RAGAS sur les cinq configurations de génération évaluées (
 
 La figure 8.4 visualise ces cinq configurations sous forme de radar à quatre axes, ce qui permet de comparer d'un coup d'œil les profils complets plutôt que les seules valeurs colonne par colonne.
 
-![Fig. 8.4. Profil RAGAS des cinq configurations de génération évaluées, sur les quatre dimensions *Faithfulness*, *Answer Relevancy*, *Context Precision* et *Context Recall* (échelle 0 – 1). Chaque polygone correspond à une configuration libellée par `embedding · retrieval / LLM`. Source : résultats du benchmark generation (50 questions par configuration).](figures/fig_8_5_radar_ragas_5_configs.png){#fig:radar-ragas width=75%}
+![Fig. 8.4. Profil RAGAS des cinq configurations de génération évaluées, sur les quatre dimensions *Faithfulness*, *Answer Relevancy*, *Context Precision* et *Context Recall* (échelle 0 – 1). Chaque polygone correspond à une configuration libellée par `embedding · retrieval / LLM`. Source : résultats du benchmark generation (50 questions par configuration).](figures/fig_8_4_radar_ragas_5_configs.png){#fig:radar-ragas width=75%}
 
 Quatre lectures se dégagent. D'abord, la configuration `hybrid-k5` domine sur les quatre scores RAGAS : elle obtient simultanément la meilleure *faithfulness* (0,765), la meilleure *answer relevancy* (0,756), la meilleure *context precision* (0,687) et le meilleur *context recall* (0,629), tout en étant la plus rapide côté génération (5,09 s médian). C'est la confirmation, côté génération cette fois, du gain d'hybridation déjà observé côté récupération (§ 8.2) : une récupération plus précise se traduit par une génération à la fois plus fidèle aux sources et mieux ciblée sur la question.
 
@@ -1575,9 +1546,9 @@ Table: Indicateurs de stabilité de la configuration de référence ScribBERT (5
 
 La figure 8.5 distribue ces quatre indicateurs question par question et fait ressortir l'écart structurel entre une stabilité quasi-parfaite à requête fixe et une robustesse plus modeste face aux paraphrases. Le tracé apparié des stabilités inter-runs et inter-paraphrases (figure 8.6) confirme par ailleurs que cet écart n'est pas concentré sur quelques cas extrêmes, mais se traduit par un nuage de points majoritairement situé sous la diagonale x = y.
 
-![Fig. 8.5. Distribution des quatre indicateurs de stabilité sur les 50 questions du jeu de test (configuration de référence `markdown-1200-50 / ada-002 / dense-k5-thresh / azure-gpt35`). De gauche à droite : *Stability@retrieval* (Jaccard inter-runs sur le top-5 récupéré), *Stability@citations* (Jaccard sur les sources effectivement citées dans la réponse), *Stability@answer* (BERTScore F1 moyen entre paires de runs) et *Robustness@paraphrases* (BERTScore F1 entre la réponse originale et celle obtenue sur une paraphrase). Mesures à seed et paramètres constants, $n = 10$ runs par question. Médiane annotée au-dessus de chaque boîte. Source : résultats de la campagne de stabilité.](figures/fig_8_7_boxplot_stabilite.png){#fig:box-stability width=90%}
+![Fig. 8.5. Distribution des quatre indicateurs de stabilité sur les 50 questions du jeu de test (configuration de référence `markdown-1200-50 / ada-002 / dense-k5-thresh / azure-gpt35`). De gauche à droite : *Stability@retrieval* (Jaccard inter-runs sur le top-5 récupéré), *Stability@citations* (Jaccard sur les sources effectivement citées dans la réponse), *Stability@answer* (BERTScore F1 moyen entre paires de runs) et *Robustness@paraphrases* (BERTScore F1 entre la réponse originale et celle obtenue sur une paraphrase). Mesures à seed et paramètres constants, $n = 10$ runs par question. Médiane annotée au-dessus de chaque boîte. Source : résultats de la campagne de stabilité.](figures/fig_8_5_boxplot_stabilite.png){#fig:box-stability width=90%}
 
-![Fig. 8.6. Stabilité inter-runs (axe X, `ans_bertscore_f1_mean`) vs robustesse aux paraphrases (axe Y, `paraphrase_bertscore_f1`), une question par point. La diagonale x = y matérialise le cas idéal où une reformulation a le même effet qu'une nouvelle exécution stochastique ; tout point sous la diagonale correspond à une question plus sensible aux paraphrases qu'à la variance intra-run. Les six questions présentant le plus grand écart sont étiquetées par leur identifiant. Source : résultats de la campagne de stabilité (mêmes données qu'en Fig. 8.5).](figures/fig_8_8_scatter_interruns_vs_paraphrases.png){#fig:scatter-stability width=85%}
+![Fig. 8.6. Stabilité inter-runs (axe X, `ans_bertscore_f1_mean`) vs robustesse aux paraphrases (axe Y, `paraphrase_bertscore_f1`), une question par point. La diagonale x = y matérialise le cas idéal où une reformulation a le même effet qu'une nouvelle exécution stochastique ; tout point sous la diagonale correspond à une question plus sensible aux paraphrases qu'à la variance intra-run. Les six questions présentant le plus grand écart sont étiquetées par leur identifiant. Source : résultats de la campagne de stabilité (mêmes données qu'en Fig. 8.5).](figures/fig_8_6_scatter_interruns_vs_paraphrases.png){#fig:scatter-stability width=85%}
 
 \needspace{30\baselineskip}
 
@@ -1613,7 +1584,7 @@ Table: Latence de vectorisation médiane par modèle (configuration `dense-k5`).
 
 La figure 8.7 croise ces latences avec la MRR moyenne pour visualiser le compromis qualité/coût : `ada-002` se situe juste sur le front de Pareto, dominé en latence brute par les modèles *open-source* légers (qui ne gagnent rien en qualité) et nettement préférable à `embed-3-large` qui n'apporte aucun gain mesurable de MRR pour une latence de l'ordre de 40 fois supérieure.
 
-![Fig. 8.7. Compromis MRR moyen versus latence médiane de vectorisation par modèle d'embedding. Axe X en échelle logarithmique (millisecondes par requête, aller-retour réseau inclus pour les API). Couleur par famille (propriétaire, multilingue OSS, généraliste EN, francophone). Le trait pointillé noir relie les points du front de Pareto (modèles non dominés à la fois en MRR et en latence). Mesures effectuées sur la machine de développement décrite au § 7.5.2. Source : résultats du *benchmark* récupération, moyennes calculées sur l'ensemble des combinaisons *chunking* × variante de récupération.](figures/fig_8_3_scatter_pareto_mrr_vs_latence.png){#fig:pareto-mrr-lat width=90%}
+![Fig. 8.7. Compromis MRR moyen versus latence médiane de vectorisation par modèle d'embedding. Axe X en échelle logarithmique (millisecondes par requête, aller-retour réseau inclus pour les API). Couleur par famille (propriétaire, multilingue OSS, généraliste EN, francophone). Le trait pointillé noir relie les points du front de Pareto (modèles non dominés à la fois en MRR et en latence). Mesures effectuées sur la machine de développement décrite au § 7.5.2. Source : résultats du *benchmark* récupération, moyennes calculées sur l'ensemble des combinaisons *chunking* × variante de récupération.](figures/fig_8_7_scatter_pareto_mrr_vs_latence.png){#fig:pareto-mrr-lat width=90%}
 
 `ada-002` est donc nettement plus lent en latence brute de vectorisation que la majorité des modèles *open-source* légers exécutés en local sur GPU (le surcoût vient entre autres de l'aller-retour réseau vers l'*endpoint* Azure), mais reste très en-dessous des autres modèles propriétaires (`embed-3-large`) et des très gros *open-source* (`qwen3-embed-8b`). Son choix opérationnel ne se justifie donc pas par la latence de vectorisation, négligeable par rapport à la génération LLM, mais plutôt par sa qualité de récupération et l'absence d'hébergement GPU côté Bouygues.
 
@@ -1629,7 +1600,7 @@ Table: Décomposition de la latence *end-to-end* de la chaîne de traitement RAG
 
 La figure 8.8 reporte cette décomposition pour les cinq configurations de génération évaluées : la couche LLM domine systématiquement la latence (entre 88% et 99% du temps total selon la chaîne de traitement), tandis que la récupération reste résiduelle, y compris pour les configurations qui s'appuient sur un *embedding* API ou un voisinage de *chunks*.
 
-![Fig. 8.8. Décomposition de la latence *end-to-end* pour les cinq configurations de génération évaluées (récupération en bleu, génération en orange). Les configurations sont ordonnées par temps de génération croissant. Le total est annoté au-dessus de chaque barre. Source : résultats du *benchmark* génération, temps de récupération et de génération en valeurs médianes sur 50 questions par configuration.](figures/fig_8_9_latence_endtoend_stacked.png){#fig:stack-latency width=90%}
+![Fig. 8.8. Décomposition de la latence *end-to-end* pour les cinq configurations de génération évaluées (récupération en bleu, génération en orange). Les configurations sont ordonnées par temps de génération croissant. Le total est annoté au-dessus de chaque barre. Source : résultats du *benchmark* génération, temps de récupération et de génération en valeurs médianes sur 50 questions par configuration.](figures/fig_8_8_latence_endtoend_stacked.png){#fig:stack-latency width=90%}
 
 À titre de comparaison, la chaîne de traitement locale Mistral-7B atteint 36 à 38 s par question (essentiellement décodage GPU), hors cible pour une expérience interactive. La configuration Azure dégradée par les erreurs "too many requests" monte à 55 s médian, mais ce chiffre est lié au *benchmark*, qui enchaîne les 50 questions en rafale et sature les quotas des APIs. Un utilisateur réel, espaçant naturellement ses requêtes, ne déclencherait pas ce comportement et resterait sur des temps comparables à la configuration de référence.
 
@@ -1773,7 +1744,7 @@ Sur ce périmètre, le filtre par distance (`dense-k5-thresh` à seuil 0,17) jou
 
 La figure 9.2 récapitule la performance moyenne par type de question. Les factuelles et procédurales atteignent les meilleurs scores RAGAS sur les quatre dimensions ; les conditionnelles décrochent nettement sur le *context recall* (signe d'exceptions ou de fondements omis lors de la récupération) ; les justificatives présentent une *faithfulness* plus dispersée, cohérent avec la difficulté à fonder une explication sur des *chunks* normatifs ; et les hors-périmètre se distinguent par une *faithfulness* moyenne nulle correspondant aux refus contrôlés correctement déclenchés. Cette stratification motive l'analyse fine des biais conduite au § 9.5.
 
-![Fig. 9.2. Stratification des scores RAGAS par type de question (configuration de référence). Chaque groupe correspond à l'un des six types annotés dans le jeu de test (l'effectif $n$ est indiqué sous l'étiquette) ; les barres représentent la moyenne par métrique RAGAS, les segments verticaux l'intervalle de confiance à 95%. Source : résultats détaillés par question de la configuration de référence, joints au jeu de test annoté pour récupérer le type de chaque question.](figures/fig_9_3_ragas_par_type_question.png){#fig:ragas-type width=100%}
+![Fig. 9.2. Stratification des scores RAGAS par type de question (configuration de référence). Chaque groupe correspond à l'un des six types annotés dans le jeu de test (l'effectif $n$ est indiqué sous l'étiquette) ; les barres représentent la moyenne par métrique RAGAS, les segments verticaux l'intervalle de confiance à 95%. Source : résultats détaillés par question de la configuration de référence, joints au jeu de test annoté pour récupérer le type de chaque question.](figures/fig_9_2_ragas_par_type_question.png){#fig:ragas-type width=100%}
 
 ### Biais identifiés
 
@@ -1795,7 +1766,7 @@ Table: Stratification des scores RAGAS par longueur de la réponse générée (c
 
 La figure 9.3 visualise cette corrélation point par point sur les deux métriques les plus sensibles, *faithfulness* et *answer relevancy*, et matérialise la régression linéaire associée.
 
-![Fig. 9.3. Effet de la longueur de la réponse générée (en mots, axe X) sur les scores RAGAS de *Faithfulness* (gauche) et *Answer Relevancy* (droite). Une question = un point ($n = 50$). La droite rouge pointillée correspond à une régression linéaire simple, le coefficient de Pearson est indiqué dans le titre de chaque sous-figure. Source : résultats détaillés par question de la configuration de référence `recursive-512-64 / ada-002 / hybrid-k5 / azure-gpt35`, longueur calculée à partir du texte de chaque réponse.](figures/fig_9_4_scatter_longueur_ragas.png){#fig:length-ragas width=95%}
+![Fig. 9.3. Effet de la longueur de la réponse générée (en mots, axe X) sur les scores RAGAS de *Faithfulness* (gauche) et *Answer Relevancy* (droite). Une question = un point ($n = 50$). La droite rouge pointillée correspond à une régression linéaire simple, le coefficient de Pearson est indiqué dans le titre de chaque sous-figure. Source : résultats détaillés par question de la configuration de référence `recursive-512-64 / ada-002 / hybrid-k5 / azure-gpt35`, longueur calculée à partir du texte de chaque réponse.](figures/fig_9_3_scatter_longueur_ragas.png){#fig:length-ragas width=95%}
 
 Une partie de cette corrélation est légitime : les réponses très courtes sont essentiellement des refus contrôlés, par construction notés *faithfulness* = 0 par RAGAS. Mais une partie correspond à un biais documenté du *LLM-as-judge* : les juges LLM tendent à mieux noter les réponses verbeuses, plus structurées et plus enrobées, indépendamment de leur exactitude factuelle [@Zheng2023JudgeBias]. Sur les questions factuelles courtes (« Quels sont les EPI obligatoires ? »), la sur-longueur amplifie en outre le *context recall* mécaniquement, puisque toutes les sources sont de facto citées dans une réponse plus longue. Deux mitigations sont à étudier en parallèle de la prochaine itération : durcir la consigne de concision dans le *prompt* système et calibrer les scores RAGAS sur un échantillon annoté humainement (§ 5.2.3).
 
@@ -1803,7 +1774,7 @@ Biais linguistique (effet faible sur la moyenne, mais asymétrie structurelle à
 
 La figure 9.4 croise ces deux stratifications par métadonnées (langue à gauche, criticité à droite) sur les quatre scores RAGAS, et permet de visualiser à la fois l'asymétrie FR/EN évoquée ci-dessus et l'absence d'effet net de la criticité métier sur la qualité de réponse moyenne.
 
-![Fig. 9.4. Scores RAGAS stratifiés par langue de la question (a) et par criticité métier (b), sur la configuration de référence. Boxplots par métrique RAGAS, effectifs indiqués dans la légende. La sous-figure (a) montre que les questions EN ($n = 9$) ont en moyenne des scores plus élevés que les FR ($n = 41$), effet à interpréter avec prudence vu la composition des deux sous-échantillons (cf. § 9.5, biais linguistique). La sous-figure (b) ne montre pas d'effet net de la criticité, hors léger fléchissement sur les criticités basse et moyenne (effectifs très réduits, $n = 3$ et $n = 5$). Source : résultats détaillés par question de la configuration de référence, joints au jeu de test annoté pour récupérer la langue et la criticité de chaque question.](figures/fig_9_5_ragas_par_langue_criticite.png){#fig:lang-crit width=100%}
+![Fig. 9.4. Scores RAGAS stratifiés par langue de la question (a) et par criticité métier (b), sur la configuration de référence. Boxplots par métrique RAGAS, effectifs indiqués dans la légende. La sous-figure (a) montre que les questions EN ($n = 9$) ont en moyenne des scores plus élevés que les FR ($n = 41$), effet à interpréter avec prudence vu la composition des deux sous-échantillons (cf. § 9.5, biais linguistique). La sous-figure (b) ne montre pas d'effet net de la criticité, hors léger fléchissement sur les criticités basse et moyenne (effectifs très réduits, $n = 3$ et $n = 5$). Source : résultats détaillés par question de la configuration de référence, joints au jeu de test annoté pour récupérer la langue et la criticité de chaque question.](figures/fig_9_4_ragas_par_langue_criticite.png){#fig:lang-crit width=100%}
 
 ### Retours utilisateurs (phase de test)
 

@@ -191,13 +191,13 @@ def fig_8_1_heatmap_mrr_modele_chunking(out_dir: Path) -> None:
         ax=ax,
     )
     ax.set_title(
-        "Fig 8.1 — MRR moyen par modèle d'embedding et stratégie de chunking\n"
+        "Fig 8.2 — MRR moyen par modèle d'embedding et stratégie de chunking\n"
         "(moyenne sur les 6 variantes de récupération)"
     )
     ax.set_xlabel("Stratégie de chunking")
     ax.set_ylabel("Modèle d'embedding")
     plt.xticks(rotation=30, ha="right")
-    _save(fig, "fig_8_1_heatmap_mrr_modele_chunking.png", out_dir)
+    _save(fig, "fig_8_2_heatmap_mrr_modele_chunking.png", out_dir)
 
 
 def fig_8_2_barplot_mrr_par_variante_recuperation(out_dir: Path) -> None:
@@ -218,14 +218,14 @@ def fig_8_2_barplot_mrr_par_variante_recuperation(out_dir: Path) -> None:
     for i, m in enumerate(means.values):
         ax.scatter(i, m, marker="D", color="red", s=55, zorder=5, label="moyenne" if i == 0 else "")
     ax.set_title(
-        "Fig 8.2 — Distribution du MRR par variante de récupération\n"
+        "Fig 8.3 — Distribution du MRR par variante de récupération\n"
         "(chaque point = une combinaison chunking × embedding)"
     )
     ax.set_xlabel("Variante de récupération")
     ax.set_ylabel("MRR")
     ax.legend(loc="lower left")
     plt.xticks(rotation=15, ha="right")
-    _save(fig, "fig_8_2_barplot_mrr_par_variante_recuperation.png", out_dir)
+    _save(fig, "fig_8_3_barplot_mrr_par_variante_recuperation.png", out_dir)
 
 
 def fig_8_3_scatter_pareto_mrr_vs_latence(out_dir: Path) -> None:
@@ -269,10 +269,10 @@ def fig_8_3_scatter_pareto_mrr_vs_latence(out_dir: Path) -> None:
     ax.set_xscale("log")
     ax.set_xlabel("Latence médiane de récupération (ms, échelle log)")
     ax.set_ylabel("MRR moyen (sur 9 chunkings × 6 retrievals)")
-    ax.set_title("Fig 8.3 — Compromis MRR vs latence par modèle d'embedding")
+    ax.set_title("Fig 8.7 — Compromis MRR vs latence par modèle d'embedding")
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(loc="lower right", fontsize=9)
-    _save(fig, "fig_8_3_scatter_pareto_mrr_vs_latence.png", out_dir)
+    _save(fig, "fig_8_7_scatter_pareto_mrr_vs_latence.png", out_dir)
 
 
 def fig_8_4_distribution_mrr(out_dir: Path) -> None:
@@ -297,11 +297,11 @@ def fig_8_4_distribution_mrr(out_dir: Path) -> None:
         xy=(worst["mrr"], 5), xytext=(worst["mrr"] + 0.05, 40),
         arrowprops=dict(arrowstyle="->", color="darkred"), fontsize=8, color="darkred",
     )
-    ax.set_title(f"Fig 8.4 — Distribution du MRR sur les {len(df)} configurations testées")
+    ax.set_title(f"Fig 8.1 — Distribution du MRR sur les {len(df)} configurations testées")
     ax.set_xlabel("MRR")
     ax.set_ylabel("Nombre de configurations")
     ax.legend()
-    _save(fig, "fig_8_4_distribution_mrr.png", out_dir)
+    _save(fig, "fig_8_1_distribution_mrr.png", out_dir)
 
 
 def fig_8_5_radar_ragas_5_configs(out_dir: Path) -> None:
@@ -328,9 +328,9 @@ def fig_8_5_radar_ragas_5_configs(out_dir: Path) -> None:
     ax.set_yticks([0.2, 0.4, 0.6, 0.8, 1.0])
     ax.set_yticklabels(["0.2", "0.4", "0.6", "0.8", "1.0"], fontsize=8)
     ax.set_rlabel_position(180 / n)
-    ax.set_title("Fig 8.5 — Profil RAGAS des 5 configurations de génération", pad=24)
+    ax.set_title("Fig 8.4 — Profil RAGAS des 5 configurations de génération", pad=24)
     ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.15), ncol=2, fontsize=9, frameon=True)
-    _save(fig, "fig_8_5_radar_ragas_5_configs.png", out_dir)
+    _save(fig, "fig_8_4_radar_ragas_5_configs.png", out_dir)
 
 
 def fig_8_6_barplot_ragas_5_configs(out_dir: Path) -> None:
@@ -381,10 +381,10 @@ def fig_8_7_boxplot_stabilite(out_dir: Path) -> None:
     for i, label in enumerate(list(cols.values())):
         ax.text(i, medians[label] + 0.025, f"med = {medians[label]:.2f}",
                 ha="center", fontsize=8, color="darkblue", fontweight="bold")
-    ax.set_title("Fig 8.7 — Distribution des 4 indicateurs de stabilité (50 questions)")
+    ax.set_title("Fig 8.5 — Distribution des 4 indicateurs de stabilité (50 questions)")
     ax.set_ylim(0, 1.05)
     ax.set_xlabel("")
-    _save(fig, "fig_8_7_boxplot_stabilite.png", out_dir)
+    _save(fig, "fig_8_5_boxplot_stabilite.png", out_dir)
 
 
 def fig_8_8_scatter_interruns_vs_paraphrases(out_dir: Path) -> None:
@@ -407,11 +407,11 @@ def fig_8_8_scatter_interruns_vs_paraphrases(out_dir: Path) -> None:
                     color="darkred")
     ax.set_xlabel("BERTScore F1 — stabilité inter-runs (ans_bertscore_f1_mean)")
     ax.set_ylabel("BERTScore F1 — robustesse aux paraphrases (paraphrase_bertscore_f1)")
-    ax.set_title("Fig 8.8 — Stabilité inter-runs vs robustesse aux paraphrases (par question)")
+    ax.set_title("Fig 8.6 — Stabilité inter-runs vs robustesse aux paraphrases (par question)")
     ax.set_xlim(lo, hi)
     ax.set_ylim(lo, hi)
     ax.legend(loc="lower right")
-    _save(fig, "fig_8_8_scatter_interruns_vs_paraphrases.png", out_dir)
+    _save(fig, "fig_8_6_scatter_interruns_vs_paraphrases.png", out_dir)
 
 
 def fig_8_9_latence_endtoend_stacked(out_dir: Path) -> None:
@@ -431,9 +431,9 @@ def fig_8_9_latence_endtoend_stacked(out_dir: Path) -> None:
     ax.set_xticks(x)
     ax.set_xticklabels(df["config"], rotation=20, ha="right")
     ax.set_ylabel("Temps moyen par question (s)")
-    ax.set_title("Fig 8.9 — Décomposition de la latence end-to-end (récupération + génération)")
+    ax.set_title("Fig 8.8 — Décomposition de la latence end-to-end (récupération + génération)")
     ax.legend(loc="upper left")
-    _save(fig, "fig_8_9_latence_endtoend_stacked.png", out_dir)
+    _save(fig, "fig_8_8_latence_endtoend_stacked.png", out_dir)
 
 
 # ---------------------------------------------------------------------------
@@ -550,10 +550,10 @@ def fig_9_3_ragas_par_type_question(out_dir: Path) -> None:
     ax.set_ylim(0, 1.05)
     ax.set_xlabel("")
     ax.set_ylabel("Score RAGAS (moyenne ± IC 95 %)")
-    ax.set_title("Fig 9.3 — Stratification des scores RAGAS par type de question")
+    ax.set_title("Fig 9.2 — Stratification des scores RAGAS par type de question")
     ax.legend(title="Métrique", loc="upper center", bbox_to_anchor=(0.5, -0.13),
               ncol=4, fontsize=9)
-    _save(fig, "fig_9_3_ragas_par_type_question.png", out_dir)
+    _save(fig, "fig_9_2_ragas_par_type_question.png", out_dir)
 
 
 def fig_9_4_scatter_longueur_ragas(out_dir: Path) -> None:
@@ -582,12 +582,12 @@ def fig_9_4_scatter_longueur_ragas(out_dir: Path) -> None:
         ax.grid(True, alpha=0.3)
     axes[0].set_ylabel("Score RAGAS")
     fig.suptitle(
-        "Fig 9.4 — Biais de longueur sur les scores RAGAS\n"
+        "Fig 9.3 — Biais de longueur sur les scores RAGAS\n"
         "(config : recursive-512-64 / ada-002 / hybrid-k5 / azure-gpt35)",
         fontsize=12, fontweight="bold",
     )
     fig.tight_layout()
-    _save(fig, "fig_9_4_scatter_longueur_ragas.png", out_dir)
+    _save(fig, "fig_9_3_scatter_longueur_ragas.png", out_dir)
 
 
 def fig_9_5_ragas_par_langue_criticite(out_dir: Path) -> None:
@@ -640,10 +640,10 @@ def fig_9_5_ragas_par_langue_criticite(out_dir: Path) -> None:
         ax.set_ylim(0, 1.05)
         ax.tick_params(axis="x", labelrotation=10)
 
-    fig.suptitle("Fig 9.5 — Scores RAGAS stratifiés par langue et par criticité",
+    fig.suptitle("Fig 9.4 — Scores RAGAS stratifiés par langue et par criticité",
                  fontsize=12, fontweight="bold")
     fig.tight_layout()
-    _save(fig, "fig_9_5_ragas_par_langue_criticite.png", out_dir)
+    _save(fig, "fig_9_4_ragas_par_langue_criticite.png", out_dir)
 
 
 # ---------------------------------------------------------------------------
@@ -651,20 +651,18 @@ def fig_9_5_ragas_par_langue_criticite(out_dir: Path) -> None:
 # ---------------------------------------------------------------------------
 
 FIGURES = {
-    "8.1": fig_8_1_heatmap_mrr_modele_chunking,
-    "8.2": fig_8_2_barplot_mrr_par_variante_recuperation,
-    "8.3": fig_8_3_scatter_pareto_mrr_vs_latence,
-    "8.4": fig_8_4_distribution_mrr,
-    "8.5": fig_8_5_radar_ragas_5_configs,
-    "8.6": fig_8_6_barplot_ragas_5_configs,
-    "8.7": fig_8_7_boxplot_stabilite,
-    "8.8": fig_8_8_scatter_interruns_vs_paraphrases,
-    "8.9": fig_8_9_latence_endtoend_stacked,
+    "8.1": fig_8_4_distribution_mrr,
+    "8.2": fig_8_1_heatmap_mrr_modele_chunking,
+    "8.3": fig_8_2_barplot_mrr_par_variante_recuperation,
+    "8.4": fig_8_5_radar_ragas_5_configs,
+    "8.5": fig_8_7_boxplot_stabilite,
+    "8.6": fig_8_8_scatter_interruns_vs_paraphrases,
+    "8.7": fig_8_3_scatter_pareto_mrr_vs_latence,
+    "8.8": fig_8_9_latence_endtoend_stacked,
     "9.1": fig_9_1_distribution_categories_erreur,
-    "9.2": fig_9_2_heatmap_question_ragas,
-    "9.3": fig_9_3_ragas_par_type_question,
-    "9.4": fig_9_4_scatter_longueur_ragas,
-    "9.5": fig_9_5_ragas_par_langue_criticite,
+    "9.2": fig_9_3_ragas_par_type_question,
+    "9.3": fig_9_4_scatter_longueur_ragas,
+    "9.4": fig_9_5_ragas_par_langue_criticite,
 }
 
 
