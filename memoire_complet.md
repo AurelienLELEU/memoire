@@ -232,7 +232,7 @@ L'autre problème, plus piégeux, est celui de l'hallucination. Les LLMs peuvent
 
 ### Neural IR et récupération dense
 
-Avec les modèles Transformers, la récupération dense a pris son essor. L'idée est d'encoder requêtes et passages avec un bi-encodeur (deux BERT indépendants) et de les comparer par similarité vectorielle. DPR (Karpukhin et al., 2020) a montré que cette approche pouvait surpasser BM25 sur des *benchmarks* de QA (*Question/Answer*) ouverts [@Karpukhin2020]. Les gains suivants ont surtout été obtenus via des stratégies d'entraînement avec *hard negatives* et des travaux comme ORQA [@Lee2019ORQA] et ANCE[@Xiong2020ANCE], non détaillés ici.
+Avec les modèles Transformers, la récupération dense a pris son essor. L'idée est d'encoder requêtes et passages avec un bi-encodeur (deux BERT indépendants) et de les comparer par similarité vectorielle. DPR (Karpukhin et al., 2020) a montré que cette approche pouvait surpasser BM25 sur des *benchmarks* de QA (*Question/Answer*) ouverts [@Karpukhin2020]. Les gains suivants ont surtout été obtenus via des stratégies d'entraînement avec *hard negatives* et des travaux comme ORQA [@Lee2019ORQA] et ANCE [@Xiong2020ANCE], non détaillés ici.
 
 La question pratique pour un cas comme ScribBERT est directe : **un modèle entraîné sur des données web généralistes est-il adapté à un vocabulaire métier ?** Le *benchmark* BEIR a montré une dégradation significative des performances hors domaine d'entraînement [@Thakur2021BEIR]. Cette question sera traitée en Partie II.
 
@@ -1677,7 +1677,7 @@ La figure 9.1 reporte la fréquence de chaque catégorie obtenue par classificat
 
 ![Fig. 9.1. Distribution des 50 questions du jeu de test par catégorie d'erreur (configuration de référence `recursive-512-64 / ada-002 / hybrid-k5 / azure-gpt35`). Classification automatique non-exclusive à partir des seuils RAGAS définis au § 9.2 (échec : *context recall* < 0,30 hors hors-périmètre ; bruit : *context precision* < 0,30 ; hallucination : *faithfulness* < 0,50 avec *context recall* ≥ 0,50 ; etc.). La catégorie *inversion modalité* n'est pas détectable à partir des seuls scores RAGAS automatiques et reste fixée à 0 dans cette vue, ce qui est cohérent avec l'évaluation humaine sur sous-échantillon (0/15, cf. § 9.2). La barre « OK » regroupe les questions n'ayant déclenché aucune des catégories d'erreur ci-dessus (ni échec, ni bruit, ni hallucination, ni omission, ni contradiction silencieuse). Source : résultats détaillés par question de la configuration de référence (campagne de génération).](figures/fig_9_1_distribution_categories_erreur.png){#fig:err-categories width=90%}
 
-Lecture transverse : sur les 50 questions, 13 sont concernées par au moins une erreur de récupération (miss ou bruit, certaines cumulant les deux), soit 26%. C'est cohérent avec un Hit@5 de 0,80 sur la config (§ 8.3) et confirme que le levier principal d'amélioration reste la récupération plutôt que la génération. Sur le sous-ensemble où la récupération est correcte, la *faithfulness* moyenne grimpe à 0,88, contre 0,77 sur l'ensemble.
+Lecture transverse : sur les 50 questions, 13 sont concernées par au moins une erreur de récupération (miss ou bruit, certaines cumulant les deux), soit 26%. C'est cohérent avec un Hit@5 de 0,80 sur la config (§ 8.2) et confirme que le levier principal d'amélioration reste la récupération plutôt que la génération. Sur le sous-ensemble où la récupération est correcte, la *faithfulness* moyenne grimpe à 0,88, contre 0,77 sur l'ensemble.
 
 ### Études de cas
 
