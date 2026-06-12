@@ -75,7 +75,7 @@ La démarche s'organise en trois parties :
 - Partie II - Méthodologie d'évaluation : construction du protocole, choix des métriques, conditions expérimentales.
 - Partie III - Application et discussion : mise en œuvre sur ScribBERT, résultats, et recommandations.
 
-Une remarque pratique sur la lecture. Le sujet croise plusieurs vocabulaires (recherche d'information, *machine learning*, santé-sécurité), et la littérature de référence est très majoritairement anglophone : un certain nombre de termes techniques sont donc en anglais et signalés en italique à leur première occurrence dans une section. Pour ne pas alourdir le texte, ces termes sont définis dans l'Annexe E (glossaire), à laquelle le lecteur peut se reporter à tout moment. Les acronymes (RAG, LLM, MRR, nDCG, etc.) sont développés lors de leur première occurrence dans le corps du texte.
+Une remarque pratique sur la lecture. Le sujet croise plusieurs vocabulaires (recherche d'information, *machine learning*, santé-sécurité), et la littérature de référence est très majoritairement anglophone : un certain nombre de termes techniques sont donc en anglais et signalés en italique à leur première occurrence dans une section. Pour ne pas alourdir le texte, ces termes sont définis dans l'Annexe D (glossaire), à laquelle le lecteur peut se reporter à tout moment. Les acronymes (RAG, LLM, MRR, nDCG, etc.) sont développés lors de leur première occurrence dans le corps du texte.
 
 ## Cadre applicatif : le projet ScribBERT {-}
 
@@ -704,7 +704,7 @@ Dans la pratique, quelques principes font consensus. L'*ancrage explicite* est e
 
 #### Gestion de la fenêtre de contexte
 
-Le budget de *tokens* est une contrainte structurante. Avec 10 passages de 500 *tokens* chacun et un modèle qui accepte 8k *tokens* en contexte, il faut faire des choix. La stratégie la plus simple est la troncature (couper les passages les moins bien classés). Les *chunks* longs peuvent aussi être compressés avant injection, ou le contexte rempli par ordre de pertinence jusqu'à un seuil. Les LLMs récents acceptent des contextes de 128k *tokens* et plus, mais attention au phénomène *lost in the middle* expliqué plus tôt : le modèle tend à moins bien exploiter les passages placés au milieu d'un gros contexte, ce qui peut fausser les réponses.
+Le budget de *tokens* est une contrainte structurante. Avec 10 passages de 500 *tokens* chacun et un modèle qui accepte 8k *tokens* en contexte, il faut faire des choix. La stratégie la plus simple est la troncature (couper les passages les moins bien classés). Les *chunks* longs peuvent aussi être compressés avant injection, ou le contexte rempli par ordre de pertinence jusqu'à un seuil. Les LLMs récents acceptent des contextes de 128k *tokens* et plus, mais attention au phénomène *lost in the middle* expliqué plus tôt : le modèle tend à moins bien exploiter les passages placés au milieu d'un contexte volumineux, ce qui peut fausser les réponses.
 
 #### Paramètres de décodage
 
@@ -723,7 +723,7 @@ L'important, au-delà du format, est que la traçabilité soit *machine-vérifia
 
 #### Garde-fous pour le contexte santé-sécurité
 
-En contexte critique, il faut prévoir des garde-fous explicites. Le plus important est le refus contrôlé : quand la récupération ne trouve rien de suffisamment pertinent, mieux vaut répondre "je n'ai pas trouvé cette information dans les référentiels" plutôt que d'improviser. De même, si plusieurs sources se contredisent, le système devrait le signaler plutôt que d'arbitrer en silence. Pour les questions hors périmètre santé-sécurité, un message de refus est préférable à une réponse approximative.
+En contexte critique, il faut prévoir des garde-fous explicites. Le plus important est le refus contrôlé : quand la récupération ne trouve rien de suffisamment pertinent, mieux vaut répondre "je n'ai pas trouvé cette information dans les référentiels" plutôt que d'improviser. De même, si plusieurs sources se contredisent, le système doit le signaler plutôt que d'arbitrer en silence. Pour les questions hors périmètre santé-sécurité, un message de refus est préférable à une réponse approximative.
 
 Ces garde-fous n'apparaissent pas spontanément : la première version du *prompt* système de ScribBERT était beaucoup trop permissive. Sur des questions qui n'avaient rien à voir avec la santé-sécurité, le modèle sortait des recettes de cookies, répondait à partir de sa connaissance générale, et oubliait de citer ses sources. Les instructions ont dû être durcies progressivement : cadrer explicitement le domaine, exiger une citation, autoriser et même encourager le "je ne sais pas" lorsque le contexte ne contient pas l'information. C'est en partie ce qui a permis de comprendre que le *prompt* fait autant partie de l'évaluation que le modèle ou la vectorisation.
 
@@ -1045,7 +1045,7 @@ Le Chapitre 6 approfondit la dimension stabilité, qui mérite un traitement sp�
 
 ### Pourquoi la stabilité est une dimension distincte de la fiabilité
 
-Les métriques classiques d'évaluation d'un RAG évoquées plus tôt sont calculées sur une exécution unique d'une requête. Elles décrivent la qualité moyenne d'une réponse à un instant t, mais ne disent rien sur ce qui se passe lorsque la même requête est rejouée ou que l'utilisateur formule légèrement différemment sa question.
+Les métriques classiques d'évaluation d'un RAG évoquées plus tôt sont calculées sur une exécution unique d'une requête. Elles décrivent la qualité moyenne d'une réponse à un instant t, mais ne donnent aucune information quant à ce qu'il advient lorsque la même requête est rejouée ou que l'utilisateur formule légèrement différemment sa question.
 
 Or trois phénomènes rendent un RAG intrinsèquement variable :
 
@@ -2007,7 +2007,7 @@ L'investissement méthodologique fait dans ce mémoire sur l'évaluation rigoure
 
 Ce mémoire posait une question simple à formuler mais difficile à traiter : *comment évaluer la cohérence et la fiabilité d'un système RAG ?* La réponse défendue ici tient en une idée simple : la fiabilité d'un RAG n'est pas une étiquette qu'on appose après avoir constaté que « les réponses ont l'air bonnes », c'est une propriété systémique qu'il faut décomposer en dimensions mesurables (pertinence de la récupération, fidélité aux sources, pertinence de la réponse, stabilité inter-runs, traçabilité auditable), puis instrumenter par un protocole reproductible combinant métriques automatiques et validation humaine ciblée. La cohérence, en particulier, n'est pas un concept distinct à juxtaposer à la fiabilité : elle se laisse précisément lire comme le couple « fidélité aux sources + stabilité des réponses », et c'est cette décomposition qui rend possible le diagnostic de l'endroit où la chaîne échoue (récupération, *reranking*, génération) plutôt qu'un verdict global au jugé.
 
-L'apport du travail est d'abord méthodologique. Il propose une définition opératoire de la fiabilité, un cadre d'évaluation diagnostique structuré autour de ces dimensions, et l'intégration explicite de la stabilité inter-runs comme dimension à part entière, là où la plupart des *frameworks* existants la traitent comme un effet de bord. Il est aussi applicatif : une architecture RAG fonctionnelle, instanciée sur ScribBERT au département P2S de Bouygues Travaux Publics, dont les choix techniques (souveraineté des données, multilinguisme FR/EN, corpus normatif hétérogène) ont été documentés et justifiés, et dont les limites du POC (absence d'hybridation lexicale, pas de *reranking*, gestion fragile des tableaux) ont été identifiées et hiérarchisées dans un plan d'amélioration. Le cadre proposé est par construction transférable : il ne dépend pas du corpus santé-sécurité et peut être réinstancié sur d'autres domaines documentaires soumis à des exigences de fiabilité élevées.
+L'apport du travail est d'abord méthodologique. Il propose une définition opératoire de la fiabilité, un cadre d'évaluation diagnostique structuré autour de ces dimensions, et l'intégration explicite de la stabilité inter-runs comme dimension à part entière, là où la plupart des *frameworks* existants la traitent comme un effet de bord. Il est aussi applicatif : une architecture RAG fonctionnelle a été instanciée sur ScribBERT au département P2S de Bouygues Travaux Publics, et ses choix techniques (souveraineté des données, multilinguisme FR/EN, corpus normatif hétérogène) ont été documentés et justifiés. Les limites du POC (absence d'hybridation lexicale, pas de *reranking*, gestion fragile des tableaux) ont quant à elles été identifiées et hiérarchisées dans un plan d'amélioration. Le cadre proposé est par construction transférable : il ne dépend pas du corpus santé-sécurité et peut être réinstancié sur d'autres domaines documentaires soumis à des exigences de fiabilité élevées.
 
 Ce travail comporte trois limites. La première tient à la taille du jeu de test interne (50 questions stratifiées), en-deçà des 150 à 300 questions habituellement recommandées pour assoir des comparaisons statistiquement décisives entre configurations ; les écarts observés entre variantes doivent donc être interprétés comme des signaux d'orientation plus que comme des verdicts. La deuxième tient à l'instanciation incomplète du protocole : 864 configurations *retrieval* ont été *benchmarkées* (dont 750 exploitables), mais seules 5 ont fait l'objet d'une évaluation RAGAS complète et une seule d'une étude de stabilité étendue ; le protocole décrit en Partie II est donc validé sur son axe principal, mais reste à dérouler sur l'ensemble de la matrice. La troisième tient à la généralisation : transférer le cadre à d'autres contextes (juridique, médical, technique aéronautique) nécessitera une validation empirique sur ces corpus, en particulier pour ce qui concerne la pertinence des seuils et des pondérations de la grille humaine.
 
@@ -2015,7 +2015,7 @@ Les perspectives qui s'ouvrent sont à la fois opérationnelles et de recherche.
 
 \needspace{10\baselineskip}
 
-Au moment de la dernière révision de ce mémoire, le projet ScribBERT vient d'être validé pour un passage en industrialisation à l'échelle du groupe Bouygues Construction. C'est une forme de validation concrète du travail mené pendant ces deux années d'alternance, et surtout l'occasion de mettre à l'épreuve, sur un périmètre élargi (plus de filiales, plus de langues, plus d'utilisateurs), le protocole décrit ici. Les systèmes RAG s'installent rapidement dans les usages internes des entreprises, mais leur évaluation reste un chantier largement ouvert. Ce mémoire aura cherché à y apporter une contribution modeste mais opérationnelle : considérer la fiabilité non comme une promesse, mais comme une propriété à éprouver dimension par dimension, et à gouverner au même titre que n'importe quel autre indicateur de performance industrielle.
+Au moment de la dernière révision de ce mémoire, le projet ScribBERT vient d'être validé pour un passage en industrialisation à l'échelle du groupe Bouygues Construction. C'est une forme de validation concrète du travail mené pendant ces deux années d'alternance, et surtout l'occasion de mettre à l'épreuve, sur un périmètre élargi (plus de filiales, plus de langues, plus d'utilisateurs), le protocole décrit ici. Les systèmes RAG s'installent rapidement dans les usages internes des entreprises, mais leur évaluation reste un chantier largement ouvert. Ce mémoire aura cherché à y apporter une contribution modeste mais opérationnelle : considérer la fiabilité non comme une promesse, mais comme une propriété à éprouver dimension par dimension, et à gouverner, au même titre que n'importe quel autre indicateur de performance industrielle.
 
 ---
 
@@ -2056,28 +2056,7 @@ Chaque entrée contient les champs suivants : `id`, `question`, `language`, `typ
 
 Les paraphrases associées à chaque question (1 à 3 reformulations préservant l'intention) sont utilisées pour le protocole de stabilité décrit au Ch. 6 et exécuté au § 8.4.
 
-## Annexe B : *Prompt* système ScribBERT {-}
-
-Le *prompt* système utilisé en production POC est reproduit ci-dessous (cf. § 7.7). Il instancie les principes énoncés au Ch. 4.4.2 (ancrage strict, citation obligatoire, autorisation explicite du « je ne sais pas »).
-
-```text
-Contexte de la conversation :
-{context_elements}
-
-Si la question concerne la santé et la sécurité, rédige une réponse en te basant uniquement sur les extraits de documents suivants :
-{context_documents}
-
-Cite les documents que tu utilises ainsi :
-"conformément au document [doc_name], page: [page_number]"
-(sans modifier ou reformuler le nom, respecte la casse, n'ajoute pas d'accents).
-
-Apporte des détails utiles. Structure avec des listes si utile.
-{language_instruction} à la question : "{query}".
-```
-
-Paramètres de décodage associés : température 0,05, *max tokens* non plafonnés au niveau applicatif, pas de *seed* fixée.
-
-## Annexe C : Configurations testées dans le *benchmark* {-}
+## Annexe B : Configurations testées dans le *benchmark* {-}
 
 Le plan factoriel exécuté en phase exploratoire (§ 7.5.2 et § 8.1) couvre 16 modèles de vectorisation × 9 stratégies de *chunking* × 6 variantes de récupération = 864 cellules, dont 750 ont produit des résultats exploitables.
 
@@ -2090,7 +2069,7 @@ Le plan factoriel exécuté en phase exploratoire (§ 7.5.2 et § 8.1) couvre 16
 **Configurations de génération (5) évaluées RAGAS** (§ 8.3) : trois côté Azure (`azure-gpt35` × récupération {`markdown-1200-50` + `ada-002` + `dense-k5-thresh`, `markdown-1200-50` + `ada-002` + `dense-k5-neigh`, `recursive-512-64` + `ada-002` + `hybrid-k5`}) et deux côté local (`local-mistral7b` × récupération {`fixed-256-0` + `minilm-l6` + `dense-k5-neigh`, `recursive-512-64` + `e5-base-ml` + `dense-k5-neigh`}).
 
 
-## Annexe D : Grille d'évaluation humaine instanciée {-}
+## Annexe C : Grille d'évaluation humaine instanciée {-}
 
 La grille générique du Ch. 5.2.2 a été instanciée pour ScribBERT comme suit, sur six critères pondérés. Elle est destinée à être renseignée par des experts P2S sur l'échantillon de questions critiques identifié au § 11.2.1.
 
@@ -2103,7 +2082,7 @@ La grille générique du Ch. 5.2.2 a été instanciée pour ScribBERT comme suit
 
 Score total sur 16. Annotations à l'aveugle sur la configuration testée. Mesure d'accord inter-annotateurs visée : Kappa de Cohen ≥ 0,7.
 
-## Annexe E : Glossaire des termes anglais {-}
+## Annexe D : Glossaire des termes anglais {-}
 
 Ce glossaire reprend les termes anglais (mots et expressions) employés dans le mémoire et italicisés dans le texte. Les acronymes (RAG, LLM, BM25, GPT, API, MRR, nDCG, etc.) sont définis directement lors de leur première occurrence dans le corps du texte.
 
