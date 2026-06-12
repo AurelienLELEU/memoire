@@ -2,7 +2,7 @@
 
 Ce mémoire doit beaucoup à des personnes sans lesquelles le projet ScribBERT n'aurait pas pris la forme qu'il a aujourd'hui.
 
-Je remercie en premier lieu Flavien Martin, responsable Système & Appels d'offres au sein du département Prévention Santé-Sécurité de Bouygues Travaux Publics, pour la confiance qu'il m'a accordée, la liberté d'initiative dont j'ai pu disposer sur ce projet, et les échanges réguliers qui ont structuré ma compréhension des enjeux métier.
+Je remercie en premier lieu Flavien Martin, responsable du Système de management prévention santé-sécurité et Culture sécurité de Bouygues Travaux Publics, pour la confiance qu'il m'a accordée, la liberté d'initiative dont j'ai pu disposer sur ce projet, et les échanges réguliers qui ont structuré ma compréhension des enjeux métier.
 
 Je remercie chaleureusement Julien Larseneur, du pôle Intelligence Artificielle de Bouygues Travaux Publics, pour son encadrement technique exigeant et son insistance sur la rigueur méthodologique de l'évaluation. Beaucoup de choix présentés dans ce mémoire sont directement issus de nos discussions.
 
@@ -1287,7 +1287,7 @@ Table: Configuration de la récupération ScribBERT (POC).
 
 Le choix d'un dense pur s'explique par la simplicité d'implémentation au POC et par une qualité jugée suffisante en évaluation interne (cf. Ch. 4.3.2). L'hybridation sparse+dense (BM25 + vectorisations) reste toutefois une amélioration prioritaire, particulièrement pertinente pour les requêtes contenant des correspondances exactes (numéros de procédure, codes EPI, références normatives), mieux captées par une composante lexicale.
 
-Le filtrage actuellement implémenté repose sur une distance maximale. En pratique, les *chunks* au-delà du seuil sont exclus(cf. Ch. 5.1.2). En revanche, le refus contrôlé strict n'est pas totalement verrouillé dans la version actuelle : quand aucun *chunk* pertinent n'est retenu, un message de contexte indique qu'aucun document n'a été trouvé, mais le modèle peut encore s'appuyer sur l'historique de conversation, ce qui rappelle la nécessité d'un garde-fou plus strict (cf. Ch. 4.4.6).
+Le filtrage actuellement implémenté repose sur une distance maximale. En pratique, les *chunks* au-delà du seuil sont exclus (cf. Ch. 5.1.2). En revanche, le refus contrôlé strict n'est pas totalement verrouillé dans la version actuelle : quand aucun *chunk* pertinent n'est retenu, un message de contexte indique qu'aucun document n'a été trouvé, mais le modèle peut encore s'appuyer sur l'historique de conversation, ce qui rappelle la nécessité d'un garde-fou plus strict (cf. Ch. 4.4.6).
 
 ### Configuration de la génération
 
