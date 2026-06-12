@@ -1323,6 +1323,35 @@ prompt = (
     f'{language_instruction} à la question : "{query}".'
 )
 ```
+```python
+prompt = (
+    f"Contexte de la conversation :\n{context_elements}\n\n"
+    f"Si la question concerne la santé et la sécurité, rédige une réponse "
+    f"en te basant uniquement sur les extraits de documents suivants :\n"
+    f"{context_documents}\n"
+    f"Cite les documents que tu utilises ainsi : "
+    f'« conformément au document [doc_name], page : [page_number] » '
+    f"(sans modifier ni reformuler le nom, respecte la casse,\
+      "n'ajoute pas d'accents). "
+    f"Apporte des détails utiles. Structure avec des listes si utile. "
+    f'{language_instruction} à la question : "{query}".'
+)
+```
+```python
+prompt = (
+      """
+    f"Contexte de la conversation :\n{context_elements}\n\n"
+    f"Si la question concerne la santé et la sécurité, rédige une réponse "
+    f"en te basant uniquement sur les extraits de documents suivants :\n"
+    f"{context_documents}\n"
+    f"Cite les documents que tu utilises ainsi : "
+    f'« conformément au document [doc_name], page : [page_number] » '
+    f"(sans modifier ni reformuler le nom, respecte la casse, n'ajoute pas d'accents). "
+    f"Apporte des détails utiles. Structure avec des listes si utile. "
+    f'{language_instruction} à la question : "{query}".'
+    """
+)
+```
 
 Paramètres de décodage :
 
