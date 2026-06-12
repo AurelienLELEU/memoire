@@ -563,7 +563,7 @@ Pour le POC ScribBERT, ces critères ont rapidement convergé vers `text-embeddi
 
 ### Le rôle du *chunking* et du prétraitement textuel
 
-Le *chunking* est probablement le sujet qui a demandé le plus de temps d'exploration : plusieurs jours, voire semaines, passés à *benchmarker* des algorithmes différents sur le même corpus avant de trancher. Il est souvent présenté comme un "détail d'ingestion" dans les tutoriels, mais c'est en réalité un choix de modélisation à part entière, dont les effets se propagent à toute la chaîne. Ce qui a fini par être retenu pour ScribBERT, c'est qu'une fois les PDF convertis en Markdown pour préserver la structure (titres, listes, tableaux), un *chunking* par regex sur les marqueurs structurels donne le meilleur compromis : les référentiels du corpus partagent la même charte de mise en forme, donc une regex bien ciblée récupère proprement les titres, les numérotations, les paragraphes. C'est également plus rapide à exécuter et plus prévisible qu'un *chunking* sémantique ou à longueur fixe pure.
+Le *chunking* est probablement le sujet qui a demandé le plus de temps d'exploration : plusieurs jours, voire semaines, passés à *benchmarker* des algorithmes différents sur le même corpus avant de trancher. Il est souvent présenté comme un "détail d'ingestion" dans les tutoriels, mais c'est en réalité un choix de modélisation à part entière, dont les effets se propagent à toute la chaîne. La solution finalement retenue pour ScribBERT, est qu'une fois les PDF convertis en Markdown pour préserver la structure (titres, listes, tableaux), un *chunking* par regex sur les marqueurs structurels donne le meilleur compromis : les référentiels du corpus partagent la même charte de mise en forme, donc une regex bien ciblée récupère proprement les titres, les numérotations, les paragraphes. C'est également plus rapide à exécuter et plus prévisible qu'un *chunking* sémantique ou à longueur fixe pure.
 
 \needspace{10\baselineskip}
 
@@ -577,16 +577,16 @@ Plusieurs approches existent, chacune avec ses compromis :
 - *Chunking* sémantique : utilise un modèle (souvent un modèle de vectorisation) pour détecter des ruptures de sujet et grouper les phrases sémantiquement proches. Plus coûteux en ingestion, gain variable.
 - *Chunking* sur mesure (regex / *parser* dédié) : pour des formats spécifiques (procédures avec format imposé, fiches sécurité), un *parser* dédié peut extraire des unités cohérentes (par exemple, une règle par paragraphe).
 
-Pour un corpus santé-sécurité, les stratégies structurelle, récursive et sur mesure sont souvent les plus pertinentes, car les règles ont une granularité naturelle (article, paragraphe numéroté, étape de procédure).
+Pour un corpus santé-sécurité, les stratégies structurelles, récursives et sur mesure sont souvent les plus pertinentes, car les règles ont une granularité naturelle (article, paragraphe numéroté, étape de procédure).
 
 #### Taille des *chunks* et chevauchement
 
 Deux paramètres clés interagissent :
 
-- Taille du *chunk* ($T$, en *tokens*) : un chunk trop petit peut mener à une perte de contexte, de l'ambiguïté, perte de l'antécédent ("il", "cette règle") ; à l'inverse d'un chunk trop grand qui amène de la dilution sémantique, une vectorisation moins discriminante, un contexte LLM potentiellement saturé.
+- Taille du *chunk* ($T$, en *tokens*) : un chunk trop petit peut mener à une perte de contexte, de l'ambiguïté, perte de l'antécédent ("il", "cette règle"), à l'inverse d'un chunk trop grand qui amène de la dilution sémantique, une vectorisation moins discriminante, un contexte LLM potentiellement saturé.
 - *Overlap* ($O$, généralement 10-20% de $T$) : permet d'amortir les coupures malheureuses au prix d'une redondance dans l'index.
 
-L'optimum dépend du type de question : les questions factuelles courtes tolèrent des *chunks* petits, tandis que les questions procédurales ("comment faire X ?") requièrent souvent des *chunks* plus larges qui capturent une séquence d'étapes. C'est ce genre de tensions qui a été observé lors du développement : en réduisant la taille des *chunks*, la précision augmentait sur certaines questions, mais la cohérence des réponses se dégradait sur d'autres. Un protocole rigoureux teste plusieurs configurations ($T \in \{256, 512, 1024\}$, $O \in \{0, 64, 128\}$) et mesure l'impact *end-to-end*. C'est ce qui est fait en Partie III.
+L'optimum dépend du type de question : les questions factuelles courtes tolèrent des *chunks* petits, tandis que les questions procédurales ("comment faire X ?") requièrent souvent des *chunks* plus larges qui capturent une séquence d'étapes. C'est ce genre de tensions qui a été observé lors du développement : en réduisant la taille des *chunks*, la précision augmentait sur certaines questions, mais la cohérence des réponses se dégradait sur d'autres. Un protocole rigoureux teste plusieurs configurations ($T \in \{256, 512, 1024\}$, $O \in \{0, 64, 128\}$) et mesure l'impact *end-to-end*; c'est ce qui est fait en Partie III.
 
 \needspace{10\baselineskip}
 
@@ -604,7 +604,7 @@ Un schéma de métadonnées robuste pour ScribBERT pourrait inclure : `document_
 
 Le prétraitement comprend :
 
-- Extraction texte depuis PDF. Les PDFs techniques posent des problèmes spécifiques : tableaux, schémas avec légendes, en-têtes/pieds de page répétitifs. Des outils comme `Unstructured`, `pdfplumber`, `pymupdf` ou `Marker` ont des compromis différents.
+- Extraction du texte depuis PDF. Les PDFs techniques posent des problèmes spécifiques : tableaux, schémas avec légendes, en-têtes/pieds de page répétitifs. Des outils comme `Unstructured`, `pdfplumber`, `pymupdf` ou `Marker` ont des compromis différents.
 - Suppression du bruit : numéros de page, en-têtes répétés, filigranes.
 - Normalisation : unification des guillemets, des espaces insécables, des tirets ; éventuellement passage en minuscules pour le *sparse retrieval* (mais pas pour les *vectorisations*, qui sont généralement sensibles à la casse).
 - Conservation du formatage utile : listes à puces, numérotation hiérarchique, gras pour les termes-clés.
