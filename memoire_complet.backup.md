@@ -15,7 +15,7 @@ Seulement voilà : dans le domaine de la santé-sécurité, un effet "ouahou" ne
 La réponse n'est pas triviale. Évaluer un RAG, ce n'est pas comme évaluer un moteur de recherche classique (où l'on vérifie que les bons documents remontent), ni comme évaluer un LLM seul (où l'on juge la qualité du texte). C'est évaluer une **chaîne**, et les erreurs peuvent se situer à chaque maillon : mauvais découpage des documents, mauvaise recherche, mauvaise exploitation du contexte par le modèle. Comment savoir *où* ça déraille ?
 
 L'objectif de ce mémoire est de proposer une méthode d'évaluation rigoureuse et reproductible pour mesurer la pertinence, la cohérence et la fiabilité d'un système RAG. Concrètement, il s'agit d'identifier des critères d'évaluation adaptés, d'explorer et comparer différentes métriques, d'étudier l'impact des paramètres de la pipeline RAG, et de mettre en œuvre ce protocole sur ScribBERT. L'ambition est que ce cadre puisse servir au-delà de ce cas d'usage, dans d'autres contextes documentaires.
-
+ 
 La démarche s'organise en trois parties :
 
 - **Partie I** - Cadre conceptuel et théorique : les fondements du RAG, l'histoire de la recherche d'information, et les notions de pertinence et de cohérence qui sous-tendent l'évaluation.
