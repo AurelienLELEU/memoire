@@ -443,7 +443,7 @@ où $\mathrm{rank}_q$ est le rang du premier document pertinent.
 
 $$\mathrm{DCG@k} = \sum_{i=1}^{k} \frac{2^{rel_i}-1}{\log_2(i+1)}\quad;\quad \mathrm{nDCG@k}=\frac{\mathrm{DCG@k}}{\mathrm{IDCG@k}}$$
 
-Dans le cadre de ce mémoire, les annotations sont binaires ($rel_i \in \{0,1\}$) : la formule se réduit alors à $\mathrm{DCG@k} = \sum_{i=1}^{k} \mathbb{1}[i\in \mathrm{Rel}(q)] / \log_2(i+1)$, qui correspond à l'implémentation utilisée dans le code (`src/evaluation/retrieval_metrics.py`, fonction `ndcg_at_k`). Le calcul s'effectue après projection au niveau document ($\mathrm{Rel}(q)$ et $\mathrm{TopK}(q)$ sont dédupliqués par `doc_id` avant comparaison), de manière à ce qu'un même document représenté par plusieurs *chunks* dans le top-$k$ ne soit pas compté plusieurs fois.
+Dans le cadre de ce mémoire, les annotations sont binaires ($rel_i \in \{0,1\}$) : la formule se réduit alors à $\mathrm{DCG@k} = \sum_{i=1}^{k} \mathbb{1}[i\in \mathrm{Rel}(q)] / \log_2(i+1)$, qui correspond à l'implémentation retenue. Le calcul s'effectue après projection au niveau document ($\mathrm{Rel}(q)$ et $\mathrm{TopK}(q)$ sont dédupliqués par `doc_id` avant comparaison), de manière à ce qu'un même document représenté par plusieurs *chunks* dans le top-$k$ ne soit pas compté plusieurs fois.
 
 Ces métriques sont au cœur de l'IR évaluative moderne [@JarvelinKekalainen2002].
 
@@ -1268,7 +1268,7 @@ Les 16 modèles retenus couvrent les familles définies au Ch. 4.1.1 :
 
 Les six variantes de récupération testées sont : `dense-k5`, `dense-k10`, `dense-k5-thresh` (seuil de similarité), `dense-k5-neigh` (voisinage n−1/n+1), `hybrid-k5` (dense + BM25, fusion RRF) et `dense-k20-rerank5` (*reranking* *cross-encoder* BGE).
 
-Pour chaque configuration, les métriques de récupération du Ch. 5.1.1 ont été collectées (Hit@k, Recall@k, Precision@k, MRR, nDCG@k pour $k\in\{1,3,5,10\}$, plus latence par requête). Une seconde campagne génération a ensuite été lancée sur cinq configurations sélectionnées comme représentatives (trois côté Azure avec évaluation RAGAS complète, deux côté local avec Mistral-7B auto-hébergé) ; les résultats sont consolidés dans [results/benchmark_generation.csv](results/benchmark_generation.csv) et discutés au § 8.3.
+Pour chaque configuration, les métriques de récupération du Ch. 5.1.1 ont été collectées (Hit@k, Recall@k, Precision@k, MRR, nDCG@k pour $k\in\{1,3,5,10\}$, plus latence par requête). Une seconde campagne génération a ensuite été lancée sur cinq configurations sélectionnées comme représentatives (trois côté Azure avec évaluation RAGAS complète, deux côté local avec Mistral-7B auto-hébergé), discutées au § 8.3.
 
 Au vu des résultats consolidés, le modèle de vectorisation retenu pour la configuration dense de référence est `ada-002` (Azure OpenAI), au coude à coude avec `embed-3-large`, `nomic-v2` et `qwen3-embed-8b` sur la MRR moyenne (cf. § 8.2). Le choix repose sur trois éléments pratiques.
 
@@ -1298,6 +1298,8 @@ Table: Configuration de la récupération ScribBERT (POC).
 Le choix d'un dense pur s'explique par la simplicité d'implémentation au POC et par une qualité jugée suffisante en évaluation interne (cf. Ch. 4.3.2). L'hybridation sparse+dense (BM25 + vectorisations) reste toutefois une amélioration prioritaire, particulièrement pertinente pour les requêtes contenant des correspondances exactes (numéros de procédure, codes EPI, références normatives), mieux captées par une composante lexicale.
 
 Le filtrage actuellement implémenté repose sur une distance maximale. En pratique, les *chunks* au-delà du seuil sont exclus (cf. Ch. 5.1.2). En revanche, le refus contrôlé strict n'est pas totalement verrouillé dans la version actuelle : quand aucun *chunk* pertinent n'est retenu, un message de contexte indique qu'aucun document n'a été trouvé, mais le modèle peut encore s'appuyer sur l'historique de conversation, ce qui rappelle la nécessité d'un garde-fou plus strict (cf. Ch. 4.4.6).
+
+\needspace{6\baselineskip}
 
 ### Configuration de la génération
 
@@ -1369,7 +1371,7 @@ Le LLM, le *prompt* et la température sont gelés à leur valeur de référence
 
 #### Jeu de test
 
-Le jeu de test utilisé est constitué de 50 questions annotées manuellement à partir d'une connaissance directe du corpus et des cas d'usage observés ([data/test_set.json](data/test_set.json)). La répartition est la suivante :
+Le jeu de test utilisé est constitué de 50 questions annotées manuellement à partir d'une connaissance directe du corpus et des cas d'usage observés (un échantillon est reproduit en Annexe A). La répartition est la suivante :
 
 - types : factuelle ×12, procédurale ×12, conditionnelle ×10, comparative ×6, justificative ×6, hors-périmètre ×4 ;
 - difficulté : facile ×6, moyen ×28, difficile ×16 ;
