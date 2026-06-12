@@ -1317,7 +1317,8 @@ prompt = (
     f"{context_documents}\n"
     f"Cite les documents que tu utilises ainsi : "
     f'« conformément au document [doc_name], page : [page_number] » '
-    f"(sans modifier ni reformuler le nom, respecte la casse, n'ajoute pas d'accents). "
+    f"(sans modifier ni reformuler le nom, respecte la casse, "
+    f"n'ajoute pas d'accents). "
     f"Apporte des détails utiles. Structure avec des listes si utile. "
     f'{language_instruction} à la question : "{query}".'
 )
