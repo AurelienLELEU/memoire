@@ -1,4 +1,14 @@
-﻿# Remerciements {-}
+﻿# Clause de confidentialité et de diffusion {-}
+
+Ce mémoire est destiné à un usage strictement interne, dans le cadre du cursus Mastère 2 Intelligence Artificielle de l'École Hexagone et de l'alternance effectuée au sein de Bouygues Travaux Publics. Il contient des informations relatives aux référentiels santé-sécurité internes du groupe Bouygues Construction, aux choix d'architecture du projet ScribBERT et aux résultats d'expérimentations menées sur le corpus documentaire interne.
+
+Sa diffusion est par conséquent limitée aux personnes habilitées : jury de soutenance et corps enseignant de l'École Hexagone, tuteurs et encadrement de Bouygues Travaux Publics et de Bouygues Construction, ainsi que les collaborateurs internes du groupe dûment autorisés. Toute reproduction, communication ou diffusion à un tiers extérieur, partielle ou intégrale, par quelque moyen que ce soit, est soumise à l'accord préalable et écrit de l'auteur et de Bouygues Travaux Publics.
+
+```{=latex}
+\cleardoublepage
+```
+
+# Remerciements {-}
 
 Ce mémoire doit beaucoup à des personnes sans lesquelles le projet ScribBERT n'aurait pas pris la forme qu'il a aujourd'hui.
 
