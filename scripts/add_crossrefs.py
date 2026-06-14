@@ -520,9 +520,21 @@ def protect(text: str) -> tuple[str, dict[str, str]]:
 
 
 def restore(text: str, placeholders: dict[str, str]) -> str:
+    """Réinjecte les originaux. On itère plusieurs fois (et en ordre
+    INVERSE) car les motifs s'imbriquent : par ex. une image protégée
+    contient elle-même un placeholder d'`inline_code`. Si on restaurait
+    en ordre d'insertion, le placeholder interne ne serait jamais
+    réinjecté car remis dans le texte APRÈS son tour de boucle."""
     out = text
-    for key, val in placeholders.items():
-        out = out.replace(key, val)
+    # Restauration en passes successives jusqu'à stabilité ; sécurité
+    # par compteur pour éviter une boucle infinie sur une donnée bizarre.
+    items = list(placeholders.items())
+    for _ in range(8):
+        before = out
+        for key, val in reversed(items):
+            out = out.replace(key, val)
+        if out == before:
+            break
     return out
 
 
@@ -733,7 +745,12 @@ def process(text: str) -> str:
         protected, ph = protect(content)
         protected = replace_refs(protected, idx)
         protected = add_glossary_links(protected, variants_to_id)
-        out_blocks.append(restore(protected, ph))
+        restored = restore(protected, ph)
+        # Garde-fou citeproc : un lien Markdown suivi directement de "@k"
+        # (ou tout autre clé) est interprété par Pandoc comme une citation.
+        # On échappe le "@" pour neutraliser cette collision (rendu inchangé).
+        restored = re.sub(r"(\]\(#[^)]+\))@(?=\w)", r"\1\\@", restored)
+        out_blocks.append(restored)
     return "\n".join(out_blocks)
 
 
