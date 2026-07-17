@@ -201,15 +201,18 @@ Le résultat central est à droite en gros : 0,94 de stabilité inter-runs, mais
 
 ---
 
-## Slide 10 — Dimension 5 : Traçabilité (1,5 min)
+## Slide 10 — Dimension 5 : Traçabilité (1 min)
 
 **Contenu visuel** :
 
 - En-tête bandeau : « **Dimension 5/5 — Traçabilité & auditabilité** »
 - Sous-titre : « Peut-on vérifier, a posteriori, l'origine de chaque affirmation ? »
-- **Contenu principal** : capture animée / GIF de l'interface ScribBERT — question posée, réponse générée avec citations cliquables, ouverture du PDF source à la bonne page
-- Bandeau bas : « Chaque citation est un identifiant de chunk journalisé, lié au document et à la page. Audit trail complet. »
-- Petit encart : logo AI Act EU + mention « prérequis conformité »
+- **Zone principale (gauche + centre)** : capture d'écran annotée de l'interface ScribBERT montrant une réponse avec citations cliquables (16:9, PNG, à insérer manuellement : `figures/fig_traceability_screenshot.png`)
+- **Encart bas (trois points compacts, une ligne chacun)** :
+  - Chaque citation → identifiant chunk (docID + page) journalisé
+  - Clic ouvre le PDF à la page source
+  - Audit trail horodaté + hash du chunk (preuve immuable)
+- Petit encart bas-droit : mention « Prérequis conformité AI Act »
 
 **Ce que je dis** :
 
@@ -324,11 +327,12 @@ Je vous remercie pour votre attention, et je suis à votre disposition pour vos 
 | 7. Dim 2 — Fidélité aux sources | 2'30 | 10'30 |
 | 8. Dim 3 — Pertinence réponse | 1'30 | 12'00 |
 | 9. Dim 4 — Stabilité | 2'00 | 14'00 |
-| 10. Dim 5 — Traçabilité | 1'30 | 15'30 |
-| 11. Analyse d'erreurs | 1'30 | 17'00 |
-| 12. Trajectoire industrialisation | 1'30 | 18'30 |
-| 13. Limites & perspectives | 1'00 | 19'30 |
-| 14. Conclusion | 0'30 | 20'00 |
+| 10. Dim 5 — Traçabilité | 1'00 | 15'00 |
+| 11. Analyse d'erreurs | 1'30 | 16'30 |
+| 12. Trajectoire industrialisation | 1'30 | 18'00 |
+| 13. Limites & perspectives | 1'00 | 19'00 |
+| 14. Conclusion | 0'30 | 19'30 |
+| **Marge / Questions** | ~0'30 | 20'00 |
 
 ---
 
@@ -402,20 +406,57 @@ CONTRAINTES IMPORTANTES :
 - Cohérence visuelle absolue entre les 14 slides.
 - Format 16:9.
 ```
+```
 
 ---
+
+### Option A — Deux prompts (7 + 7 slides)
+
+Ci‑dessous : deux prompts prêts à coller dans Gamma.app (mode « Créer avec l'IA »). Chaque prompt génère 7 slides (7 + 7 = 14 au total). Conserver la charte visuelle et les contraintes indiquées plus haut.
+
+Prompt 1 — Slides 1→7 :
+```text
+Génère une présentation professionnelle (7 slides, 16:9) pour la soutenance du mémoire « Évaluer la cohérence et la fiabilité d'un système RAG en contexte industriel critique — Le cas ScribBERT ». Ton : professionnel, sobre, charte bleu marine + accent orange. Pas d'emojis. Pied de page discret avec numéro de slide et rappel du titre.
+
+Slides (strictement dans l'ordre) :
+1) TITRE — Couverture : titre principal, sous-titre « Le cas ScribBERT — Département Prévention Santé‑Sécurité, Bouygues Travaux Publics », nom du candidat, Mastère 2 IA École Hexagone, tuteurs Flavien Martin & Julien Larseneur, date, deux logos discrets.
+2) PROBLÈME — Trois chiffres gros à gauche (130 documents PDF · 2 min 30/recherche · ≈40% FR / 60% EN). À droite : illustration abstraite d'un labyrinthe documentaire. Bandeau bas : « ScribBERT n'est pas un dispositif de sécurité. C'est un appui à la décision. »
+3) THÈSE — Slide manifeste très épurée : phrase centrée en très grand (« La fiabilité d'un RAG n'est pas un score... »). En bas, cinq petits blocs alignés (Pertinence retrieval, Fidélité, Pertinence réponse, Stabilité, Traçabilité).
+4) RAG — Pédagogique 1/2 : schéma en 3 blocs (Question → Recherche → Rédaction par LLM → Réponse avec citations). Deux encadrés comparatifs en bas (LLM seul vs moteur de recherche). Bandeau bas explicatif.
+5) ANATOMIE — Pédagogique 2/2 : schéma horizontal 5 étages (Ingestion → Chunking → Vectorisation/Index → Retrieval → Génération) avec mini-encarts d'erreur sous chaque étage. Bandeau bas : message sur l'indépendance des échecs.
+6) DIM 1 — Pertinence retrieval : bandeau bleu «Dimension 1/5». Gauche : encart métriques (Recall@k, MRR, nDCG@k). Droite : zone réservée pour une heatmap (insérer manuellement [figures/fig_8_2_heatmap_mrr_modele_chunking.png]). Encart bas : «864 configurations testées · 750 exploitables · 50 questions annotées».
+7) DIM 2 — Fidélité aux sources : bandeau bleu «Dimension 2/5». Zone principale : radar RAGAS (insérer manuellement [figures/fig_8_4_radar_ragas_5_configs.png]). Encart bas‑gauche : sous‑métriques RAGAS. Encart bas‑droite : conclusion chiffrée («Hybrid‑k5 + GPT‑3.5 : meilleur profil»).
+```
+
+Prompt 2 — Slides 8→14 :
+```text
+Génère une présentation professionnelle (7 slides, 16:9) — suite et fin — pour la même soutenance. Même charte visuelle et contraintes.
+
+Slides (strictement dans l'ordre) :
+8) DIM 3 — Pertinence & complétude : bandeau bleu «Dimension 3/5». Zone principale : graphe RAGAS par type de question (insérer manuellement [figures/fig_9_2_ragas_par_type_question.png]). Encart bas : capture gap analysis.
+9) DIM 4 — Stabilité : bandeau bleu «Dimension 4/5». Zone principale : boxplot 4 indicateurs (insérer manuellement [figures/fig_8_5_boxplot_stabilite.png]). Encart chiffré : «0,94 stabilité inter‑runs vs 0,77 robustesse aux paraphrases». Bandeau bas : remarque prioritaire.
+10) DIM 5 — Traçabilité : bandeau bleu «Dimension 5/5». Zone principale : capture d'écran annotée de l'interface ScribBERT (insérer manuellement [figures/fig_traceability_screenshot.png]). Encart bas en 3 points (citation → chunk ID, clic ouvre PDF, audit trail horodaté). Mention AI Act.
+11) ANALYSE D'ERREURS : titre + figure (insérer manuellement [figures/fig_9_1_distribution_categories_erreur.png]) à gauche. À droite : tableau compact 3 colonnes (Catégorie / Dimension mise en cause / Action correctrice) au moins 6 lignes.
+12) TRAJECTOIRE INDUSTRIALISATION : timeline 3 jalons (POC 2024‑25 → config cible 2026 → industrialisation groupe 2026‑27). Encart bas orange : «Passage en industrialisation groupe validé — juillet 2026».
+13) LIMITES & PERSPECTIVES : deux colonnes (Limites : 4 puces précises ; Perspectives : 4 puces précises). Bandeau bas : cadre transférable.
+14) CONCLUSION — Slide épurée miroir de la thèse : phrase‑manifeste en grand + «Merci. Questions ?».
+
+Contraintes identiques : pas de listes génériques, texte modéré, 16:9.
+```
+
 
 ## Après génération Gamma — checklist
 
 Une fois les slides générées :
 
-1. **Insérer manuellement les figures** aux emplacements réservés (5 figures à récupérer depuis `figures/`) :
+1. **Insérer manuellement les figures** aux emplacements réservés (6 figures à récupérer depuis `figures/`) :
    - Slide 6 → `fig_8_2_heatmap_mrr_modele_chunking.png`
    - Slide 7 → `fig_8_4_radar_ragas_5_configs.png`
    - Slide 8 → `fig_9_2_ragas_par_type_question.png`
    - Slide 9 → `fig_8_5_boxplot_stabilite.png`
+   - Slide 10 → `fig_traceability_screenshot.png` (capture annotée de l'interface ScribBERT avec réponse + citations, format 16:9, 1200–1600 px large)
    - Slide 11 → `fig_9_1_distribution_categories_erreur.png`
-2. **Préparer la démo slide 10** (GIF ou vidéo courte de ScribBERT, boucle 10-15 secondes, à charger dans Gamma comme média).
-3. **Vérifier la cohérence de la charte** (Gamma peut varier légèrement d'une slide à l'autre, harmoniser si besoin).
-4. **Répéter à voix haute avec chrono** — les textes ci-dessus sont calibrés à ± 10 secondes de la cible, mais l'oral peut dériver.
+2. **Vérifier la cohérence de la charte** (Gamma peut varier légèrement d'une slide à l'autre, harmoniser si besoin).
+3. **Préparer la capture annotée Slide 10** : une screenshot de ScribBERT montrant (1) une question posée, (2) la réponse avec citations en évidence, (3) optionnel : annotation pointant le lien cliquable vers le PDF. Format PNG, 16:9, lisible depuis la salle.
+4. **Répéter à voix haute avec chrono** — les textes ci-dessus sont calibrés à ± 10 secondes de la cible, mais l'oral peut dériver. Nouveau timing cible : 19'30 + marge 0'30 = 20'00.
 5. **Prévoir un backup PDF** de la présentation, cas où la connexion Gamma serait instable le jour J.
