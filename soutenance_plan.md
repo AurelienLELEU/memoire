@@ -95,7 +95,7 @@ Un RAG, c'est l'assemblage des deux. Pour reprendre une image que j'aime bien : 
 
 **Contenu visuel** :
 
-- Titre : « Anatomie d'une chaîne RAG — 5 étages, 5 sources d'erreur »
+- Titre : « Anatomie d'une chaîne RAG — les étages où l'erreur peut naître »
 - Schéma horizontal en 5 étages : **Ingestion → Chunking → Vectorisation / Index → Retrieval → Génération**
 - Sous chaque étage, un mini-icône rouge « ⚠ » avec un exemple d'erreur type (tableau perdu, règle coupée en deux, terme métier mal représenté, passage hors-contexte remonté, hallucination)
 - Bandeau bas : « Chaque étage peut échouer indépendamment — et un score global les mélange. »
@@ -122,7 +122,9 @@ Le point clé, celui qui va justifier toute ma démarche d'évaluation, c'est qu
 
 **Ce que je dis** :
 
-Première dimension : est-ce que le bon passage est bien dans le top-k renvoyé par la récupération ? On dispose ici de métriques classiques héritées de la recherche d'information — Recall@k, MRR, nDCG — que j'ai adaptées à un jeu de test que j'ai construit sur mesure : 50 questions annotées manuellement, stratifiées par type, difficulté, criticité métier et langue.
+Une précaution de vocabulaire avant d'aller plus loin. Ces étages que vous venez de voir, c'est *où* l'erreur peut naître — c'est la structure de la chaîne. Les cinq dimensions que je vais présenter maintenant, c'est *ce qu'on mesure* sur le système. Deux grilles différentes, qui se croisent — et c'est précisément ce croisement qui va rendre l'analyse d'erreurs actionnable, en fin de présentation.
+
+Première dimension, donc : est-ce que le bon passage est bien dans le top-k renvoyé par la récupération ? On dispose ici de métriques classiques héritées de la recherche d'information — Recall@k, MRR, nDCG — que j'ai adaptées à un jeu de test que j'ai construit sur mesure : 50 questions annotées manuellement, stratifiées par type, difficulté, criticité métier et langue.
 
 Sur ScribBERT, j'ai lancé un plan factoriel complet : 16 modèles de vectorisation croisés avec 9 stratégies de chunking et 6 variantes de récupération. Ça fait 864 configurations, dont 750 exploitables. Ce que vous voyez à l'écran, c'est la heatmap des scores MRR moyens : chaque case est une combinaison modèle-chunking.
 
@@ -378,7 +380,7 @@ STRUCTURE DEMANDÉE — 14 slides exactement, dans l'ordre :
 
 4. LE RAG, EN PRATIQUE (slide pédagogique 1/2) : Titre : « Le RAG, en pratique — combiner recherche et rédaction ». Schéma central en 3 blocs horizontaux : Question utilisateur → [Recherche dans le corpus] → [Rédaction par le LLM à partir des passages] → Réponse avec citations. Contraste en bas de slide, en 2 encadrés côte à côte : « LLM seul : peut inventer, pas de source » et « Moteur de recherche classique : trouve mais ne rédige pas ». Bandeau bas : « Le RAG combine les deux : rédiger à partir de documents vérifiables. »
 
-5. ANATOMIE D'UNE CHAÎNE RAG (slide pédagogique 2/2) : Titre : « Anatomie d'une chaîne RAG — 5 étages, 5 sources d'erreur ». Schéma horizontal en 5 étages : Ingestion → Chunking → Vectorisation / Index → Retrieval → Génération. Sous chaque étage, un mini-encart rouge « ⚠ » avec un exemple d'erreur type (tableau perdu, règle coupée en deux, terme métier mal représenté, passage hors-contexte remonté, hallucination). Bandeau bas : « Chaque étage peut échouer indépendamment — et un score global les mélange. »
+5. ANATOMIE D'UNE CHAÎNE RAG (slide pédagogique 2/2) : Titre : « Anatomie d'une chaîne RAG — les étages où l'erreur peut naître ». Schéma horizontal en 5 étages : Ingestion → Chunking → Vectorisation / Index → Retrieval → Génération. Sous chaque étage, un mini-encart rouge « ⚠ » avec un exemple d'erreur type (tableau perdu, règle coupée en deux, terme métier mal représenté, passage hors-contexte remonté, hallucination). Bandeau bas : « Chaque étage peut échouer indépendamment — et un score global les mélange. »
 
 6. DIMENSION 1 — PERTINENCE DU RETRIEVAL : Bandeau supérieur bleu marine « Dimension 1/5 — Pertinence du retrieval ». Sous-titre : « Le bon passage est-il dans le top-k ? ». Zone dédiée à gauche pour un encart de métriques (Recall@k, MRR, nDCG@k). Zone principale à droite dédiée à une figure heatmap 16 modèles × 9 chunkings (à insérer manuellement). Encart chiffré en bas : « 864 configurations testées, 750 exploitables, 50 questions annotées ».
 
