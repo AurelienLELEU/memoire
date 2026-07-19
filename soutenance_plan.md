@@ -1,6 +1,6 @@
 # Plan de soutenance — Proposition B « Par dimensions »
 
-**Format** : 14 slides, 20 min de présentation, angle multidimensionnel comme fil rouge.
+**Format** : 15 slides (slide 0 d'accroche + slides 1-14), 20 min de présentation, angle multidimensionnel comme fil rouge.
 
 **Cible orale** : ≈ 140 mots/minute en français soutenu-parlé. Les textes ci-dessous sont calibrés en conséquence.
 
@@ -11,6 +11,23 @@
 - Prévoir une démo courte (vidéo ou capture animée en boucle) sur la slide 10. Éviter la démo live en réseau : risque trop élevé sur 20 min.
 - Numérotation des slides visible en pied de page, avec le nom des 5 dimensions comme rappel visuel sur les slides 6 à 10.
 - Les slides 4 et 5 sont pédagogiques : elles introduisent le RAG pour un jury qui n'a pas nécessairement lu le mémoire. Privilégier les schémas clairs sur le texte.
+
+---
+
+## Slide 0 — Accroche (30 s)
+
+**Contenu visuel** :
+
+- Fond entièrement noir. Aucun logo, aucun titre, aucun pied de page.
+- Une seule question en blanc, grande typographie, centrée :
+  > *Des chiffres faux, une question mal interprétée, paraphrasée, non traitée — qui n'a jamais été déçu par une réponse de son système IA favori ?*
+- Rien d'autre à l'écran.
+
+**Ce que je dis** :
+
+Des chiffres faux, une question mal interprétée, paraphrasée, non traitée — qui n'a jamais été déçu par une réponse de son système IA favori ? C'est ce que je cherche à adresser dans mon mémoire.
+
+**Transition** : *(passer à la slide 1 sans pause)*
 
 ---
 
@@ -235,18 +252,33 @@ Cette dimension n'est pas capturée par les métriques quantitatives : on la mes
 - Titre : « Analyse d'erreurs — 8 catégories, une dimension mise en cause »
 - **Figure principale** : `figures/fig_9_1_distribution_categories_erreur.png` (distribution des catégories d'erreur)
 - Tableau récapitulatif compact à droite : chaque catégorie d'erreur → dimension mise en cause → action correctrice type
-  - Échec retrieval → Dim 1 → reranking / query rewriting
-  - Bruit retrieval → Dim 1 → cross-encoder
-  - Hallucination → Dim 2 → prompt + refus contrôlé
-  - Omission exception → Dim 3 → parent-document retrieval
+  - Échec récupération → Dim 1 → reranking / query rewriting
+  - Bruit récupération → Dim 1 → cross-encoder
+  - Hallucination factuelle → Dim 2 → prompt + refus contrôlé
+  - Omission d'exception → Dim 3 → parent-document retrieval
   - Contradiction silencieuse → Dim 2 → garde-fou applicatif
-  - Refus à tort / hors-périmètre → Dim 5 → calibration seuil
+  - Refus à tort → Dim 5 → calibration seuil
+  - Hors-périmètre accepté → Dim 5 → refus contrôlé explicite
+  - Inversion modalité → Dim 3 → prompt structuré + vérification
+- *Note de bas de slide : Stabilité (Dim 4) — non classifiable par question — déjà abordé en slide 9 (boxplot runs)*
 
 **Ce que je dis** :
 
 C'est ici que le cadre à cinq dimensions devient vraiment utile. Sur la configuration de référence, j'ai classé chaque erreur du jeu de test dans une typologie en huit catégories, à l'aide de seuils simples sur les scores RAGAS. Le résultat, c'est le graphe à l'écran.
 
-Le bénéfice n'est pas seulement descriptif, il est actionnable : chaque catégorie d'erreur remonte à une dimension défaillante, et donc à une action correctrice précise. Un échec de retrieval, c'est la dimension 1 : la réponse est reranking. Une contradiction silencieuse — cas typique observé sur Mistral local pour une question hors-corpus — c'est la dimension 2 : la réponse est un garde-fou applicatif. Un refus à tort, c'est la dimension 5 : la réponse est une calibration de seuil.
+Le bénéfice n'est pas seulement descriptif, il est actionnable : chaque catégorie d'erreur remonte à une dimension défaillante, et donc à une action correctrice précise. Je vais en détailler quelques-unes.
+
+L'échec de récupération et le bruit de récupération — les deux premières lignes du tableau — touchent tous les deux la dimension 1. La distinction est importante : l'échec signifie que le bon chunk n'a pas été remonté du tout, d'où le recours au query rewriting pour reformuler automatiquement la question avant la recherche ; le bruit signifie que le bon chunk est là mais noyé dans des résultats non pertinents, d'où le cross-encoder, qui relit et reordonne les candidats en contexte.
+
+L'hallucination factuelle relève de la dimension 2 : le modèle a bien récupéré le contexte mais en a outrepassé les limites à la génération. L'action correctrice est un prompt plus contraignant, avec une instruction explicite de refus si aucun élément du contexte ne supporte l'affirmation — c'est ce qu'on appelle un refus contrôlé.
+
+L'omission d'exception pointe vers la dimension 3 : la réponse est correcte dans ses grandes lignes mais incomplète sur un cas particulier. Ici, le problème vient du chunking — l'exception figure dans un passage parent non remonté. La solution est le parent-document retrieval : on remonte le chunk pertinent mais on injecte aussi son contexte paragraphe parent.
+
+La contradiction silencieuse — cas le plus préoccupant — est aussi une défaillance de la dimension 2 : le modèle produit une réponse fluide qui contredit le document source sans le signaler. Le garde-fou applicatif consiste à comparer systématiquement la réponse générée aux chunks injectés, et à bloquer ou annoter les divergences.
+
+Refus à tort et hors-périmètre accepté sont les deux faces opposées du même problème de seuillage en dimension 5 : soit le système refuse une question légitime parce que le seuil de pertinence est trop conservateur, soit il accepte une question hors-corpus parce que le seuil est trop permissif. Dans les deux cas, la réponse est une calibration fine du seuil sur données annotées.
+
+Enfin, l'inversion de modalité — confondre une obligation et une recommandation — est une erreur de dimension 3 que l'on corrige par un prompt structuré qui demande explicitement au modèle d'identifier et de restituer la modalité déontique du texte source avant de formuler sa réponse.
 
 Sur ScribBERT, ce diagnostic donne des priorités très claires : environ un quart des questions sont concernées par un problème de retrieval, ce qui fait de l'hybridation et du reranking les leviers numéro un pour la prochaine itération.
 
@@ -320,17 +352,18 @@ Je vous remercie pour votre attention, et je suis à votre disposition pour vos 
 
 | Slide | Durée | Cumulé |
 |-------|-------|--------|
-| 1. Titre & contexte | 1'00 | 1'00 |
-| 2. Le problème | 1'00 | 2'00 |
-| 3. Thèse défendue | 1'00 | 3'00 |
-| 4. Le RAG, en pratique | 1'30 | 4'30 |
-| 5. Anatomie d'une chaîne RAG | 1'00 | 5'30 |
-| 6. Dim 1 — Pertinence retrieval | 2'30 | 8'00 |
-| 7. Dim 2 — Fidélité aux sources | 2'30 | 10'30 |
+| 0. Accroche | 0'30 | 0'30 |
+| 1. Titre & contexte | 1'00 | 1'30 |
+| 2. Le problème | 1'00 | 2'30 |
+| 3. Thèse défendue | 1'00 | 3'30 |
+| 4. Le RAG, en pratique | 1'30 | 5'00 |
+| 5. Anatomie d'une chaîne RAG | 1'00 | 6'00 |
+| 6. Dim 1 — Pertinence retrieval | 2'30 | 8'30 |
+| 7. Dim 2 — Fidélité aux sources | 2'00 | 10'30 |
 | 8. Dim 3 — Pertinence réponse | 1'30 | 12'00 |
-| 9. Dim 4 — Stabilité | 2'00 | 14'00 |
-| 10. Dim 5 — Traçabilité | 1'00 | 15'00 |
-| 11. Analyse d'erreurs | 1'30 | 16'30 |
+| 9. Dim 4 — Stabilité | 1'30 | 13'30 |
+| 10. Dim 5 — Traçabilité | 1'00 | 14'30 |
+| 11. Analyse d'erreurs | 2'00 | 16'30 |
 | 12. Trajectoire industrialisation | 1'30 | 18'00 |
 | 13. Limites & perspectives | 1'00 | 19'00 |
 | 14. Conclusion | 0'30 | 19'30 |
@@ -370,7 +403,9 @@ STYLE ET CHARTE VISUELLE :
 - Sur les slides 6 à 10, un bandeau supérieur bleu marine avec la mention « Dimension X/5 — [nom de la dimension] ».
 - Prévoir explicitement des zones pour insérer des figures scientifiques (heatmaps, radars, boxplots, scatter plots) sur les slides indiquées ci-dessous.
 
-STRUCTURE DEMANDÉE — 14 slides exactement, dans l'ordre :
+STRUCTURE DEMANDÉE — 15 slides exactement, dans l'ordre :
+
+0. ACCROCHE : Slide entièrement noire, sans logo, sans titre, sans pied de page. Une seule question en blanc, grande typographie, centrée : « Des chiffres faux, une question mal interprétée, paraphrasée, non traitée — qui n'a jamais été déçu par une réponse de son système IA favori ? » Rien d'autre.
 
 1. TITRE : Slide de couverture. Titre : « Évaluer la cohérence et la fiabilité d'un système RAG en contexte industriel critique ». Sous-titre : « Le cas ScribBERT — Département Prévention Santé-Sécurité, Bouygues Travaux Publics ». Nom du candidat, Mastère 2 Intelligence Artificielle École Hexagone, tuteurs Flavien Martin et Julien Larseneur, date de soutenance. Deux logos discrets (École Hexagone, Bouygues Travaux Publics).
 
@@ -392,7 +427,7 @@ STRUCTURE DEMANDÉE — 14 slides exactement, dans l'ordre :
 
 10. DIMENSION 5 — TRAÇABILITÉ : Bandeau supérieur « Dimension 5/5 — Traçabilité & auditabilité ». Sous-titre : « Peut-on vérifier, a posteriori, l'origine de chaque affirmation ? ». Zone principale dédiée à une capture animée ou vidéo de l'interface ScribBERT (à insérer manuellement). Bandeau bas : « Chaque citation est un identifiant de chunk journalisé, lié au document et à la page. Audit trail complet. » Petit encart discret : « Prérequis conformité AI Act ».
 
-11. ANALYSE D'ERREURS : Titre : « Analyse d'erreurs — 8 catégories, une dimension mise en cause ». Zone gauche pour un graphe de distribution des catégories d'erreur (à insérer manuellement). Zone droite : tableau compact à 3 colonnes (Catégorie d'erreur / Dimension mise en cause / Action correctrice type), 6 lignes minimum.
+11. ANALYSE D'ERREURS : Titre : « Analyse d'erreurs — 8 catégories, une dimension mise en cause ». Zone gauche pour un graphe de distribution des catégories d'erreur (à insérer manuellement). Zone droite : tableau compact à 3 colonnes (Catégorie d'erreur / Dimension mise en cause / Action correctrice type), 8 lignes correspondant exactement aux 8 catégories du graphe : échec récupération (Dim 1, reranking/query rewriting), bruit récupération (Dim 1, cross-encoder), hallucination factuelle (Dim 2, prompt+refus contrôlé), omission d'exception (Dim 3, parent-document retrieval), contradiction silencieuse (Dim 2, garde-fou applicatif), refus à tort (Dim 5, calibration seuil), hors-périmètre accepté (Dim 5, refus contrôlé explicite), inversion modalité (Dim 3, prompt structuré+vérification).
 
 12. TRAJECTOIRE D'INDUSTRIALISATION : Titre : « De l'évaluation à la trajectoire d'industrialisation ». Timeline horizontale à 3 jalons : POC 2024-2025 (dense pur, ada-002, GPT-3.5, 130 docs) → Configuration cible 2026 (hybrid, reranking, image-to-text, LLM récent) → Industrialisation groupe 2026-2027 (filiales, multilinguisme, gouvernance AI Act). Encart bas très visible en accent orange : « Passage en industrialisation groupe validé — juillet 2026 ».
 
@@ -416,11 +451,12 @@ CONTRAINTES IMPORTANTES :
 
 Ci‑dessous : deux prompts prêts à coller dans Gamma.app (mode « Créer avec l'IA »). Chaque prompt génère 7 slides (7 + 7 = 14 au total). Conserver la charte visuelle et les contraintes indiquées plus haut.
 
-Prompt 1 — Slides 1→7 :
+Prompt 1 — Slides 0→7 :
 ```text
-Génère une présentation professionnelle (7 slides, 16:9) pour la soutenance du mémoire « Évaluer la cohérence et la fiabilité d'un système RAG en contexte industriel critique — Le cas ScribBERT ». Ton : professionnel, sobre, charte bleu marine + accent orange. Pas d'emojis. Pied de page discret avec numéro de slide et rappel du titre.
+Génère une présentation professionnelle (8 slides, 16:9) pour la soutenance du mémoire « Évaluer la cohérence et la fiabilité d'un système RAG en contexte industriel critique — Le cas ScribBERT ». Ton : professionnel, sobre, charte bleu marine + accent orange. Pas d'emojis. Pied de page discret avec numéro de slide et rappel du titre (sauf slide 0).
 
 Slides (strictement dans l'ordre) :
+0) ACCROCHE — Fond entièrement noir. Sans logo, sans titre, sans pied de page. Une seule question en blanc, grande typographie centrée : « Des chiffres faux, une question mal interprétée, paraphrasée, non traitée — qui n'a jamais été déçu par une réponse de son système IA favori ? »
 1) TITRE — Couverture : titre principal, sous-titre « Le cas ScribBERT — Département Prévention Santé‑Sécurité, Bouygues Travaux Publics », nom du candidat, Mastère 2 IA École Hexagone, tuteurs Flavien Martin & Julien Larseneur, date, deux logos discrets.
 2) PROBLÈME — Trois chiffres gros à gauche (130 documents PDF · 2 min 30/recherche · ≈40% FR / 60% EN). À droite : illustration abstraite d'un labyrinthe documentaire. Bandeau bas : « ScribBERT n'est pas un dispositif de sécurité. C'est un appui à la décision. »
 3) THÈSE — Slide manifeste très épurée : phrase centrée en très grand (« La fiabilité d'un RAG n'est pas un score... »). En bas, cinq petits blocs alignés (Pertinence retrieval, Fidélité, Pertinence réponse, Stabilité, Traçabilité).
@@ -438,7 +474,7 @@ Slides (strictement dans l'ordre) :
 8) DIM 3 — Pertinence & complétude : bandeau bleu «Dimension 3/5». Zone principale : graphe RAGAS par type de question (insérer manuellement [figures/fig_9_2_ragas_par_type_question.png]). Encart bas : capture gap analysis.
 9) DIM 4 — Stabilité : bandeau bleu «Dimension 4/5». Zone principale : boxplot 4 indicateurs (insérer manuellement [figures/fig_8_5_boxplot_stabilite.png]). Encart chiffré : «0,94 stabilité inter‑runs vs 0,77 robustesse aux paraphrases». Bandeau bas : remarque prioritaire.
 10) DIM 5 — Traçabilité : bandeau bleu «Dimension 5/5». Zone principale : capture d'écran annotée de l'interface ScribBERT (insérer manuellement [figures/fig_traceability_screenshot.png]). Encart bas en 3 points (citation → chunk ID, clic ouvre PDF, audit trail horodaté). Mention AI Act.
-11) ANALYSE D'ERREURS : titre + figure (insérer manuellement [figures/fig_9_1_distribution_categories_erreur.png]) à gauche. À droite : tableau compact 3 colonnes (Catégorie / Dimension mise en cause / Action correctrice) au moins 6 lignes.
+11) ANALYSE D'ERREURS : titre + figure (insérer manuellement [figures/fig_9_1_distribution_categories_erreur.png]) à gauche. À droite : tableau compact 3 colonnes (Catégorie / Dimension mise en cause / Action correctrice) 8 lignes, une par catégorie du graphe : échec récupération, bruit récupération, hallucination factuelle, omission d'exception, contradiction silencieuse, refus à tort, hors-périmètre accepté, inversion modalité.
 12) TRAJECTOIRE INDUSTRIALISATION : timeline 3 jalons (POC 2024‑25 → config cible 2026 → industrialisation groupe 2026‑27). Encart bas orange : «Passage en industrialisation groupe validé — juillet 2026».
 13) LIMITES & PERSPECTIVES : deux colonnes (Limites : 4 puces précises ; Perspectives : 4 puces précises). Bandeau bas : cadre transférable.
 14) CONCLUSION — Slide épurée miroir de la thèse : phrase‑manifeste en grand + «Merci. Questions ?».
@@ -460,5 +496,162 @@ Une fois les slides générées :
    - Slide 11 → `fig_9_1_distribution_categories_erreur.png`
 2. **Vérifier la cohérence de la charte** (Gamma peut varier légèrement d'une slide à l'autre, harmoniser si besoin).
 3. **Préparer la capture annotée Slide 10** : une screenshot de ScribBERT montrant (1) une question posée, (2) la réponse avec citations en évidence, (3) optionnel : annotation pointant le lien cliquable vers le PDF. Format PNG, 16:9, lisible depuis la salle.
-4. **Répéter à voix haute avec chrono** — les textes ci-dessus sont calibrés à ± 10 secondes de la cible, mais l'oral peut dériver. Nouveau timing cible : 19'30 + marge 0'30 = 20'00.
+4. **Répéter à voix haute avec chrono** — les textes ci-dessus sont calibrés à ± 10 secondes de la cible, mais l'oral peut dériver. Timing cible : 19'30 + marge 0'30 = 20'00.
 5. **Prévoir un backup PDF** de la présentation, cas où la connexion Gamma serait instable le jour J.
+
+---
+
+## Notes de présentation — à coller dans les slides
+
+> Texte brut prêt à copier-coller dans le champ « Notes » de PowerPoint, Gamma ou Keynote.  
+> Une boîte par slide. Ne pas inclure les titres en gras dans les notes.
+
+---
+
+**Slide 0 — Accroche**
+
+Des chiffres faux, une question mal interprétée, paraphrasée, non traitée — qui n'a jamais été déçu par une réponse de son système IA favori ? C'est ce que je cherche à adresser dans mon mémoire.
+
+---
+
+**Slide 1 — Titre & contexte**
+
+Bonjour à toutes et à tous. Je vous présente aujourd'hui mon mémoire de fin d'études, réalisé dans le cadre de mon alternance au département Prévention Santé-Sécurité de Bouygues Travaux Publics. Le sujet, c'est ScribBERT : un assistant conversationnel RAG que j'ai développé pour permettre aux collaborateurs d'interroger en langage naturel les référentiels santé-sécurité internes du groupe. Mais la vraie question, celle qui structure tout ce travail, n'est pas « comment construire un RAG », c'est plutôt « comment prouver qu'il est fiable ». Vingt minutes, cinq dimensions d'évaluation, un cas concret. On y va.
+
+---
+
+**Slide 2 — Le problème à résoudre**
+
+Le département P2S produit plus de 130 documents de référence — procédures, standards, guides — sur des sujets critiques comme le travail en hauteur ou les espaces confinés. Nos statistiques internes montrent qu'un collaborateur y passe en moyenne 2 minutes 30 par recherche, jusqu'à 10 minutes sur les cas complexes. Et ces recherches précèdent souvent des décisions opérationnelles.
+
+Un point à poser d'entrée : ScribBERT n'est pas un dispositif de sécurité au sens technique. Il ne pilote pas un capteur, il ne déclenche pas d'arrêt d'urgence. C'est un outil documentaire qui alimente des décisions de prévention. Et c'est précisément ce qui fait l'enjeu : une réponse plausible mais fausse — une obligation restituée comme une simple recommandation, par exemple — peut orienter à tort un arbitrage. Ce n'est pas grave qu'un outil se trompe si on le sait ; c'est grave si on ne peut pas le mesurer.
+
+---
+
+**Slide 3 — La thèse défendue**
+
+Ma problématique, c'est : comment évaluer la cohérence et la fiabilité d'un système RAG en contexte industriel critique ? Et la thèse que je défends dans ce mémoire tient en une phrase que vous voyez à l'écran : la fiabilité d'un RAG n'est pas un score global qu'on additionne à la fin, c'est un faisceau de cinq dimensions distinctes, qu'il faut mesurer séparément si on veut être capable de diagnostiquer où la chaîne échoue. Je vais vous montrer ces cinq dimensions, comment je les ai instrumentées, et ce qu'elles disent concrètement sur ScribBERT.
+
+---
+
+**Slide 4 — Le RAG, en pratique**
+
+Un mot rapide sur ce qu'est concrètement un RAG, parce que le terme est technique et je préfère m'assurer que tout le monde parte du même endroit. L'idée est en fait très intuitive.
+
+Un modèle de langage seul, comme ChatGPT, peut produire un texte fluide sur à peu près n'importe quel sujet, mais il peut aussi inventer — c'est ce qu'on appelle une hallucination — et il ne cite pas ses sources. À l'inverse, un moteur de recherche classique vous trouve des documents mais ne rédige rien : à vous de les ouvrir, de les lire, de synthétiser.
+
+Un RAG, c'est l'assemblage des deux. Pour reprendre une image que j'aime bien : c'est un modèle de langage à qui on impose de faire comme un bon préventeur — consulter la documentation avant de répondre. Concrètement, quand un utilisateur pose une question, le système commence par chercher dans le corpus documentaire les passages les plus pertinents, puis il les injecte dans le contexte du modèle de langage, et il lui demande de rédiger la réponse à partir de ces passages, avec les citations qui vont avec. On ancre la génération sur des documents vérifiables.
+
+---
+
+**Slide 5 — Anatomie d'une chaîne RAG**
+
+Les cinq étages, en une phrase chacun. L'ingestion transforme les PDF en texte exploitable. Le chunking découpe ce texte en unités indexables. La vectorisation transforme chaque unité en un vecteur numérique qui capture son sens. La récupération retrouve, à chaque requête, les vecteurs les plus proches de la question. Et la génération assemble tout ça dans un prompt fourni au modèle de langage, qui rédige la réponse finale.
+
+Le point clé, celui qui va justifier toute ma démarche d'évaluation, c'est que chaque étage a ses propres modes d'échec, souvent invisibles depuis la réponse finale. Un tableau perdu à l'ingestion, une règle coupée en deux au chunking, un passage thématiquement proche mais non applicable remonté au retrieval, une extrapolation à la génération. Un excellent score de récupération reste parfaitement compatible avec une réponse finale fausse. C'est ce qui rend nécessaire une évaluation décomposable, dimension par dimension.
+
+---
+
+**Slide 6 — Dimension 1 : Pertinence du retrieval**
+
+Une précaution de vocabulaire avant d'aller plus loin. Ces étages que vous venez de voir, c'est où l'erreur peut naître — c'est la structure de la chaîne. Les cinq dimensions que je vais présenter maintenant, c'est ce qu'on mesure sur le système. Deux grilles différentes, qui se croisent — et c'est précisément ce croisement qui va rendre l'analyse d'erreurs actionnable, en fin de présentation.
+
+Première dimension, donc : est-ce que le bon passage est bien dans le top-k renvoyé par la récupération ? On dispose ici de métriques classiques héritées de la recherche d'information — Recall@k, MRR, nDCG — que j'ai adaptées à un jeu de test que j'ai construit sur mesure : 50 questions annotées manuellement, stratifiées par type, difficulté, criticité métier et langue.
+
+Sur ScribBERT, j'ai lancé un plan factoriel complet : 16 modèles de vectorisation croisés avec 9 stratégies de chunking et 6 variantes de récupération. Ça fait 864 configurations, dont 750 exploitables. Ce que vous voyez à l'écran, c'est la heatmap des scores MRR moyens : chaque case est une combinaison modèle-chunking.
+
+Deux enseignements. D'abord, les huit meilleurs modèles se tiennent dans une bande de plus ou moins 3 centièmes de MRR : sur ce corpus, il n'y a pas de modèle miracle. Ada-002, embed-3-large, Nomic, Qwen3, Solon, E5, Jina : ils sont tous à égalité statistique. Ce qui veut dire que le choix se fait sur les critères pratiques — latence, coût, souveraineté — pas sur la MRR seule.
+
+Ensuite, deuxième enseignement plus contre-intuitif : le chunking optimal dépend du modèle. Les gros modèles avec fenêtre de contexte large préfèrent des chunks de 1024 tokens. Les modèles francophones spécialisés préfèrent le chunking par paragraphe. Les modèles compacts sont pénalisés par les chunks longs. Autrement dit, on ne peut pas recommander « le meilleur chunking » dans l'abstrait — il faut le tester conjointement avec le modèle.
+
+---
+
+**Slide 7 — Dimension 2 : Fidélité aux sources**
+
+Deuxième dimension, et sans doute la plus critique pour un usage santé-sécurité : la fidélité aux sources. La question n'est plus « le bon passage est-il dans le contexte » mais « la réponse générée reste-t-elle vraiment fidèle à ce que disent ces passages, ou est-ce que le modèle a rajouté, extrapolé, inversé une modalité ? »
+
+Pour la mesurer automatiquement, j'ai utilisé le framework RAGAS, qui décompose la réponse en propositions atomiques et vérifie chacune contre le contexte à l'aide d'un LLM-juge. Sur cinq configurations sélectionnées — trois côté Azure avec GPT-3.5, deux côté Mistral-7B local — vous voyez le profil complet à l'écran.
+
+Trois observations. Premièrement, la configuration hybride retrieval domine sur les quatre axes simultanément : 0,77 de faithfulness, meilleure answer relevancy, meilleure context precision. Ça confirme, côté génération, ce qu'on avait déjà vu côté retrieval : une récupération plus précise se traduit par une génération plus fidèle. Deuxièmement, GPT-3.5 plafonne à environ 0,77 de faithfulness. Pour aller vers 0,90, il faudra passer à un modèle plus récent et durcir la consigne de citation.
+
+Troisième point, plus délicat : Mistral-7B en local. En performance pure, il est en retrait — 0,68 de faithfulness. Mais surtout, en latence, on est à 36 secondes par question contre 5 secondes pour Azure. Il reste néanmoins pertinent comme voie de repli souverain, pour les chantiers en environnement isolé — nucléaire, militaire — où on ne peut pas sortir d'Internet.
+
+---
+
+**Slide 8 — Dimension 3 : Pertinence de la réponse**
+
+Troisième dimension : est-ce que la réponse traite vraiment la question posée, avec la bonne complétude, sans dériver ? Une réponse peut être parfaitement fidèle à ses sources et complètement à côté de la question. On mesure ça avec l'answer relevancy de RAGAS, croisée avec la stratification par type de question.
+
+Le graphe à l'écran montre les scores RAGAS par type. Les questions factuelles et procédurales performent très bien. Deux catégories décrochent : les conditionnelles — les fameuses « que faire si… » — parce que le système attrape la règle générale mais rate parfois l'exception ; et les comparatives — « quelle différence entre A et B » — parce que le top-5 se fait souvent dominer par l'entité la plus représentée dans le corpus.
+
+C'est justement pour ce type de questions comparatives que j'ai développé une fonctionnalité de gap analysis dans ScribBERT, que vous voyez en bas à droite : l'utilisateur sélectionne deux sous-ensembles de documents, la même requête est exécutée sur chacun, et les écarts sont visibles directement. Au-delà du cas comparatif, cette fonctionnalité a aussi vocation à accélérer l'ouverture de chantiers dans un nouveau pays, en identifiant les écarts entre nos référentiels internes et les réglementations locales applicables.
+
+---
+
+**Slide 9 — Dimension 4 : Stabilité**
+
+Quatrième dimension : la stabilité. La plupart des frameworks d'évaluation la traitent comme un effet de bord — on lance une exécution, on prend le score. Mais un système qui donne une bonne réponse un jour et une réponse médiocre le lendemain sur la même question est bon en moyenne mais pas fiable. Pour un usage santé-sécurité, la variabilité fait partie intégrante de la fiabilité perçue.
+
+J'ai construit un protocole dédié : pour chaque question, dix exécutions à seed constante, plus les paraphrases annotées dans le jeu de test. Quatre indicateurs mesurés : stabilité du retrieval, stabilité des citations, stabilité sémantique de la réponse, et robustesse aux paraphrases.
+
+Le résultat central est à droite en gros : 0,94 de stabilité inter-runs, mais seulement 0,77 de robustesse aux paraphrases. Dix-sept points d'écart. Autrement dit : ScribBERT est stable quand on lui repose exactement la même question, mais dès que l'utilisateur reformule — ce qui est le comportement naturel — la réponse peut sensiblement varier. C'est l'indicateur prioritaire à améliorer pour la production, probablement via une étape de normalisation de requête en amont du retrieval. Et c'est un résultat qu'aucune évaluation ponctuelle n'aurait pu remonter.
+
+---
+
+**Slide 10 — Dimension 5 : Traçabilité**
+
+Cinquième dimension : la traçabilité. Une réponse ne suffit pas ; il faut pouvoir prouver d'où elle vient. Dans un contexte santé-sécurité, et à plus forte raison avec l'entrée en application progressive de l'AI Act européen, c'est un prérequis non négociable.
+
+Concrètement, dans ScribBERT — vous voyez à l'écran une démonstration — chaque affirmation est rattachée à un identifiant de chunk journalisé, lui-même relié au document d'origine et à la page. L'utilisateur clique sur la citation, le PDF s'ouvre à la bonne page. Rien de spectaculaire techniquement, mais c'est cette chaîne complète qui rend la réponse auditable, et c'est ce qui fait le plus la différence dans les retours utilisateurs collectés pendant la phase de test : la présence systématique des sources vérifiables est le facteur numéro un d'acceptabilité.
+
+Cette dimension n'est pas capturée par les métriques quantitatives : on la mesure par la complétude et la correction des citations, et surtout par un design volontariste — pas de réponse sans source, refus contrôlé si aucun chunk pertinent, avertissement permanent rappelant que l'utilisateur reste responsable de la vérification.
+
+---
+
+**Slide 11 — Analyse d'erreurs**
+
+C'est ici que le cadre à cinq dimensions devient vraiment utile. Sur la configuration de référence, j'ai classé chaque erreur du jeu de test dans une typologie en huit catégories, à l'aide de seuils simples sur les scores RAGAS. Le résultat, c'est le graphe à l'écran.
+
+Le bénéfice n'est pas seulement descriptif, il est actionnable : chaque catégorie d'erreur remonte à une dimension défaillante, et donc à une action correctrice précise. Je vais en détailler quelques-unes.
+
+L'échec de récupération et le bruit de récupération touchent tous les deux la dimension 1. La distinction est importante : l'échec signifie que le bon chunk n'a pas été remonté du tout, d'où le query rewriting ; le bruit signifie que le bon chunk est là mais noyé dans des résultats non pertinents, d'où le cross-encoder, qui relit et reordonne les candidats en contexte.
+
+L'hallucination factuelle relève de la dimension 2 : le modèle a bien récupéré le contexte mais en a outrepassé les limites à la génération. L'action correctrice est un prompt plus contraignant, avec une instruction explicite de refus si aucun élément du contexte ne supporte l'affirmation.
+
+L'omission d'exception pointe vers la dimension 3 : la réponse est correcte dans ses grandes lignes mais incomplète sur un cas particulier. Le problème vient du chunking — l'exception figure dans un passage parent non remonté. La solution est le parent-document retrieval.
+
+La contradiction silencieuse est une défaillance de la dimension 2 : le modèle produit une réponse fluide qui contredit le document source sans le signaler. Le garde-fou applicatif consiste à comparer systématiquement la réponse générée aux chunks injectés.
+
+Refus à tort et hors-périmètre accepté sont les deux faces opposées du même problème de seuillage en dimension 5. Dans les deux cas, la réponse est une calibration fine du seuil sur données annotées.
+
+Enfin, l'inversion de modalité — confondre une obligation et une recommandation — est une erreur de dimension 3 que l'on corrige par un prompt structuré qui demande explicitement au modèle d'identifier la modalité déontique du texte source avant de formuler sa réponse.
+
+Sur ScribBERT, ce diagnostic donne des priorités très claires : environ un quart des questions sont concernées par un problème de retrieval, ce qui fait de l'hybridation et du reranking les leviers numéro un pour la prochaine itération.
+
+---
+
+**Slide 12 — Trajectoire d'industrialisation**
+
+Le protocole d'évaluation ne sert pas juste à noter un système : il sert à décider quoi améliorer et dans quel ordre. Sur ScribBERT, la trajectoire est celle que vous voyez à l'écran.
+
+Le POC actuel — dense pur, ada-002, GPT-3.5 — tourne en production interne au département P2S. Les priorités court terme identifiées par le diagnostic sont l'hybridation retrieval, l'ajout d'un reranker cross-encoder, et une chaîne image-to-text pour les tableaux et schémas, qui sont aujourd'hui perdus lors de l'ingestion. Chacune de ces briques est justifiée par un résultat précis du benchmark, pas par une intuition.
+
+L'annonce que je peux faire aujourd'hui, et qui est pour moi la meilleure validation possible de ce travail : le projet vient d'être validé pour un passage en industrialisation à l'échelle du groupe Bouygues Construction. Ça veut dire une extension aux filiales, l'intégration des référentiels clients internationaux, un multilinguisme élargi, et surtout la mise en place d'une gouvernance conforme aux exigences AI Act. Le cadre d'évaluation développé dans ce mémoire va être directement réutilisé pour piloter cette montée en charge.
+
+---
+
+**Slide 13 — Limites & perspectives**
+
+Je veux être honnête sur ce que ce travail ne fait pas. Le jeu de test est limité à 50 questions annotées — c'est cohérent pour une phase exploratoire, mais en-dessous des 150 à 300 questions qu'il faudrait pour des comparaisons statistiquement décisives. La campagne de stabilité n'a porté que sur une seule configuration ; il faudra la répliquer sur les meilleures variantes identifiées. Et la validation humaine reste ciblée : elle doit être élargie avant le passage en production.
+
+Côté perspectives, quatre pistes ressortent : un fine-tuning d'embedding sur le corpus santé-sécurité pour combler l'absence de modèle spécialisé BTP, une variante GraphRAG pour les questions à raisonnement multi-saut, une extension multimodale pour intégrer les schémas et photos de chantier, et une architecture agentic pour décomposer automatiquement les questions complexes.
+
+Un dernier point : le cadre méthodologique proposé ne dépend pas du corpus santé-sécurité. Il est réinstanciable sur d'autres domaines documentaires soumis à des exigences fortes — juridique, ressources humaines, maintenance industrielle. C'est un des apports que je revendique de ce travail.
+
+---
+
+**Slide 14 — Conclusion**
+
+Je referme là où j'ai commencé. La fiabilité d'un système RAG en contexte critique n'est pas un score qu'on appose après coup, c'est une propriété systémique qu'il faut décomposer, instrumenter, éprouver et gouverner — au même titre que n'importe quel autre indicateur de performance industrielle. Ce mémoire aura cherché à en faire la démonstration sur un cas concret ; le passage à l'échelle groupe qui vient d'être validé en sera, je l'espère, la confirmation la plus utile.
+
+Je vous remercie pour votre attention, et je suis à votre disposition pour vos questions.
