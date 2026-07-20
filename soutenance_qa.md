@@ -6,6 +6,76 @@
 
 ---
 
+## RÉPONSES FLASH — 4 AXES DE VULNÉRABILITÉ PRÉVISIBLES
+
+Ces quatre points sont ceux sur lesquels le jury a le plus de chances de tester la solidité méthodologique du mémoire. Objectif : répondre en 30 à 45 secondes, sans défendre l'indéfendable, puis montrer que la limite est identifiée, documentée et déjà traduite en plan d'action.
+
+---
+
+### 1. Taille du jeu de test — 50 questions, est-ce suffisant ?
+
+**Vulnérabilité à anticiper** :
+
+Le mémoire indique lui-même qu'en-dessous de 100 à 150 questions, les comparaisons fines entre configurations restent sensibles au bruit statistique. Or le benchmark retrieval repose sur 50 questions pour 750 cellules exploitables.
+
+**Réponse courte** :
+
+Non, 50 questions ne suffisent pas pour trancher de manière statistiquement décisive entre des configurations très proches. En revanche, elles suffisent pour une phase exploratoire, c'est-à-dire pour détecter des effets robustes, éliminer des familles de configurations faibles et faire émerger des interactions structurantes, par exemple entre modèle d'embedding et stratégie de chunking. C'est exactement le statut que je donne à mes résultats : des tendances solides pour orienter l'itération suivante, pas un verdict définitif. L'extension du jeu de test à 150-300 questions annotées par des experts P2S est d'ailleurs la priorité absolue de la trajectoire court terme, précisément pour consolider statistiquement ces conclusions avant gel de la configuration de production.
+
+**Réponse express** :
+
+J'assume clairement que 50 questions, c'est exploratoire et non décisif. Ça suffit pour faire apparaître des tendances et prioriser les leviers d'amélioration, mais pas pour départager proprement des écarts marginaux. La première action prévue, avant industrialisation complète, c'est de porter le jeu de test à 150-300 questions annotées par des experts métier.
+
+---
+
+### 2. Biais de longueur — le juge LLM sur-note-t-il les réponses verbeuses ?
+
+**Vulnérabilité à anticiper** :
+
+Le mémoire met en évidence une corrélation forte entre longueur de la réponse et score RAGAS : $r = +0,64$ pour la faithfulness et $r = +0,63$ pour l'answer relevancy. Cela suggère un biais de longueur inhérent au paradigme LLM-as-judge.
+
+**Réponse courte** :
+
+Oui, ce biais existe, et c'est précisément pour cela que je le documente au lieu de le masquer. Une partie de cette corrélation est mécanique — par exemple les refus courts sont notés bas par construction — mais une autre partie relève bien d'un length bias du juge, qui tend à récompenser des réponses plus développées parce qu'elles offrent davantage de matière à valider. Ma position n'est donc pas de traiter les scores RAGAS comme une vérité absolue, mais comme un signal à calibrer. Les deux mitigations prévues sont, d'une part, durcir la consigne de concision dans le prompt système pour éviter les réponses inutilement verbeuses, et d'autre part, calibrer systématiquement les scores RAGAS sur un échantillon expert annoté humainement, afin de vérifier que le juge ne survalorise pas la forme au détriment du fond.
+
+**Réponse express** :
+
+Oui, le biais de longueur est réel et je l'ai mesuré. Je n'utilise donc pas RAGAS comme un oracle, mais comme un indicateur à calibrer. Les deux correctifs prévus sont un prompt plus strict sur la concision et une calibration systématique sur un sous-échantillon expert annoté par l'humain.
+
+---
+
+### 3. Déséquilibre linguistique — pourquoi si peu de questions en anglais ?
+
+**Vulnérabilité à anticiper** :
+
+Le corpus contient environ 60 % de documents en anglais, mais le jeu de test ne comporte que 9 questions en anglais contre 41 en français. Cela fragilise la portée des conclusions sur le comportement cross-lingue.
+
+**Réponse courte** :
+
+Le déséquilibre vient de l'origine même des requêtes initiales : le jeu de test a été dérivé en grande partie des journaux d'usage et des besoins remontés par des équipes majoritairement francophones, ce qui explique la surreprésentation du français. C'est donc un biais d'échantillonnage, pas une propriété souhaitée du protocole. Je ne prétends pas, sur cette base, avoir validé complètement le comportement bilingue du système. Ce que je peux dire, c'est que le retrieval cross-lingue fonctionne dans les cas testés, mais que la validation empirique reste insuffisante, en particulier sur les documents anglais courts de type Safety Alert, qui posent déjà des difficultés spécifiques. L'équilibrage linguistique du jeu de test fait partie du chantier d'industrialisation, justement pour confirmer de manière robuste le comportement cross-lingue sur ces cas.
+
+**Réponse express** :
+
+Le jeu de test reflète d'abord les usages observés des équipes francophones, d'où le 41/9. Je n'en fais donc pas une validation complète du bilinguisme. L'équilibrage linguistique est prévu dans la phase d'industrialisation pour tester correctement le cross-lingue, notamment sur les documents anglais courts.
+
+---
+
+### 4. Extrapolation de la stabilité — pourquoi une seule configuration ?
+
+**Vulnérabilité à anticiper** :
+
+Le protocole complet de stabilité — 10 runs par question plus paraphrases — n'a été exécuté que sur une seule configuration, alors que plusieurs variantes retrieval et génération existent dans le benchmark.
+
+**Réponse courte** :
+
+Oui, et c'est une limite de portée de la mesure, pas une erreur de protocole. J'ai choisi de lancer cette campagne complète sur la configuration la plus représentative du POC effectivement déployé, parce que le coût expérimental est élevé : dix exécutions par question plus les paraphrases font rapidement exploser le volume d'appels et le temps de traitement. L'objectif était d'abord de mesurer si la stabilité était un problème réel sur le système en usage, pas de cartographier exhaustivement toutes les variantes. Ce premier résultat a déjà une valeur forte puisqu'il montre un écart net entre stabilité inter-runs et robustesse aux paraphrases. En revanche, je n'extrapole pas abusivement ce score à toutes les configurations. La généralisation de ce protocole aux meilleures variantes identifiées — notamment hybrid-k5 et dense-k20-rerank5 — est planifiée avant le gel de la configuration de production.
+
+**Réponse express** :
+
+La campagne de stabilité complète a été menée sur la configuration la plus représentative du POC déployé, pour savoir si le problème existait réellement en usage. Le résultat est donc valide pour cette configuration, pas pour toutes. L'extension aux meilleures variantes, comme hybrid-k5 ou dense-k20-rerank5, est déjà prévue avant le choix final de production.
+
+---
+
 ## PARTIE 1 — Questions sur la multimodalité de l'évaluation (focus jury)
 
 Le jury est sensible à l'approche multi-dimensionnelle. S'attendre à ce qu'au moins 2 à 4 questions portent directement dessus. Préparer des réponses plus développées ici.
