@@ -98,11 +98,11 @@ Ma problématique, c'est : comment évaluer la cohérence et la fiabilité d'un 
 
 **Ce que je dis** :
 
-Un mot rapide sur ce qu'est concrètement un RAG, parce que le terme est technique et je préfère m'assurer que tout le monde parte du même endroit. L'idée est en fait très intuitive.
+Un mot rapide sur ce qu'est concrètement un RAG, parce que le terme est technique et je préfère m'assurer que l'on parte tous du même endroit. L'idée est en fait très intuitive.
 
 Un modèle de langage seul, comme ChatGPT, peut produire un texte fluide sur à peu près n'importe quel sujet, mais il peut aussi inventer — c'est ce qu'on appelle une hallucination — et il ne cite pas ses sources. À l'inverse, un moteur de recherche classique vous trouve des documents mais ne rédige rien : à vous de les ouvrir, de les lire, de synthétiser.
 
-Un RAG, c'est l'assemblage des deux. Pour reprendre une image que j'aime bien : c'est un modèle de langage à qui on impose de faire comme un bon préventeur — consulter la documentation avant de répondre. Concrètement, quand un utilisateur pose une question, le système commence par chercher dans le corpus documentaire les passages les plus pertinents, puis il les injecte dans le contexte du modèle de langage, et il lui demande de rédiger la réponse à partir de ces passages, avec les citations qui vont avec. On ancre la génération sur des documents vérifiables.
+Un RAG, c'est l'assemblage des deux. Pour reprendre une image concrète : imaginez un étudiant en Mastère 2 IA à l'École Hexagone — on lui pose une question, il ne répond pas de mémoire, il fait ses recherches, consulte ses sources, puis rédige sa réponse en les citant. C'est exactement ce que fait un RAG. Quand un utilisateur pose une question, le système commence par chercher dans le corpus documentaire les passages les plus pertinents, il les injecte dans le contexte du modèle de langage, et lui demande de rédiger la réponse à partir de ces passages, avec les citations qui vont avec. On ancre la génération sur des documents vérifiables.
 
 **Transition** : « Techniquement, cette chaîne se décompose en cinq étages — et c'est là que se cachent les vraies difficultés. »
 
@@ -112,16 +112,26 @@ Un RAG, c'est l'assemblage des deux. Pour reprendre une image que j'aime bien : 
 
 **Contenu visuel** :
 
-- Titre : « Anatomie d'une chaîne RAG — les étages où l'erreur peut naître »
-- Schéma horizontal en 5 étages : **Ingestion → Chunking → Vectorisation / Index → Retrieval → Génération**
-- Sous chaque étage, un mini-icône rouge « ⚠ » avec un exemple d'erreur type (tableau perdu, règle coupée en deux, terme métier mal représenté, passage hors-contexte remonté, hallucination)
+- Titre : « Anatomie d'une chaîne RAG — deux chaînes, plusieurs points de défaillance »
+- **Deux schémas horizontaux superposés** :
+  - **Chaîne d'ingestion** (en haut) : **Document PDF → Chunking → Vectorisation → Vector store**
+    - ⚠ sous Chunking : « règle coupée en deux / tableau perdu »
+    - ⚠ sous Vectorisation : « terme métier mal représenté »
+  - **Chaîne de requête** (en bas) : **Question utilisateur → Vectorisation → Récupération (vector store) → Prompt template → LLM → Réponse**
+    - ⚠ sous Récupération : « passage hors-contexte remonté »
+    - ⚠ sous LLM : « hallucination / inversion de modalité »
+  - Les deux chaînes se rejoignent visuellement sur le **vector store** (nœud central commun)
 - Bandeau bas : « Chaque étage peut échouer indépendamment — et un score global les mélange. »
 
 **Ce que je dis** :
 
-Les cinq étages, en une phrase chacun. L'ingestion transforme les PDF en texte exploitable. Le chunking découpe ce texte en unités indexables. La vectorisation transforme chaque unité en un vecteur numérique qui capture son sens. La récupération retrouve, à chaque requête, les vecteurs les plus proches de la question. Et la génération assemble tout ça dans un prompt fourni au modèle de langage, qui rédige la réponse finale.
+Un RAG, c'est en réalité deux chaînes distinctes qui se rejoignent en un point commun : le vector store.
 
-Le point clé, celui qui va justifier toute ma démarche d'évaluation, c'est que chaque étage a ses propres modes d'échec, souvent invisibles depuis la réponse finale. Un tableau perdu à l'ingestion, une règle coupée en deux au chunking, un passage thématiquement proche mais non applicable remonté au retrieval, une extrapolation à la génération. Un excellent score de récupération reste parfaitement compatible avec une réponse finale fausse. C'est ce qui rend nécessaire une évaluation décomposable, dimension par dimension.
+La première, c'est la chaîne d'ingestion — elle tourne une fois, en amont. On part du document PDF, on le découpe en chunks, on vectorise chaque chunk, et on l'envoie dans le vector store. C'est là que se cachent les premières sources d'erreur : une règle coupée en deux au chunking, un tableau perdu à l'extraction, un terme métier mal capturé par le modèle de vectorisation.
+
+La deuxième, c'est la chaîne de requête — elle s'exécute à chaque question. La question utilisateur est vectorisée, on interroge le vector store pour récupérer les passages les plus proches, on les injecte dans un prompt template, et on envoie le tout au modèle de langage qui rédige la réponse. Les défaillances ici sont différentes : un passage thématiquement proche mais non applicable remonté, ou une extrapolation du modèle à la génération.
+
+Le point clé, c'est que ces deux chaînes ont chacune leurs propres modes d'échec — souvent invisibles depuis la réponse finale. Un excellent score de récupération reste parfaitement compatible avec une réponse fausse. C'est ce qui rend nécessaire une évaluation décomposable, dimension par dimension.
 
 **Transition** : « Première dimension, et la plus intuitive : la pertinence du retrieval. »
 
@@ -147,7 +157,7 @@ Sur ScribBERT, j'ai lancé un plan factoriel complet : 16 modèles de vectorisat
 
 Deux enseignements. D'abord, les huit meilleurs modèles se tiennent dans une bande de plus ou moins 3 centièmes de MRR : sur ce corpus, il n'y a pas de modèle miracle. Ada-002 d'OpenAI, embed-3-large, Nomic, Qwen3, Solon, E5, Jina : ils sont tous à égalité statistique. Ce qui veut dire que le choix se fait sur les critères pratiques — latence, coût, souveraineté — pas sur la MRR seule.
 
-Ensuite, deuxième enseignement plus contre-intuitif : le chunking optimal dépend du modèle. Les gros modèles avec fenêtre de contexte large préfèrent des chunks de 1024 tokens. Les modèles francophones spécialisés préfèrent le chunking par paragraphe. Les modèles compacts sont pénalisés par les chunks longs. Autrement dit, on ne peut pas recommander « le meilleur chunking » dans l'abstrait — il faut le tester conjointement avec le modèle. C'est un vrai résultat, et c'est ce qui a justifié de garder tout le plan factoriel plutôt que de figer une stratégie a priori.
+Ensuite, deuxième enseignement plus contre-intuitif : le chunking optimal dépend du modèle. Les gros modèles avec grande fenêtre de contexte — embed-3-large, Nomic, Qwen3 — préfèrent des chunks de 1024 tokens : ils exploitent le contexte long pour mieux discriminer. Les modèles francophones spécialisés — Solon, CamemBERT-large — préfèrent le chunking par paragraphe, qui respecte les unités sémantiques naturelles de la langue. Les modèles compacts — MiniLM-L6, multilingual-e5-small — sont pénalisés par les chunks longs : leur fenêtre de 512 tokens sature, et la représentation se dégrade. Autrement dit, on ne peut pas recommander « le meilleur chunking » dans l'abstrait — il faut le tester conjointement avec le modèle. C'est un vrai résultat, et c'est ce qui a justifié de garder tout le plan factoriel plutôt que de figer une stratégie a priori.
 
 **Transition** : « Un bon retrieval est nécessaire, mais pas suffisant. Deuxième dimension : la fidélité aux sources. »
 
@@ -562,7 +572,7 @@ Sur ScribBERT, j'ai lancé un plan factoriel complet : 16 modèles de vectorisat
 
 Deux enseignements. D'abord, les huit meilleurs modèles se tiennent dans une bande de plus ou moins 3 centièmes de MRR : sur ce corpus, il n'y a pas de modèle miracle. Ada-002, embed-3-large, Nomic, Qwen3, Solon, E5, Jina : ils sont tous à égalité statistique. Ce qui veut dire que le choix se fait sur les critères pratiques — latence, coût, souveraineté — pas sur la MRR seule.
 
-Ensuite, deuxième enseignement plus contre-intuitif : le chunking optimal dépend du modèle. Les gros modèles avec fenêtre de contexte large préfèrent des chunks de 1024 tokens. Les modèles francophones spécialisés préfèrent le chunking par paragraphe. Les modèles compacts sont pénalisés par les chunks longs. Autrement dit, on ne peut pas recommander « le meilleur chunking » dans l'abstrait — il faut le tester conjointement avec le modèle.
+Ensuite, deuxième enseignement plus contre-intuitif : le chunking optimal dépend du modèle. Les gros modèles avec grande fenêtre de contexte — embed-3-large, Nomic, Qwen3 — préfèrent des chunks de 1024 tokens. Les modèles francophones spécialisés — Solon, CamemBERT-large — préfèrent le chunking par paragraphe. Les modèles compacts — MiniLM-L6, multilingual-e5-small — sont pénalisés par les chunks longs : leur fenêtre de 512 tokens sature. Autrement dit, on ne peut pas recommander « le meilleur chunking » dans l'abstrait — il faut le tester conjointement avec le modèle.
 
 ---
 
