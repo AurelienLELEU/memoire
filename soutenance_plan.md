@@ -290,6 +290,8 @@ Refus à tort et hors-périmètre accepté sont les deux faces opposées du mêm
 
 Enfin, l'inversion de modalité — confondre une obligation et une recommandation — est une erreur de dimension 3 que l'on corrige par un prompt structuré qui demande explicitement au modèle d'identifier et de restituer la modalité déontique du texte source avant de formuler sa réponse.
 
+Un point de méthode que vous noterez sur la figure : ce comptage est **non-exclusif** — une même question peut tomber dans plusieurs catégories simultanément. Une question avec `ctx_recall < 0,30` *et* `ctx_precision < 0,30` est comptée à la fois dans « échec récupération » et dans « bruit récupération ». La somme des barres dépasse donc logiquement 50 ; c'est d'ailleurs explicitement indiqué sur l'axe X. Ce qui importe, c'est la cardinalité par catégorie, pas leur somme.
+
 Sur ScribBERT, ce diagnostic donne des priorités très claires : environ un quart des questions sont concernées par un problème de retrieval, ce qui fait de l'hybridation et du reranking les leviers numéro un pour la prochaine itération.
 
 **Transition** : « Concrètement, qu'est-ce que ce diagnostic change pour ScribBERT ? »
@@ -635,6 +637,8 @@ La contradiction silencieuse est une défaillance de la dimension 2 : le modèle
 Refus à tort et hors-périmètre accepté sont les deux faces opposées du même problème de seuillage en dimension 5. Dans les deux cas, la réponse est une calibration fine du seuil sur données annotées.
 
 Enfin, l'inversion de modalité — confondre une obligation et une recommandation — est une erreur de dimension 3 que l'on corrige par un prompt structuré qui demande explicitement au modèle d'identifier la modalité déontique du texte source avant de formuler sa réponse.
+
+Note sur le comptage : les catégories sont **non-exclusives** — une même question peut être comptée dans plusieurs catégories simultanément. La somme des barres dépasse donc 50, ce qui est attendu et indiqué sur l'axe X de la figure.
 
 Sur ScribBERT, ce diagnostic donne des priorités très claires : environ un quart des questions sont concernées par un problème de retrieval, ce qui fait de l'hybridation et du reranking les leviers numéro un pour la prochaine itération.
 
